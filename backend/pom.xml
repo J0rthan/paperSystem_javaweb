@@ -11,8 +11,8 @@
 	<groupId>com.bjfu</groupId>
 	<artifactId>paperSystem</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>paperSystem</name>
-	<description>paperSystem</description>
+	<name>backend</name>
+	<description>backend</description>
 	<url/>
 	<licenses>
 		<license/>

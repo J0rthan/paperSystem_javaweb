@@ -1,4 +1,4 @@
-package com.bjfu.paperSystem.javabeans;
+package com.bjfu.paperSystem.Login.javabeans;
 
 import jakarta.persistence.*;
 import org.springframework.cglib.core.Local;

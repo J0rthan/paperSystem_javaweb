@@ -1,6 +1,6 @@
-package com.bjfu.paperSystem.dao;
+package com.bjfu.paperSystem.Login.dao;
 
-import com.bjfu.paperSystem.javabeans.User;
+import com.bjfu.paperSystem.Login.javabeans.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

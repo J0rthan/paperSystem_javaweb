@@ -1,8 +1,37 @@
-<html>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>系统管理员页</title>
+    <title>账号管理</title>
 </head>
 <body>
-3
+
+<a href="/superadmin/userManage/createAccountPage" class="tab-button active">创建账号</a>
+<a href="/superadmin/userManage/deleteAccountPage" class="tab-button">删除账号</a>
+<a href="/superadmin/userManage/modifyAccountPage" class="tab-button">修改账号</a>
+
+<h2>用户列表</h2>
+
+<table>
+    <tr>
+        <th>账号</th>
+        <th>姓名</th>
+        <th>邮箱</th>
+        <th>状态</th>
+        <th>操作</th>
+    </tr>
+
+    <tr th:each="user : ${userList}">
+        <td th:text="${user.userName}"></td>
+        <td th:text="${user.fullName}"></td>
+        <td th:text="${user.email}"></td>
+        <td th:text="${user.status}"></td>
+
+        <td>
+            <!-- 编辑：建议用 GET 跳转到编辑页 -->
+            <a th:href="@{/superadmin/userManage/edit(userId=${user.getUserId})}">编辑</a>
+        </td>
+    </tr>
+</table>
+
 </body>
 </html>

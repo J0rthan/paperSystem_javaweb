@@ -1,18 +1,24 @@
 package com.bjfu.paperSystem.superAdmin.service;
 
-import com.bjfu.paperSystem.Login.dao.UserDao;
-import com.bjfu.paperSystem.Login.javabeans.User;
+import com.bjfu.paperSystem.javabeans.Logs;
+import com.bjfu.paperSystem.javabeans.User;
 import com.bjfu.paperSystem.superAdmin.dao.superAdminDao;
+import com.bjfu.paperSystem.superAdmin.dao.systemManageDao;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class superAdminServiceImpl implements superAdminService{
     @Autowired
     private superAdminDao suAdminDao;
+
+    @Autowired
+    private systemManageDao sysManageDao;
 
     @Override
     public void createAccount(String username, String password, String user_type) {
@@ -73,5 +79,56 @@ public class superAdminServiceImpl implements superAdminService{
         dbUser.setStatus(user.getStatus());
 
         suAdminDao.save(dbUser);
+    }
+
+    @Override
+    public List<Logs> findAllLogs() {
+        List<Logs> logList = sysManageDao.findAll();
+
+        return logList;
+    }
+
+    @Override
+    public List<Logs> queryLogs(
+            LocalDateTime opTime,
+            Integer oporId,
+            String opType,
+            Integer paperId) {
+
+        return sysManageDao.findAll((root, query, cb) -> {
+
+            List<Predicate> predicates = new ArrayList<>();
+
+            // 操作时间
+            if (opTime != null) {
+                predicates.add(
+                        cb.equal(root.get("opTime"), opTime)
+                );
+            }
+
+            // 操作人 ID
+            if (oporId != null) {
+                predicates.add(
+                        cb.equal(root.get("oporId"), oporId)
+                );
+            }
+
+            // 操作类型（模糊查询更合理）
+            if (opType != null && !opType.isEmpty()) {
+                predicates.add(
+                        cb.like(root.get("opType"), "%" + opType + "%")
+                );
+            }
+
+            // 稿件 ID
+            if (paperId != null) {
+                predicates.add(
+                        cb.equal(root.get("paperId"), paperId)
+                );
+            }
+
+            // where 条件拼接
+            return cb.and(predicates.toArray(new Predicate[0]));
+        });
     }
 }

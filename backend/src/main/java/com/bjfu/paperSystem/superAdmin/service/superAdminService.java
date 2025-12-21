@@ -1,7 +1,9 @@
 package com.bjfu.paperSystem.superAdmin.service;
 
-import com.bjfu.paperSystem.Login.javabeans.User;
+import com.bjfu.paperSystem.javabeans.Logs;
+import com.bjfu.paperSystem.javabeans.User;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface superAdminService {
@@ -22,4 +24,13 @@ public interface superAdminService {
 
     // 修改一个用户
     public void modifyUser(User user);
+
+    // 查找所有的记录
+    public List<Logs> findAllLogs();
+
+    // 根据不同的返回结果动态查询记录
+    public List<Logs> queryLogs(LocalDateTime opTime,
+                                Integer oporId,
+                                String opType,
+                                Integer paperId);
 }

@@ -1,9 +1,7 @@
 package com.bjfu.paperSystem.superAdmin.controller;
 
-import com.bjfu.paperSystem.Login.javabeans.User;
-import com.bjfu.paperSystem.Login.service.UserService;
+import com.bjfu.paperSystem.javabeans.User;
 import com.bjfu.paperSystem.superAdmin.service.superAdminService;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

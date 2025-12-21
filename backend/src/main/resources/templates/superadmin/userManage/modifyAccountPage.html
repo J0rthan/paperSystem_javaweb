@@ -16,15 +16,17 @@
         <th>账号</th>
         <th>姓名</th>
         <th>邮箱</th>
+        <th>账号类型</th>
         <th>状态</th>
         <th>操作</th>
     </tr>
 
     <tr th:each="user : ${userList}">
-        <td th:text="${user.userName}"></td>
-        <td th:text="${user.fullName}"></td>
-        <td th:text="${user.email}"></td>
-        <td th:text="${user.status}"></td>
+        <td th:text="${user.getUserName()}"></td>
+        <td th:text="${user.getFullName()}"></td>
+        <td th:text="${user.getEmail()}"></td>
+        <td th:text="${user.getUserType()}"></td>
+        <td th:text="${user.getStatus()}"></td>
 
         <td>
             <!-- 编辑：建议用 GET 跳转到编辑页 -->

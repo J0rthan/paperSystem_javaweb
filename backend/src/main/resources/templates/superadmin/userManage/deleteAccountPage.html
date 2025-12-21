@@ -15,14 +15,14 @@
     <tr>
         <th>账号</th>
         <th>姓名</th>
-        <th>邮箱</th>
+        <th>账号类型</th>
         <th>操作</th>
     </tr>
 
     <tr th:each="user : ${userList}">
-        <td th:text="${user.userName}"></td>
-        <td th:text="${user.fullName}"></td>
-        <td th:text="${user.email}"></td>
+        <td th:text="${user.getUserName()}"></td>
+        <td th:text="${user.getFullName()}"></td>
+        <td th:text="${user.getUserType()}"></td>
         <td>
             <form th:action="@{/superadmin/userManage/deleteAccount}" method="post"
                   onsubmit="return confirm('确认删除该用户？此操作不可恢复');">

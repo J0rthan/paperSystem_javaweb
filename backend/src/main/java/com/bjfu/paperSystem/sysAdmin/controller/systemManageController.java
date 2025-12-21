@@ -1,7 +1,8 @@
-package com.bjfu.paperSystem.superAdmin.controller;
+package com.bjfu.paperSystem.sysAdmin.controller;
 
 import com.bjfu.paperSystem.javabeans.Logs;
 import com.bjfu.paperSystem.superAdmin.service.superAdminService;
+import com.bjfu.paperSystem.sysAdmin.service.sysAdminService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -14,17 +15,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Controller("suAdminSystemManageController")
-@RequestMapping("/superadmin/systemManage")
+@Controller("sysAdminSystemManageController")
+@RequestMapping("/sysadmin/systemManage")
 public class systemManageController {
     @Autowired
-    private superAdminService adminService;
+    private sysAdminService sysService;
 
     @GetMapping()
     public String systemManage(HttpSession session) {
-        List<Logs> logList = adminService.findAllLogs();
+        List<Logs> logList = sysService.findAllLogs();
         session.setAttribute("logList", logList);
-        return "/superadmin/systemManage";
+        return "/sysadmin/systemManage";
     }
 
     @GetMapping("queryLogs")
@@ -39,11 +40,11 @@ public class systemManageController {
 
             HttpSession session) {
         opType = opType.trim();
-        List<Logs> logList = adminService.queryLogs(
+        List<Logs> logList = sysService.queryLogs(
                 opTime, oporId, opType, paperId
         );
 
         session.setAttribute("logList", logList);
-        return "/superadmin/systemManage";
+        return "/sysadmin/systemManage";
     }
 }

@@ -32,6 +32,7 @@ public class userManageController {
     public String toDeleteAccountPage(Model model) {
         List<User> users = sysService.findAllExistUsers();
         users.removeIf(user -> "super_admin".equals(user.getUserType()));
+        users.removeIf(user -> "sys_admin".equals(user.getUserType()));
         model.addAttribute("userList", users);
         return "sysadmin/userManage/deleteAccountPage";
     }
@@ -40,6 +41,7 @@ public class userManageController {
     public String toModifyAccountPage(Model model) {
         List<User> users = sysService.findAllUsers();
         users.removeIf(user -> "super_admin".equals(user.getUserType()));
+        users.removeIf(user -> "sys_admin".equals(user.getUserType()));
         model.addAttribute("userList", users);
         return "sysadmin/userManage/modifyAccountPage";
     }

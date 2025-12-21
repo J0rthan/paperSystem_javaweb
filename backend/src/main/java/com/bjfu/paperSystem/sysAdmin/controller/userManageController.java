@@ -1,7 +1,8 @@
-package com.bjfu.paperSystem.superAdmin.controller;
+package com.bjfu.paperSystem.sysAdmin.controller;
 
 import com.bjfu.paperSystem.javabeans.User;
-import com.bjfu.paperSystem.superAdmin.service.superAdminService;
+import com.bjfu.paperSystem.sysAdmin.service.sysAdminService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,61 +12,62 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
 
-@Controller("supUserManageController")
-@RequestMapping("/superadmin/userManage")
+@Controller("sysUserManageController")
+@RequestMapping("/sysadmin/userManage")
 public class userManageController {
     @Autowired
-    private superAdminService suAdminService;
+    private sysAdminService sysService;
 
-    // 返回页面函数
     @GetMapping
     public String userManage() {
-        return "superadmin/userManage";
+        return "/sysadmin/userManage";
     }
 
     @GetMapping("createAccountPage")
     public String toCreateAccountPage() {
-        return "superadmin/userManage/createAccountPage";
+        return "/sysadmin/userManage/createAccountPage";
     }
 
     @GetMapping("deleteAccountPage")
     public String toDeleteAccountPage(Model model) {
-        List<User> users = suAdminService.findAllExistUsers();
+        List<User> users = sysService.findAllExistUsers();
+        users.removeIf(user -> "super_admin".equals(user.getUserType()));
         model.addAttribute("userList", users);
-        return "superadmin/userManage/deleteAccountPage";
+        return "sysadmin/userManage/deleteAccountPage";
     }
 
     @GetMapping("modifyAccountPage")
     public String toModifyAccountPage(Model model) {
-        List<User> users = suAdminService.findAllUsers();
+        List<User> users = sysService.findAllUsers();
+        users.removeIf(user -> "super_admin".equals(user.getUserType()));
         model.addAttribute("userList", users);
-        return "superadmin/userManage/modifyAccountPage";
+        return "sysadmin/userManage/modifyAccountPage";
     }
 
     // 业务逻辑函数
     @PostMapping("createAccount")
     public String createAccount(User user) {
-       suAdminService.createAccount(user.getUserName(), user.getPassword(), user.getUserType());
-       return "superadmin/userManage/createAccountPage";
+        sysService.createAccount(user.getUserName(), user.getPassword(), user.getUserType());
+        return "sysadmin/userManage/createAccountPage";
     }
 
     @PostMapping("deleteAccount")
     public String deleteAccount(User user) {
-        suAdminService.deleteUser(user.getUserId());
-        return "redirect:/superadmin/userManage/deleteAccountPage";
+        sysService.deleteUser(user.getUserId());
+        return "redirect:/sysadmin/userManage/deleteAccountPage";
     }
 
     @GetMapping("edit")
     public String toEditPage(User user, Model model) {
-        User temp = suAdminService.findUserById(user.getUserId());
+        User temp = sysService.findUserById(user.getUserId());
         model.addAttribute("userInfo", temp);
-        return "/superadmin/userManage/edit";
+        return "/sysadmin/userManage/edit";
     }
     @PostMapping("modifyAccount")
     public String modifyAccount(User user, Model model) {
-        suAdminService.modifyUser(user);
-        List<User> users = suAdminService.findAllUsers();
+        sysService.modifyUser(user);
+        List<User> users = sysService.findAllUsers();
         model.addAttribute("userList", users);
-        return "/superadmin/userManage/modifyAccountPage";
+        return "/sysadmin/userManage/modifyAccountPage";
     }
 }

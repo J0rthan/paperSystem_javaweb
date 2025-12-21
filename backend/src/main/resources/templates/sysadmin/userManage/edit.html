@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>修改账号</title>
+</head>
+<body>
+
+<h2>修改账号</h2>
+
+<form th:action="@{/sysadmin/userManage/modifyAccount}"
+      method="post"
+      onsubmit="return confirm('确认保存修改？');">
+
+    <!-- 主键必须带回去，用 hidden -->
+    <input type="hidden" name="userId" th:value="${userInfo.userId}" />
+
+    <div>
+        <label>账号名称：</label>
+        <input type="text" name="userName" th:value="${userInfo.userName}" />
+    </div>
+
+    <div>
+        <label>用户全名：</label>
+        <input type="text" name="fullName" th:value="${userInfo.fullName}" />
+    </div>
+
+    <div>
+        <label>邮箱：</label>
+        <input type="text" name="email" th:value="${userInfo.email}" />
+    </div>
+
+    <div>
+        <label>用户类型：</label>
+        <input type="text" name="userType" th:value="${userInfo.userType}" />
+    </div>
+
+    <div>
+        <label>单位：</label>
+        <input type="text" name="company" th:value="${userInfo.company}" />
+    </div>
+
+    <div>
+        <label>研究方向：</label>
+        <input type="text" name="investigationDirection" th:value="${userInfo.investigationDirection}" />
+    </div>
+
+    <div>
+        <label>注册时间：</label>
+        <!-- LocalDateTime 回显。若你想禁改就加 readonly -->
+        <input type="text" name="registerTime" th:value="${userInfo.registerTime}" />
+    </div>
+
+    <hr/>
+
+    <div>
+        <label>密码：</label>
+        <input type="password" name="password" placeholder="不修改则留空" />
+    </div>
+
+    <div>
+        <label>账号状态：</label>
+        <!-- 你项目：exist=启用，not_exist=禁用 -->
+        <select name="status">
+            <option value="exist" th:selected="${userInfo.status == 'exist'}">启用账号</option>
+            <option value="not_exist" th:selected="${userInfo.status == 'not_exist'}">禁用账号</option>
+        </select>
+    </div>
+
+    <div style="margin-top: 12px;">
+        <input type="submit" value="保存修改"/>
+        <a th:href="@{/sysadmin/userManage/modifyAccountPage}">返回列表</a>
+    </div>
+
+</form>
+
+</body>
+</html>

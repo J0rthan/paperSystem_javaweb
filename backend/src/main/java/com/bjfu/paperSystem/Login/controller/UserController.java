@@ -15,29 +15,35 @@ public class UserController {
 
     // 处理登陆请求
     @PostMapping("/login")
-    public String login(User user, Model model, HttpSession session) {
+    public String login(User user, HttpSession session) {
         // 先获取用户类型，调用Service层接口
         User dbUser = userService.login(user.getUserName(), user.getPassword());
 
         if (dbUser == null) {
-            model.addAttribute("msg", "用户名或密码错误");
-            return "login";
+            return "redirect:/LoginAgain.html";
         }
 
         session.setAttribute("loginUser", dbUser);
         String userType = dbUser.getUserType();
+        String status = dbUser.getStatus();
 
-        // 如果是超级管理员(super_admin)
-        if ("super_admin".equalsIgnoreCase(userType)) {
-            return "redirect:/superadmin";
+        // 首先要确保是存在的用户，如果用户被封禁则提示无法登陆
+        if ("exist".equalsIgnoreCase(status)) {
+            // 如果是超级管理员(super_admin)
+            if ("super_admin".equalsIgnoreCase(userType)) {
+                return "redirect:/superadmin";
+            }
+            // 如果是系统管理员(sys_admin)
+            else if ("sys_admin".equalsIgnoreCase(userType)) {
+                return "redirect:/sysadmin";
+            }
+            // 如果两者都不是(与论文业务操作有关人员)
+            else {
+                return "redirect:/user/index";
+            }
         }
-        // 如果是系统管理员(sys_admin)
-        else if ("sys_admin".equalsIgnoreCase(userType)) {
-            return "redirect:/sysadmin";
-        }
-        // 如果两者都不是(与论文业务操作有关人员)
         else {
-            return "redirect:/user/index";
+            return "redirect:/LoginAgain.html";
         }
     }
 }

@@ -38,7 +38,7 @@ public class systemManageController {
             @RequestParam(required = false) Integer paperId,
 
             HttpSession session) {
-
+        opType = opType.trim();
         List<Logs> logList = adminService.queryLogs(
                 opTime, oporId, opType, paperId
         );

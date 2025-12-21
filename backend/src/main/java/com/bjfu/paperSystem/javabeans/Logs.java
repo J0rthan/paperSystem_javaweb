@@ -19,7 +19,7 @@ public class Logs {
     private int oporId;
 
     @Column(name = "op_type", length = 50)
-    private String op_type;
+    private String opType;
 
     @Column(name = "paper_id")
     private int paperId;
@@ -50,11 +50,11 @@ public class Logs {
     }
 
     public String getOp_type() {
-        return this.op_type;
+        return this.opType;
     }
 
     public void setOp_type(String op_type) {
-        this.op_type = op_type;
+        this.opType = op_type;
     }
 
     public int getPaperId() {

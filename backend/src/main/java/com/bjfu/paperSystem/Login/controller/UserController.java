@@ -37,9 +37,28 @@ public class UserController {
             else if ("sys_admin".equalsIgnoreCase(userType)) {
                 return "redirect:/sysadmin";
             }
-            // 如果两者都不是(与论文业务操作有关人员)
+            //如果是作者(author)
+            else if ("author".equalsIgnoreCase(userType)) {
+                return "redirect:/author";
+            }
+            //如果是主编(chief_editor)
+            else if ("chief_editor".equalsIgnoreCase(userType)) {
+                return "redirect:/chiefeditor";
+            }
+            //如果是编辑(editor)
+            else if ("editor".equalsIgnoreCase(userType)) {
+                return "redirect:/editor";
+            }
+            //如果是编辑部管理员(option_admin)
+            else if ("option_admin".equalsIgnoreCase(userType)) {
+                return "redirect:/optionadmin";
+            }
+            //如果是审稿人(reviewer)
+            else if ("reviewer".equalsIgnoreCase(userType)) {
+                return "redirect:/reviewer";
+            }
             else {
-                return "redirect:/user/index";
+                return "redirect:/LoginAgain.html";
             }
         }
         else {

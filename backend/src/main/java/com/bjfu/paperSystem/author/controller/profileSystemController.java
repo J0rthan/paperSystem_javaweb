@@ -28,7 +28,7 @@ public class profileSystemController {
         if (loginUser == null) return "redirect:../Login.html";
         User existingUser = authorDao.findByUserName(user.getUserName());
         if (existingUser != null && !Objects.equals(existingUser.getUserId(), loginUser.getUserId())) {
-            ra.addFlashAttribute("error", "该账号已存在，请换一个试试！");
+            ra.addFlashAttribute("error", "该用户已存在");
             return "redirect:/author/profile";
         }
         User dbUser = authorDao.findById(loginUser.getUserId()).orElse(null);

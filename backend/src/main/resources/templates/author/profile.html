@@ -34,25 +34,25 @@
 
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label class="form-label fw-bold">登录账号</label>
+                                <label class="form-label fw-bold">账号名</label>
                                 <input type="text" name="userName" class="form-control"
                                        th:value="${user.userName}" required>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-bold">真实姓名</label>
+                                <label class="form-label fw-bold">全名</label>
                                 <input type="text" name="fullName" class="form-control"
                                        th:value="${user.fullName}">
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-bold">电子邮箱</label>
+                            <label class="form-label fw-bold">邮箱</label>
                             <input type="email" name="email" class="form-control"
                                    th:value="${user.email}">
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-bold">所属机构</label>
+                            <label class="form-label fw-bold">单位</label>
                             <input type="text" name="company" class="form-control"
                                    th:value="${user.company}">
                         </div>
@@ -64,13 +64,32 @@
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label fw-bold">重置密码</label>
-                            <input type="password" name="password" class="form-control"
-                                   placeholder="不修改请留空">
+                            <label class="form-label">修改密码</label>
+                            <input type="password"
+                                   name="password"
+                                   id="passwordInput"
+                                   class="form-control"
+                                   placeholder="若不修改请留空"
+                                   minlength="8"
+                                   oninput="checkPasswordLength(this)">
+                            <div id="passwordHelp" class="form-text text-danger" style="display:none;">
+                                密码长度不足 8 位！
+                            </div>
                         </div>
 
+                        <script>
+                            function checkPasswordLength(input) {
+                                const helpText = document.getElementById('passwordHelp');
+                                if (input.value.length > 0 && input.value.length < 8) {
+                                    helpText.style.display = 'block';
+                                } else {
+                                    helpText.style.display = 'none';
+                                }
+                            }
+                        </script>
+
                         <div class="d-flex justify-content-between">
-                            <a th:href="@{/author}" class="btn btn-outline-secondary px-4">返回大盒子</a>
+                            <a th:href="@{/author}" class="btn btn-outline-secondary px-4">返回作者首页</a>
                             <button type="submit" class="btn btn-primary px-4">保存修改</button>
                         </div>
                     </form>
@@ -78,7 +97,7 @@
             </div>
 
             <p class="text-center mt-4 text-muted small">
-                © 2025 学术论文管理系统 · 个人中心
+                © 2025 学术论文管理系统 · 作者
             </p>
         </div>
     </div>

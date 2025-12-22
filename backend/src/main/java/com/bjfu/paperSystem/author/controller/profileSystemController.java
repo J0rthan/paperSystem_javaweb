@@ -16,7 +16,7 @@ public class profileSystemController {
     @GetMapping
     public String profile(HttpSession session, Model model) {
         User loginUser = (User) session.getAttribute("loginUser");
-        if (loginUser == null) return "redirect:../Login.html";
+        if (loginUser == null) return "redirect:/Login.html";
 
         User user = authorDao.findById(loginUser.getUserId()).orElse(null);
         model.addAttribute("user", user);
@@ -25,7 +25,7 @@ public class profileSystemController {
     @PostMapping("/update")
     public String update(User user, HttpSession session, RedirectAttributes ra) {
         User loginUser = (User) session.getAttribute("loginUser");
-        if (loginUser == null) return "redirect:../Login.html";
+        if (loginUser == null) return "redirect:/Login.html";
         User existingUser = authorDao.findByUserName(user.getUserName());
         if (existingUser != null && !Objects.equals(existingUser.getUserId(), loginUser.getUserId())) {
             ra.addFlashAttribute("error", "该用户已存在");

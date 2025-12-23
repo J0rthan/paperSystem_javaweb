@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="manuscriptTable(list, type)">
+    <div class="table-responsive" th:if="${not #lists.isEmpty(list)}">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+            <tr>
+                <th>稿件ID</th>
+                <th>标题</th>
+                <th>最后更新</th>
+                <th>状态</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="p : ${list}">
+                <td th:text="${'#MS-' + p.manuscriptId}"></td>
+                <td th:text="${p.title}" class="text-truncate" style="max-width: 250px;"></td>
+                <td th:text="${#temporals.format(p.submitTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                <td>
+                        <span class="badge rounded-pill px-3"
+                              th:classappend="${p.status == 'Accepted'} ? 'bg-success' :
+                                              (${p.status == 'Rejected'} ? 'bg-danger' :
+                                              (${p.status == 'Under Review'} ? 'bg-info text-dark' : 'bg-warning text-dark'))"
+                              th:switch="${p.status}">
+                            <span th:case="'Started Submission'">开始投稿</span>
+                            <span th:case="'Incomplete Submission'">尚未提交的草稿</span>
+                            <span th:case="'Pending Review'">待审查</span>
+                            <span th:case="'Pending Allocation'">待分配</span>
+                            <span th:case="'With Editor'">编辑处理中</span>
+                            <span th:case="'Under Review'">审稿中</span>
+                            <span th:case="'Rejected'">拒稿</span>
+                            <span th:case="'Accepted'">录用</span>
+                            <span th:case="'Need Revision'">需要返修</span>
+                            <span th:case="'With A Decision'">已决议</span>
+                            <span th:case="*" th:text="${p.status}"></span>
+                        </span>
+                </td>
+                <td>
+                    <a th:if="${type == 'draft'}" th:href="@{/author/manuscript/edit(id=${p.manuscriptId})}" class="btn btn-sm btn-outline-primary">继续填写</a>
+                    <a th:if="${type == 'track'}" th:href="@{/author/manuscript/track(id=${p.manuscriptId})}" class="btn btn-sm btn-outline-secondary">详情</a>
+                    <a th:if="${type == 'revise'}" th:href="@{/author/manuscript/edit(id=${p.manuscriptId})}" class="btn btn-sm btn-success">修改稿件</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="text-center py-5 text-muted" th:if="${#lists.isEmpty(list)}">
+        <i class="bi bi-folder2-open fs-2 d-block mb-2"></i> 暂无此类稿件
+    </div>
+</th:block>
+</html>

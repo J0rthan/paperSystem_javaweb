@@ -2,71 +2,81 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>稿件管理系统</title>
+  <title>稿件管理系统 - 作者端</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
   <style>
     body { background-color: #f8f9fa; }
-    .table-container { background: white; border-radius: 10px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    .status-badge { padding: 5px 10px; border-radius: 15px; font-size: 0.85rem; }
+    .main-card { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-top: 20px; }
+    .nav-tabs .nav-link { color: #495057; font-weight: bold; }
+    .nav-tabs .nav-link.active { color: #0d6efd; border-bottom: 3px solid #0d6efd; }
+    .sub-nav .nav-link { font-size: 0.85rem; padding: 5px 15px; }
+    .sub-nav .nav-link.active { background-color: #e9ecef !important; color: #000 !important; border-radius: 20px; }
   </style>
 </head>
 <body>
 
-<div class="container py-5">
-  <div class="table-container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="container py-4">
+  <div class="main-card">
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
       <div>
-        <h2 class="fw-bold text-success"><i class="bi bi-file-earmark-text"></i> 我的稿件记录</h2>
-        <p class="text-muted mb-0">您好，<span class="fw-bold" th:text="${session.loginUser.userName}">作者</span>，以下是您的投稿列表。</p>
+        <h3 class="fw-bold text-dark mb-0">我的稿件中心</h3>
+        <small class="text-muted">管理您的投稿全流程：<span th:text="${session.loginUser.userName}">作者</span></small>
       </div>
-      <div class="btn-group">
-        <a th:href="@{/author}" class="btn btn-outline-secondary">
-          <i class="bi bi-arrow-left"></i> 返回上一级
-        </a>
-        <a th:href="@{/author/manuscript/submit}" class="btn btn-primary">
-          <i class="bi bi-plus-lg"></i> 我要投稿
-        </a>
+      <div class="d-flex gap-2">
+        <a th:href="@{/author}" class="btn btn-sm btn-outline-secondary rounded-pill">返回主页</a>
+        <a th:href="@{/author/manuscript/submit}" class="btn btn-sm btn-primary rounded-pill px-3">+ 开始投稿</a>
       </div>
     </div>
 
-    <div class="table-responsive">
-      <table class="table table-hover align-middle">
-        <thead class="table-light">
-        <tr>
-          <th>稿件 ID</th>
-          <th>标题</th>
-          <th>投稿时间</th>
-          <th>当前状态</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="p : ${papers}">
-          <td class="fw-bold" th:text="${'# ' + p.manuscriptId}"></td>
-          <td th:text="${p.title}" style="max-width: 300px;" class="text-truncate"></td>
-          <td th:text="${#temporals.format(p.submitTime, 'yyyy-MM-dd HH:mm')}"></td>
-          <td>
-                        <span class="badge rounded-pill"
-                              th:classappend="${p.status == 'Accept'} ? 'bg-success' : (${p.status == 'Reject'} ? 'bg-danger' : 'bg-warning text-dark')"
-                              th:text="${p.status}">
-                        </span>
-          </td>
-        </tr>
-        <tr th:if="${#lists.isEmpty(papers)}">
-          <td colspan="5" class="py-5 text-center text-muted">
-            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-            暂无任何投稿记录
-          </td>
-        </tr>
-        </tbody>
-      </table>
+    <ul class="nav nav-tabs mb-4" id="mainTabs" role="tablist">
+      <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-incomplete">草稿箱</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-processing">处理中</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-revision">需修改</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-decision">已决议</button></li>
+    </ul>
+
+    <div class="tab-content">
+      <div class="tab-pane fade show active" id="tab-incomplete">
+        <div th:replace="~{author/fragments :: manuscriptTable(${incompletePapers}, 'draft')}"></div>
+      </div>
+
+      <div class="tab-pane fade" id="tab-processing">
+        <ul class="nav nav-pills sub-nav mb-3 bg-light rounded-pill p-1 d-inline-flex" id="subTabs" role="tablist">
+          <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#sub-pending">待审查</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#sub-alloc">待分配</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#sub-editor">编辑处理</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#sub-review">审稿中</button></li>
+        </ul>
+        <div class="tab-content pt-2">
+          <div class="tab-pane fade show active" id="sub-pending">
+            <div th:replace="~{author/fragments :: manuscriptTable(${pendingReviewList}, 'track')}"></div>
+          </div>
+          <div class="tab-pane fade" id="sub-alloc">
+            <div th:replace="~{author/fragments :: manuscriptTable(${pendingAllocationList}, 'track')}"></div>
+          </div>
+          <div class="tab-pane fade" id="sub-editor">
+            <div th:replace="~{author/fragments :: manuscriptTable(${withEditorList}, 'track')}"></div>
+          </div>
+          <div class="tab-pane fade" id="sub-review">
+            <div th:replace="~{author/fragments :: manuscriptTable(${underReviewList}, 'track')}"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-pane fade" id="tab-revision">
+        <div th:replace="~{author/fragments :: manuscriptTable(${revisionPapers}, 'revise')}"></div>
+      </div>
+
+      <div class="tab-pane fade" id="tab-decision">
+        <div th:replace="~{author/fragments :: manuscriptTable(${decidedPapers}, 'final')}"></div>
+      </div>
     </div>
   </div>
 </div>
-
 <p class="text-center mt-4 text-muted small">
   © 2025 学术论文管理系统 · 作者
 </p>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

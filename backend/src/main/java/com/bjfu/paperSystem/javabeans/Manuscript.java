@@ -17,7 +17,7 @@ public class Manuscript {
     @Column(name = "editor_id")
     private Integer editorId; // 当前编辑 ID (允许为空)
 
-    @Column(name = "title", length = 200, nullable = false)
+    @Column(name = "title", length = 200) //标题也可以为空！
     private String title;
 
     @Column(name = "abstract_text", columnDefinition = "TEXT")

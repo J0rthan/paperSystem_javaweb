@@ -11,13 +11,13 @@ public class authorController {
     @GetMapping
     public String index(HttpSession session, Model model) {
         User loginUser = (User) session.getAttribute("loginUser");
-        if (loginUser == null) return "redirect:../Login.html";
+        if (loginUser == null) return "redirect:/Login.html";
         model.addAttribute("username", loginUser.getFullName());
         return "author";
     }
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
-        return "redirect:../Login.html";
+        return "redirect:/Login.html";
     }
 }

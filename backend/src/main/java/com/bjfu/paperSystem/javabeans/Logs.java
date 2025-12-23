@@ -49,11 +49,11 @@ public class Logs {
         this.oporId = oporId;
     }
 
-    public String getOp_type() {
+    public String getOpType() {
         return this.opType;
     }
 
-    public void setOp_type(String op_type) {
+    public void setOpType(String op_type) {
         this.opType = op_type;
     }
 

@@ -1,4 +1,5 @@
 package com.bjfu.paperSystem.author.controller;
+import com.bjfu.paperSystem.author.service.logService;
 import com.bjfu.paperSystem.javabeans.User;
 import com.bjfu.paperSystem.author.dao.ManuscriptDao;
 import com.bjfu.paperSystem.author.service.authorService;
@@ -11,11 +12,14 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
+import java.time.LocalDateTime;
 @Controller
 @RequestMapping("/author/manuscript")
 public class manuscriptSystemController {
     @Autowired
     private authorService authorService;
+    @Autowired
+    private logService logService;
     @Autowired
     private ManuscriptDao manuscriptRepository;
     @GetMapping("/list")
@@ -33,11 +37,19 @@ public class manuscriptSystemController {
         return "author/submit";
     }
     @PostMapping("/doSubmit")
-    public String doSubmit(Manuscript manuscript, @RequestParam("file") MultipartFile file, HttpSession session) {
+    public String doSubmit(@ModelAttribute Manuscript manuscript,
+                           @RequestParam("action") String action,
+                           HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
-        if (loginUser == null) return "redirect:/login";
         manuscript.setAuthorId(loginUser.getUserId());
-        authorService.submitPaper(manuscript, new Versions(), file);
+        if ("save".equals(action)) {
+            manuscript.setStatus("Incomplete");
+        } else {
+            manuscript.setStatus("待形式审查");
+            manuscript.setSubmitTime(LocalDateTime.now().withNano(0));
+        }
+        manuscriptRepository.save(manuscript);
+        logService.record(loginUser.getUserId(), "提交稿件", manuscript.getManuscriptId());
         return "redirect:/author/manuscript/list";
     }
 }

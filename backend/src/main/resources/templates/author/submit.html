@@ -13,9 +13,9 @@
 <body>
 
 <div class="container submit-container">
-    <p class="text-muted mb-0">您好，<span class="fw-bold" th:text="${session.loginUser.userName}">作者</span>，以下是您的投稿列表。</p>
+    <p class="text-muted mb-0">您好，<span class="fw-bold" th:text="${session.loginUser.userName}">作者</span></p>
     <div class="mb-4">
-        <a href="/author" class="btn btn-outline-secondary btn-sm">&larr; 返回稿件列表</a>
+        <a th:href="@{/author/manuscript/list}" class="btn btn-outline-secondary btn-sm">&larr; 返回稿件列表</a>
         <h2 class="mt-3">提交新稿件</h2>
         <p class="text-muted">请认真填写稿件信息，带 * 的为必填项。</p>
     </div>
@@ -48,9 +48,20 @@
             <div class="form-text">提示：请确保文件中包含作者身份信息。匿名版可在后续步骤处理。</div>
         </div>
 
-        <div class="d-grid gap-2">
-            <button type="submit" class="btn btn-primary btn-lg">确认投递</button>
-            <button type="reset" class="btn btn-light">清空重填</button>
+        <div class="row g-2">
+            <div class="col-md-6">
+                <button type="submit" name="action" value="save" class="btn btn-outline-primary btn-lg w-100">
+                    <i class="bi bi-save"></i> 保存为草稿
+                </button>
+            </div>
+            <div class="col-md-6">
+                <button type="submit" name="action" value="submit" class="btn btn-primary btn-lg w-100">
+                    确认投递
+                </button>
+            </div>
+            <div class="col-12 mt-3 text-center">
+                <button type="reset" class="btn btn-link btn-sm text-secondary">清空重填</button>
+            </div>
         </div>
     </form>
 </div>

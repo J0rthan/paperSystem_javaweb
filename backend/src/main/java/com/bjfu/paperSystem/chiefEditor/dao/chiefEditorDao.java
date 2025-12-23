@@ -10,3 +10,5 @@ import java.util.List;
 public interface chiefEditorDao extends JpaRepository<User, Integer> {
     List<User> findByStatus(String status);
 }
+
+

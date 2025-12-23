@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>稿件总览 · 主编</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">稿件总览</h1>
+        <a href="/chiefeditor" class="btn btn-outline-secondary btn-sm">&larr; 返回主编工作台</a>
+    </div>
+
+    <!-- 简单提示 -->
+    <p class="text-muted">
+        这里展示系统中的所有稿件。后续我们可以再加筛选条件（按状态、按栏目等）。
+    </p>
+
+    <!-- 稿件表格 -->
+    <table class="table table-hover table-sm align-middle bg-white">
+        <thead class="table-light">
+        <tr>
+            <th>稿件ID</th>
+            <th>标题</th>
+            <th>作者列表</th>
+            <th>状态</th>
+            <th>提交时间</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="m : ${manuscripts}">
+            <td th:text="${m.manuscriptId}">1</td>
+            <td th:text="${m.title}">示例标题</td>
+            <td th:text="${m.authorList}">张三, 李四</td>
+            <td>
+                <span th:switch="${m.status}">
+                    <span th:case="'SUBMITTED'">已提交</span>
+                    <span th:case="'UNDER_REVIEW'">审稿中</span>
+                    <span th:case="'NEED_REVISION'">需修回</span>
+                    <span th:case="'ACCEPTED'">已接收</span>
+                    <span th:case="'REJECTED'">已拒稿</span>
+                    <span th:case="*"
+                          th:text="${m.status}">未知</span>
+                </span>
+            </td>
+            <td th:text="${#temporals.format(m.submitTime, 'yyyy-MM-dd HH:mm')}">
+                2025-01-01 12:00
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

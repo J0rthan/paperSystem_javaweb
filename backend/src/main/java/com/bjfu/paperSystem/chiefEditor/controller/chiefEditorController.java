@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/chiefEditor")
+@RequestMapping("/chiefeditor")
 public class chiefEditorController {
     @GetMapping
-    public String chiefEditor() { return "chiefEditor"; }
+    public String chiefEditor() { return "chiefeditor"; }
 }

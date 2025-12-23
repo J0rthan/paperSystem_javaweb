@@ -1,8 +1,146 @@
-<html>
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>主编页</title>
+    <meta charset="UTF-8">
+    <title>主编工作台 · 权限总览</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f5f7fa; }
+        .page-title { font-weight: 700; }
+        .card-icon { font-size: 2.2rem; }
+    </style>
 </head>
 <body>
-this is chief_editor!
+<div class="container py-5">
+
+    <!-- 顶部欢迎区 -->
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="page-title">主编工作台</h1>
+            <p class="lead">
+                您好，
+                <span th:text="${session.loginUser.userName}">主编姓名</span>。
+                下面是您在系统中的主要权限和功能入口。
+            </p>
+        </div>
+    </div>
+
+    <!-- 第一行：稿件总览 / 分配编辑 -->
+    <div class="row g-4 mb-3">
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h2 class="h5 mb-0">📂 稿件总览</h2>
+                        <span class="badge bg-primary">查看权限</span>
+                    </div>
+                    <p class="text-muted mb-3">
+                        查看所有稿件的当前状态（待分配、审稿中、需修回、已接收、已拒稿），支持按栏目、日期、作者筛选。
+                    </p>
+                    <a th:href="@{/chiefeditor/manuscripts}" class="btn btn-outline-primary btn-sm">
+                        进入稿件总览
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h2 class="h5 mb-0">👨‍💼 分配编辑</h2>
+                        <span class="badge bg-success">管理权限</span>
+                    </div>
+                    <p class="text-muted mb-3">
+                        将“待分配”的新稿件指派给合适的栏目编辑，支持根据研究方向和工作量智能筛选。
+                    </p>
+                    <a th:href="@{/chiefeditor/assign-editor}" class="btn btn-success btn-sm">
+                        进入分配页面
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 第二行：审稿进度 & 决策 / 审稿人与编辑管理 -->
+    <div class="row g-4 mb-3">
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h2 class="h5 mb-0">📝 审稿进度与终审决策</h2>
+                        <span class="badge bg-warning text-dark">决策权限</span>
+                    </div>
+                    <p class="text-muted mb-3">
+                        汇总各位审稿人的意见和编辑建议，对稿件做出最终决策：接受、拒绝或退修。
+                    </p>
+                    <a th:href="@{/chiefeditor/decisions}" class="btn btn-warning btn-sm text-dark">
+                        查看待决策稿件
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h2 class="h5 mb-0">👥 审稿人与编辑管理</h2>
+                        <span class="badge bg-info text-dark">管理权限</span>
+                    </div>
+                    <p class="text-muted mb-3">
+                        查看并维护审稿人库和编辑团队，为稿件选择或更换审稿人，查看工作负载和领域匹配度。
+                    </p>
+                    <a th:href="@{/chiefeditor/reviewers}" class="btn btn-info btn-sm text-dark">
+                        管理审稿人 / 编辑
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 第三行：撤稿 / 个人设置与退出 -->
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-danger">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h2 class="h5 mb-0">⚠ 撤稿与特殊操作</h2>
+                        <span class="badge bg-danger">高危权限</span>
+                    </div>
+                    <p class="text-muted mb-3">
+                        在发现学术不端、严重问题时，对稿件执行撤稿等特殊操作，并记录完整日志。
+                    </p>
+                    <a th:href="@{/chiefeditor/withdrawals}" class="btn btn-danger btn-sm">
+                        查看可撤稿件
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h2 class="h5 mb-0">👤 个人设置与安全退出</h2>
+                    </div>
+                    <p class="text-muted mb-3">
+                        修改个人信息(姓名、邮箱)、查看个人操作记录，并安全退出系统。
+                    </p>
+                    <a th:href="@{/chiefeditor/profile}" class="btn btn-outline-secondary btn-sm me-2">
+                        个人设置
+                    </a>
+                    <a href="/author/logout" class="btn btn-secondary btn-sm">
+                        退出登录
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <p class="text-center mt-4 text-muted small">
+        © 2025 学术论文管理系统 · 主编
+    </p>
+</div>
 </body>
 </html>

@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface ManuscriptDao extends JpaRepository<Manuscript, Integer> {
     List<Manuscript> findByAuthorId(int authorId);
+
+    List<Manuscript> findByStatus(String submitted);
 }

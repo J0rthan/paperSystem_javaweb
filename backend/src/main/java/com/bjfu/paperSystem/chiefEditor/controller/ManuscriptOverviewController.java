@@ -1,6 +1,6 @@
 package com.bjfu.paperSystem.chiefEditor.controller;
 
-import com.bjfu.paperSystem.chiefEditor.service.chiefEditorService;
+import com.bjfu.paperSystem.chiefEditor.service.ManuscriptOverviewService;
 import com.bjfu.paperSystem.javabeans.Manuscript;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,14 +15,14 @@ import java.util.List;
 @RequestMapping("/chiefeditor")
 public class ManuscriptOverviewController {
     @Autowired
-    private chiefEditorService chiefEditorService;
+    private ManuscriptOverviewService Service;
 
     // 新增：稿件总览
     @GetMapping("/manuscripts")
     public String manuscriptsOverview(HttpSession session, Model model) {
         // 简单写法：先不做复杂权限检查，以后可以再判断 userType 是否是 chief_editor
 
-        List<Manuscript> list = chiefEditorService.getAllManuscripts();
+        List<Manuscript> list = Service.getAllManuscripts();
         model.addAttribute("manuscripts", list);
 
         return "chiefeditor/manuscripts"; // 对应 templates/chiefeditor/manuscripts.html

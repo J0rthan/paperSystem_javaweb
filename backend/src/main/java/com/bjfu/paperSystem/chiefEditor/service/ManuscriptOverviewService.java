@@ -3,7 +3,7 @@ package com.bjfu.paperSystem.chiefEditor.service;
 import com.bjfu.paperSystem.javabeans.Manuscript;
 import java.util.List;
 
-public interface chiefEditorService {
+public interface ManuscriptOverviewService {
     // 1. 返回所有稿件（最简单版本）
     List<Manuscript> getAllManuscripts();
 

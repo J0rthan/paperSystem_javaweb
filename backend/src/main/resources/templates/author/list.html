@@ -5,23 +5,47 @@
   <title>稿件管理系统 - 作者端</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
+
   <style>
     body { background-color: #f8f9fa; }
     .main-card { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-top: 20px; }
-    .nav-tabs .nav-link { color: #495057; font-weight: bold; }
-    .nav-tabs .nav-link.active { color: #0d6efd; border-bottom: 3px solid #0d6efd; }
+    .nav-tabs .nav-link { color: #495057; font-weight: bold; border: none; }
+    .nav-tabs .nav-link.active { color: #0d6efd; border-bottom: 3px solid #0d6efd; background: none; }
     .sub-nav .nav-link { font-size: 0.85rem; padding: 5px 15px; }
     .sub-nav .nav-link.active { background-color: #e9ecef !important; color: #000 !important; border-radius: 20px; }
+    .dt-buttons { margin-bottom: 15px; }
+    .dataTables_filter { margin-bottom: 15px; }
   </style>
 </head>
 <body>
 
 <div class="container py-4">
+  <div class="card border-0 shadow-sm mb-3 rounded-4">
+    <div class="card-body py-2 px-4">
+      <div class="row align-items-center">
+        <div class="col-md-auto text-muted small fw-bold"><i class="bi bi-filter"></i> 日期筛选：</div>
+        <div class="col-md-3">
+          <input type="date" id="minDate" class="form-control form-control-sm" placeholder="开始日期">
+        </div>
+        <div class="col-md-auto">至</div>
+        <div class="col-md-3">
+          <input type="date" id="maxDate" class="form-control form-control-sm" placeholder="结束日期">
+        </div>
+        <div class="col-md-auto">
+          <button class="btn btn-sm btn-outline-primary rounded-pill" onclick="clearDateFilter()">重置</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="main-card">
     <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
       <div>
         <h3 class="fw-bold text-dark mb-0">我的稿件中心</h3>
-        <small class="text-muted">管理您的投稿全流程：<span th:text="${session.loginUser.userName}">作者</span></small>
+        <small class="text-muted">欢迎您：<span th:text="${session.loginUser.userName}">作者</span></small>
       </div>
       <div class="d-flex gap-2">
         <a th:href="@{/author}" class="btn btn-sm btn-outline-secondary rounded-pill">返回主页</a>
@@ -42,7 +66,7 @@
       </div>
 
       <div class="tab-pane fade" id="tab-processing">
-        <ul class="nav nav-pills sub-nav mb-3 bg-light rounded-pill p-1 d-inline-flex" id="subTabs" role="tablist">
+        <ul class="nav nav-pills sub-nav mb-3 bg-light rounded-pill p-1 d-inline-flex" role="tablist">
           <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#sub-pending">待审查</button></li>
           <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#sub-alloc">待分配</button></li>
           <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#sub-editor">编辑处理</button></li>
@@ -74,9 +98,76 @@
     </div>
   </div>
 </div>
-<p class="text-center mt-4 text-muted small">
-  © 2025 学术论文管理系统 · 作者
-</p>
+<p class="text-center mt-4 text-muted small">© 2025 学术论文管理系统 ·作者</p>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script th:inline="none">
+  $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+    var min = $('#minDate').val();
+    var max = $('#maxDate').val();
+    var dateStr = data[2].split(' ')[0];
+    if (
+            (min === "" && max === "") ||
+            (min === "" && dateStr <= max) ||
+            (min <= dateStr && max === "") ||
+            (min <= dateStr && dateStr <= max)
+    ) {
+      return true;
+    }
+    return false;
+  });
+  $(document).ready(function() {
+    var tables = $('.table').DataTable({
+      language: {
+        "processing": "处理中...",
+        "lengthMenu": "每页显示 _MENU_ 条记录",
+        "zeroRecords": "没有找到符合条件的稿件",
+        "info": "显示第 _START_ 至 _END_ 条，共 _TOTAL_ 条记录",
+        "infoEmpty": "显示第 0 至 0 条，共 0 条记录",
+        "infoFiltered": "(由 _MAX_ 条记录过滤)",
+        "search": "全文搜索:",
+        "emptyTable": "表中无数据",
+        "paginate": {
+          "first": "首页",
+          "previous": "上页",
+          "next": "下页",
+          "last": "末页"
+        },
+        "buttons": {
+          "copy": "复制",
+          "csv": "导出 CSV"
+        }
+      },
+      dom: '<"d-flex justify-content-between"Bf>rtip',
+      buttons: [
+        {
+          extend: 'csv',
+          text: '<i class="bi bi-download"></i> 导出 CSV',
+          className: 'btn btn-success btn-sm rounded-pill mb-2',
+          charset: 'utf-8',
+          bom: true,
+          filename: '我的稿件列表_' + new Date().toLocaleDateString(), // 自定义文件名
+          exportOptions: { columns: [0, 1, 2, 3] }
+        }
+      ],
+      order: [[2, 'desc']],
+      pageLength: 10,
+      autoWidth: false
+    });
+    $('#minDate, #maxDate').on('change', function() {
+      tables.draw();
+    });
+  });
+  function clearDateFilter() {
+    $('#minDate').val('');
+    $('#maxDate').val('');
+    $('.table').DataTable().draw();
+  }
+</script>
 </body>
 </html>

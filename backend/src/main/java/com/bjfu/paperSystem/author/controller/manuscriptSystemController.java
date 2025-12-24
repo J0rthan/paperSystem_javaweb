@@ -27,6 +27,13 @@ public class manuscriptSystemController {
         model.addAllAttributes(data);
         return "author/list";
     }
+    @GetMapping("/submit")
+    public String toSubmit(Model model) {
+        Manuscript manuscript = new Manuscript();
+        manuscript.setManuscriptId(0);
+        model.addAttribute("manuscript", manuscript);
+        return "author/submit";
+    }
     @PostMapping("/doSubmit")
     public String doSubmit(@ModelAttribute Manuscript manuscript,
                            @RequestParam("action") String action,

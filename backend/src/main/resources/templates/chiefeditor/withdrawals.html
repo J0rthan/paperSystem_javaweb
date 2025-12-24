@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>撤稿与特殊操作 · 主编</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4 mb-0">撤稿与特殊操作</h1>
+        <a href="/chiefeditor" class="btn btn-outline-secondary btn-sm">返回工作台</a>
+    </div>
+
+    <p class="text-muted">
+        仅在发现学术不端、严重错误或作者正式申请撤稿等情况下使用。所有撤稿操作都会被记录在系统日志中。
+    </p>
+
+    <table class="table table-hover table-sm bg-white align-middle">
+        <thead class="table-light">
+        <tr>
+            <th>ID</th>
+            <th>标题</th>
+            <th>作者</th>
+            <th>当前状态</th>
+            <th>撤稿操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="m : ${manuscripts}">
+            <td th:text="${m.manuscriptId}">1</td>
+            <td th:text="${m.title}">标题</td>
+            <td th:text="${m.authorList}">作者</td>
+            <td th:text="${m.status}">状态</td>
+            <td>
+                <form th:action="@{/chiefeditor/withdrawals/do}" method="post"
+                      class="d-flex gap-1"
+                      onsubmit="return confirm('确认对该稿件执行撤稿操作？');">
+                    <input type="hidden" name="manuscriptId" th:value="${m.manuscriptId}">
+                    <input class="form-control form-control-sm" name="reason" placeholder="撤稿原因(必填)" required>
+                    <button class="btn btn-danger btn-sm" type="submit">撤稿</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

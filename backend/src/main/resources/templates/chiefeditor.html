@@ -13,8 +13,8 @@
 <body>
 <div class="container py-5">
 
-    <!-- 顶部欢迎区 -->
-    <div class="row mb-4">
+    <!-- 顶部欢迎区 + 右上角个人按钮 -->
+    <div class="row mb-4 align-items-center">
         <div class="col">
             <h1 class="page-title">主编工作台</h1>
             <p class="lead">
@@ -23,10 +23,19 @@
                 下面是您在系统中的主要权限和功能入口。
             </p>
         </div>
+        <div class="col-auto text-end">
+            <a th:href="@{/chiefeditor/profile}" class="btn btn-outline-secondary btn-sm me-2">
+                个人设置
+            </a>
+            <a href="/author/logout" class="btn btn-secondary btn-sm">
+                退出登录
+            </a>
+        </div>
     </div>
 
-    <!-- 六块功能卡片：两列三行 -->
+    <!-- 六块功能卡片：两列三行（一个功能一个模块） -->
     <div class="row g-4">
+        <!-- 稿件总览 -->
         <div class="col-md-6">
             <div class="card h-100 shadow-sm border-primary">
                 <div class="card-body">
@@ -44,23 +53,7 @@
             </div>
         </div>
 
-        <div class="col-md-6">
-            <div class="card h-100 shadow-sm border-success">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h2 class="h5 mb-0">👨‍💼 分配编辑</h2>
-                        <span class="badge bg-success">管理权限</span>
-                    </div>
-                    <p class="text-muted mb-3">
-                        将“待分配”的新稿件指派给合适的栏目编辑，支持根据研究方向和工作量智能筛选。
-                    </p>
-                    <a th:href="@{/chiefeditor/assign-editor}" class="btn btn-success btn-sm">
-                        进入分配页面
-                    </a>
-                </div>
-            </div>
-        </div>
-
+        <!-- 初审列表 -->
         <div class="col-md-6">
             <div class="card h-100 shadow-sm border-warning">
                 <div class="card-body">
@@ -78,6 +71,43 @@
             </div>
         </div>
 
+        <!-- 分配编辑 -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h2 class="h5 mb-0">👨‍💼 分配编辑</h2>
+                        <span class="badge bg-success">管理权限</span>
+                    </div>
+                    <p class="text-muted mb-3">
+                        将“待分配”的新稿件指派给合适的栏目编辑，支持根据研究方向和工作量智能筛选。
+                    </p>
+                    <a th:href="@{/chiefeditor/assign-editor}" class="btn btn-success btn-sm">
+                        进入分配页面
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 终审决策 -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-dark">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h2 class="h5 mb-0">✅ 终审决策</h2>
+                        <span class="badge bg-dark">决策权限</span>
+                    </div>
+                    <p class="text-muted mb-3">
+                        汇总审稿意见和编辑建议，对稿件做出最终决策：接受、拒稿或退修，并记录终审意见。
+                    </p>
+                    <a th:href="@{/chiefeditor/decisions}" class="btn btn-dark btn-sm">
+                        进入终审决策
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 审稿人与编辑管理 -->
         <div class="col-md-6">
             <div class="card h-100 shadow-sm border-info">
                 <div class="card-body">
@@ -95,6 +125,7 @@
             </div>
         </div>
 
+        <!-- 撤稿与特殊操作 -->
         <div class="col-md-6">
             <div class="card h-100 shadow-sm border-danger">
                 <div class="card-body">
@@ -107,25 +138,6 @@
                     </p>
                     <a th:href="@{/chiefeditor/withdrawals}" class="btn btn-danger btn-sm">
                         查看可撤稿件
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h2 class="h5 mb-0">👤 个人设置与安全退出</h2>
-                    </div>
-                    <p class="text-muted mb-3">
-                        修改个人信息(姓名、邮箱)、查看个人操作记录，并安全退出系统。
-                    </p>
-                    <a th:href="@{/chiefeditor/profile}" class="btn btn-outline-secondary btn-sm me-2">
-                        个人设置
-                    </a>
-                    <a href="/author/logout" class="btn btn-secondary btn-sm">
-                        退出登录
                     </a>
                 </div>
             </div>

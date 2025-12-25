@@ -205,8 +205,9 @@
                         Analysis of Deep Learning Algorithms in Medical Imaging
                     </h2>
 
-                    <div class="paper-authors" th:if="${m.authorList != null}">
-                        <i class="bi bi-person"></i> <span th:text="${m.authorList}">Zhang San, Li Si, Wang Wu</span>
+                    <div class="paper-authors" th:if="${m.authors != null and !m.authors.isEmpty()}">
+                        <i class="bi bi-person"></i>
+                        <span th:text="${#strings.listJoin(m.authors.![name], ', ')}">作者列表</span>
                     </div>
 
                     <div class="paper-abstract" th:if="${m.abstractText != null}">

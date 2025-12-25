@@ -25,14 +25,9 @@ public class AssignEditorServiceImpl implements AssignEditorService {
 
     @Override
     public List<Manuscript> getToAssignManuscripts() {
-        try {
-            // 根据现有项目规范，待分配状态为 "Pending Allocation"
-            List<Manuscript> result = manuscriptDao.findByStatus("Pending Allocation");
-            return result != null ? result : List.of();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return List.of(); // 如果查询出错，返回空列表
-        }
+        // 根据现有项目规范，待分配状态为 "Pending Allocation"
+        List<Manuscript> result = manuscriptDao.findByStatus("Pending Allocation");
+        return result != null ? result : List.of();
     }
 
     @Override

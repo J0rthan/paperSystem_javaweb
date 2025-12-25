@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "manuscript")
@@ -96,4 +97,5 @@ public class Manuscript {
 
     public List<RecommendedReviewer> getReviewers() { return reviewers; }
     public void setReviewers(List<RecommendedReviewer> reviewers) { this.reviewers = reviewers; }
+
 }

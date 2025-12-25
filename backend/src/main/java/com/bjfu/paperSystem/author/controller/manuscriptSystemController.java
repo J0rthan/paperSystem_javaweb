@@ -102,8 +102,10 @@ public class manuscriptSystemController {
         Manuscript manuscript = authorService.getManuscriptByIdAndAuthor(id, loginUser.getUserId());
         if (manuscript == null) return "redirect:/author/manuscript/list";
         List<Logs> logs = logService.getLogsByManuscriptId(id);
+        List<Versions> versions = authorService.getVersionsByManuscriptId(id);
         model.addAttribute("manuscript", manuscript);
         model.addAttribute("logs", logs);
+        model.addAttribute("versions", versions);
         return "author/track";
     }
     private String saveFile(MultipartFile file, String subDir) {
@@ -111,11 +113,28 @@ public class manuscriptSystemController {
             String originalFileName = file.getOriginalFilename();
             String suffix = originalFileName.substring(originalFileName.lastIndexOf("."));
             String fileName = UUID.randomUUID().toString() + suffix;
-            String uploadDir = "D:/java_uploads/" + subDir + "/";
-            File destDir = new File(uploadDir);
-            if (!destDir.exists()) destDir.mkdirs();
-            File destFile = new File(destDir, fileName);
-            file.transferTo(destFile);
+
+            // --- 1. 定位【源码目录】(用于持久保存) ---
+            String projectPath = System.getProperty("user.dir");
+            // 确保指向 backend 模块下的 src
+            String srcPath = projectPath + "/backend/src/main/resources/static/uploads/" + subDir + "/";
+            File srcDir = new File(srcPath);
+            if (!srcDir.exists()) srcDir.mkdirs();
+            File srcFile = new File(srcDir, fileName);
+
+            String classPath = java.net.URLDecoder.decode(this.getClass().getClassLoader().getResource("").getPath(), "UTF-8");
+            // 处理 Windows 路径
+            if (System.getProperty("os.name").toLowerCase().contains("win") && classPath.startsWith("/")) {
+                classPath = classPath.substring(1);
+            }
+            String targetPath = classPath + "static/uploads/" + subDir + "/";
+            File targetDir = new File(targetPath);
+            if (!targetDir.exists()) targetDir.mkdirs();
+            File targetFile = new File(targetDir, fileName);
+
+            file.transferTo(srcFile);
+            // 再通过工具类拷贝到编译目录（因为 file.transferTo 只能执行一次）
+            org.springframework.util.FileCopyUtils.copy(srcFile, targetFile);
             return "/uploads/" + subDir + "/" + fileName;
         } catch (IOException e) {
             e.printStackTrace();

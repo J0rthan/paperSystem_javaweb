@@ -1,31 +1,29 @@
 package com.bjfu.paperSystem.javabeans;
-
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-
 @Entity
 @Table(name = "manuscript")
 public class Manuscript {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "manuscript_id")
     private int manuscriptId;
 
-    @Column(name = "author_id")
+    @Column(name = "author_id", nullable = false)
     private int authorId;
 
     @Column(name = "editor_id")
     private Integer editorId;
 
+    @Column(name = "title", length = 500)
     private String title;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "abstract_text", columnDefinition = "TEXT")
     private String abstractText;
 
+    @Column(name = "keywords")
     private String keywords;
 
     @Column(name = "subject_area")
@@ -34,15 +32,24 @@ public class Manuscript {
     @Column(name = "funding_info", columnDefinition = "TEXT")
     private String fundingInfo; // 项目资助情况
 
+    @Column(name = "status", length = 50)
     private String status;
+
+    @Column(name = "submit_time")
     private LocalDateTime submitTime;
+
+    @Column(name = "decision", length = 100)
     private String decision;
 
+    @Column(name = "manuscript_path", length = 255)
     private String manuscriptPath;
+
+    @Column(name = "cover_letter_path", length = 255)
     private String coverLetterPath;
 
-    @Column(name = "assign_reason")
-    private String assignReason; // 选择当前编辑原因
+    @Column(name = "assign_reason", length = 500)
+    private String assignReason;
+
     @Transient
     private List<ManuscriptAuthor> authors = new ArrayList<>();
 
@@ -97,5 +104,4 @@ public class Manuscript {
 
     public List<RecommendedReviewer> getReviewers() { return reviewers; }
     public void setReviewers(List<RecommendedReviewer> reviewers) { this.reviewers = reviewers; }
-
 }

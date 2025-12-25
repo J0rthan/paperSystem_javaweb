@@ -12,8 +12,10 @@ public class authorServiceImpl implements authorService {
     @Autowired private ManuscriptDao manuscriptDao;
     @Autowired private ManuscriptAuthorDao authorRepository;
     @Autowired private RecommendedReviewerDao reviewerRepository;
-    @Autowired private logService logService; // 注入你的 logService
+    @Autowired private logService logService;
     @Autowired private authorDao authorDao;
+    @Autowired private VersionsDao versionsDao;
+    @Autowired private FilesDao filesDao;
     private String translateStatus(String status) {
         if (status == null) return "未知状态";
         return switch (status) {
@@ -50,6 +52,22 @@ public class authorServiceImpl implements authorService {
         }
         Manuscript savedManuscript = manuscriptDao.save(manuscript);
         int mid = savedManuscript.getManuscriptId();
+        if ("submit".equals(action)) {
+            Versions ver = new Versions();
+            ver.setManuscriptId(mid);
+            ver.setVersionNumber(versionsDao.countByManuscriptId(mid) + 1);
+            ver.setFilePathOriginal(manuscript.getManuscriptPath());
+            ver.setCoverLetterPath(manuscript.getCoverLetterPath());
+            versionsDao.save(ver);
+            if (manuscript.getManuscriptPath() != null) {
+                Files f = new Files();
+                f.setManuscriptId(mid);
+                f.setFilePath(manuscript.getManuscriptPath());
+                f.setFileName("V" + ver.getVersionNumber() + "_Main_Manuscript");
+                filesDao.save(f);
+            }
+        }
+
         String logAction = "submit".equals(action) ? "提交投稿" : "保存草稿";
         logService.record(user.getUserId(), logAction, mid);
         if (manuscript.getAuthors() != null) {
@@ -117,5 +135,11 @@ public class authorServiceImpl implements authorService {
         dbUser.setInvestigationDirection(user.getInvestigationDirection());
         authorDao.save(dbUser);
         return null;
+    }
+
+    @Override
+    public List<Versions> getVersionsByManuscriptId(int manuscriptId) {
+        // 按照版本号倒序排列，让最新的版本排在最前面
+        return versionsDao.findByManuscriptIdOrderByVersionNumberDesc(manuscriptId);
     }
 }

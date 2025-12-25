@@ -1,7 +1,6 @@
 package com.bjfu.paperSystem.author.service;
 
-import com.bjfu.paperSystem.javabeans.Manuscript;
-import com.bjfu.paperSystem.javabeans.User;
+import com.bjfu.paperSystem.javabeans.*;
 import java.util.List;
 import java.util.Map;
 
@@ -18,4 +17,6 @@ public interface authorService {
     // 个人信息相关
     User getUserById(int userId);
     String updateProfile(User user, int loginUserId);
+
+    List<Versions> getVersionsByManuscriptId(int manuscriptId);
 }

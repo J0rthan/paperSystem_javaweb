@@ -1,8 +1,8 @@
 package com.bjfu.paperSystem.chiefEditor.controller;
 
 import com.bjfu.paperSystem.chiefEditor.service.AssignEditorService;
+import com.bjfu.paperSystem.javabeans.Editorial_Board;
 import com.bjfu.paperSystem.javabeans.Manuscript;
-import com.bjfu.paperSystem.javabeans.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,18 +23,21 @@ public class AssignEditorController {
     // 列表页
     @GetMapping("/assign-editor")
     public String assignEditorPage(Model model) {
-        List<Manuscript> manuscripts = assignEditorService.getToAssignManuscripts();
-        List<User> editors = assignEditorService.getAvailableEditors();
-        model.addAttribute("manuscripts", manuscripts);
-        model.addAttribute("editors", editors);
+
+            List<Manuscript> manuscripts = assignEditorService.getToAssignManuscripts();
+            List<Editorial_Board> editors = assignEditorService.getAvailableBoardEditors();
+            model.addAttribute("manuscripts", manuscripts != null ? manuscripts : List.of());
+            model.addAttribute("editors", editors != null ? editors : List.of());
+
         return "chiefeditor/assign-editor";
     }
 
     // 提交指派
     @PostMapping("/assign-editor/do")
     public String doAssign(@RequestParam int manuscriptId,
-                           @RequestParam int editorId) {
-        assignEditorService.assignEditor(manuscriptId, editorId);
+                           @RequestParam int editorId,
+                           @RequestParam String reason) {
+        assignEditorService.assignEditor(manuscriptId, editorId, reason);
         return "redirect:/chiefeditor/assign-editor";
     }
 }

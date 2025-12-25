@@ -2,49 +2,259 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>分配编辑 · 主编</title>
+    <title>Assign Editor | Chief Editor Workspace</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Merriweather:ital,wght@0,300;0,700;0,900;1,300&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #2c3e50;   /* 深蓝灰，沉稳 */
+            --accent-color: #c0392b;    /* 类似 Nature 的深红，用于强调 */
+            --bg-color: #f4f6f8;        /* 极浅灰背景 */
+            --text-serif: 'Merriweather', serif;
+            --text-sans: 'Lato', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            font-family: var(--text-sans);
+            color: #333;
+        }
+
+        /* 顶部导航栏模拟 */
+        .journal-header {
+            background: #fff;
+            border-bottom: 3px solid var(--primary-color);
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+
+        .journal-title {
+            font-family: var(--text-serif);
+            font-weight: 900;
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            letter-spacing: -0.5px;
+        }
+
+        .page-subtitle {
+            font-family: var(--text-sans);
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* 稿件卡片设计 */
+        .manuscript-card {
+            background: #fff;
+            border: 1px solid #e1e4e8;
+            border-radius: 8px; /* 轻微圆角 */
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .manuscript-card:hover {
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+            border-color: #d1d5db;
+        }
+
+        /* 左侧：稿件内容区 */
+        .card-content {
+            padding: 2rem;
+        }
+
+        .paper-id {
+            font-family: var(--text-sans);
+            font-weight: 700;
+            color: var(--accent-color);
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+        }
+
+        .paper-title {
+            font-family: var(--text-serif);
+            font-weight: 700;
+            font-size: 1.6rem;
+            line-height: 1.3;
+            color: #1a1a1a;
+            margin-bottom: 0.8rem;
+        }
+
+        .paper-authors {
+            font-style: italic;
+            color: #555;
+            font-family: var(--text-serif);
+            margin-bottom: 1.2rem;
+        }
+
+        .paper-abstract {
+            color: #4a4a4a;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            border-left: 3px solid #eee;
+            padding-left: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .keyword-badge {
+            background-color: #edf2f7;
+            color: #4a5568;
+            font-size: 0.8rem;
+            padding: 0.3em 0.8em;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+            font-weight: 600;
+        }
+
+        /* 右侧：操作区 (Action Panel) */
+        .action-panel {
+            background-color: #fafbfc;
+            border-left: 1px solid #e1e4e8;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .panel-heading {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+            color: #8898aa;
+            margin-bottom: 1rem;
+        }
+
+        .form-select, .form-control {
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            padding: 0.6rem;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-select:focus, .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.1);
+        }
+
+        .btn-assign {
+            background-color: var(--primary-color);
+            color: #fff;
+            font-weight: 600;
+            padding: 0.7rem;
+            border-radius: 4px;
+            border: none;
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        .btn-assign:hover {
+            background-color: #1a252f;
+            transform: translateY(-1px);
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 5rem 0;
+            color: #8898aa;
+        }
+    </style>
 </head>
-<body class="bg-light">
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h4 mb-0">分配编辑</h1>
-        <a href="/chiefeditor" class="btn btn-outline-secondary btn-sm">返回工作台</a>
+<body>
+
+<header class="journal-header">
+    <div class="container d-flex justify-content-between align-items-center">
+        <div>
+            <div class="journal-title">International AI Research</div>
+            <div class="page-subtitle">Chief Editor Dashboard / Assignment</div>
+        </div>
+        <a href="/chiefeditor" class="btn btn-outline-dark btn-sm rounded-0 px-3">
+            <i class="bi bi-arrow-left"></i> BACK TO OVERVIEW
+        </a>
+    </div>
+</header>
+
+<div class="container">
+
+    <div th:if="${#lists.isEmpty(manuscripts)}" class="empty-state">
+        <i class="bi bi-check-circle fs-1 mb-3 d-block text-success"></i>
+        <h3 class="h5 font-weight-bold">All Caught Up!</h3>
+        <p>There are no manuscripts pending for assignment.</p>
     </div>
 
-    <table class="table table-hover table-sm bg-white align-middle">
-        <thead class="table-light">
-        <tr>
-            <th>ID</th>
-            <th>标题</th>
-            <th>作者</th>
-            <th>提交时间</th>
-            <th>指派</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="m : ${manuscripts}">
-            <td th:text="${m.manuscriptId}">1</td>
-            <td th:text="${m.title}">标题</td>
-            <td th:text="${m.authorList}">作者</td>
-            <td th:text="${#temporals.format(m.submitTime, 'yyyy-MM-dd HH:mm')}">时间</td>
-            <td>
-                <form th:action="@{/chiefeditor/assign-editor/do}" method="post" class="d-flex gap-1">
-                    <input type="hidden" name="manuscriptId" th:value="${m.manuscriptId}"/>
-                    <select class="form-select form-select-sm" name="editorId" required>
-                        <option value="" disabled selected>选择编辑</option>
-                        <option th:each="e : ${editors}"
-                                th:value="${e.userId}"
-                                th:text="${e.fullName} + ' (' + ${e.userName} + ')'">
-                            编辑
-                        </option>
-                    </select>
-                    <button class="btn btn-primary btn-sm" type="submit">指派</button>
-                </form>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <div class="row" th:each="m : ${manuscripts}">
+        <div class="col-12">
+            <div class="manuscript-card d-md-flex">
+
+                <div class="card-content col-md-8">
+                    <div class="d-flex justify-content-between">
+                        <span class="paper-id" th:text="${'MANUSCRIPT ID: ' + m.manuscriptId}">ID: 2025-001</span>
+                        <span class="text-muted small" th:if="${m.submitTime != null}" th:text="${#temporals.format(m.submitTime, 'MMM d, yyyy')}">Dec 24, 2025</span>
+                    </div>
+
+                    <h2 class="paper-title" th:text="${m.title}">
+                        Analysis of Deep Learning Algorithms in Medical Imaging
+                    </h2>
+
+                    <div class="paper-authors" th:if="${m.authorList != null}">
+                        <i class="bi bi-person"></i> <span th:text="${m.authorList}">Zhang San, Li Si, Wang Wu</span>
+                    </div>
+
+                    <div class="paper-abstract" th:if="${m.abstractText != null}">
+                        <strong>Abstract:</strong>
+                        <span th:text="${m.abstractText}">This study proposes a novel framework...</span>
+                    </div>
+
+                    <div class="keywords-container" th:if="${m.keywords != null and !m.keywords.isEmpty()}">
+                        <span class="keyword-badge" th:each="key : ${#strings.arraySplit(m.keywords, ',')}" th:text="${key}">AI</span>
+                    </div>
+                </div>
+
+                <div class="action-panel col-md-4">
+                    <div class="panel-heading">Action Required</div>
+
+                    <form th:action="@{/chiefeditor/assign-editor/do}" method="post">
+                        <input type="hidden" name="manuscriptId" th:value="${m.manuscriptId}"/>
+
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold text-muted">Assign to Editor</label>
+                            <select class="form-select" name="editorId" required>
+                                <option value="" disabled selected>Select an Editor...</option>
+                                <option th:each="e : ${editors}"
+                                        th:if="${e.user != null}"
+                                        th:value="${e.user.userId}"
+                                        th:text="${(e.user.fullName != null ? e.user.fullName : e.user.userName) + ' (' + (e.specialty != null ? e.specialty : 'N/A') + ')'}">
+                                    Dr. Wang (Computer Vision)
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Assignment Note</label>
+                            <textarea class="form-control" name="reason" rows="3"
+                                      placeholder="Why is this editor suitable?" required></textarea>
+                        </div>
+
+                        <button class="btn btn-assign" type="submit">
+                            CONFIRM ASSIGNMENT <i class="bi bi-arrow-right ms-1"></i>
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
 </div>
+
 </body>
 </html>

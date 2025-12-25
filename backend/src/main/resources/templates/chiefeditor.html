@@ -19,7 +19,7 @@
             <h1 class="page-title">主编工作台</h1>
             <p class="lead">
                 您好，
-                <span th:text="${session.loginUser.userName}">主编姓名</span>。
+                <span th:text="${username ?: session.loginUser?.userName ?: '主编'}">主编姓名</span>。
                 下面是您在系统中的主要权限和功能入口。
             </p>
         </div>

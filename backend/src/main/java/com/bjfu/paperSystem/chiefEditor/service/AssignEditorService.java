@@ -1,7 +1,9 @@
 package com.bjfu.paperSystem.chiefEditor.service;
 
+import com.bjfu.paperSystem.javabeans.Editorial_Board;
 import com.bjfu.paperSystem.javabeans.Manuscript;
 import com.bjfu.paperSystem.javabeans.User;
+
 
 import java.util.List;
 
@@ -11,8 +13,8 @@ public interface AssignEditorService {
     List<Manuscript> getToAssignManuscripts();
 
     // 可选的编辑列表
-    List<User> getAvailableEditors();
+    List<Editorial_Board> getAvailableBoardEditors();
 
     // 执行指派
-    void assignEditor(int manuscriptId, int editorId);
+    void assignEditor(int manuscriptId, int editorId, String reason);
 }

@@ -1,7 +1,9 @@
 package com.bjfu.paperSystem.chiefEditor.controller;
 
+import com.bjfu.paperSystem.javabeans.User;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
-import org.springframework.stereotype.Repository;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -9,5 +11,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/chiefeditor")
 public class chiefEditorController {
     @GetMapping
-    public String chiefEditor() { return "chiefeditor"; }
+    public String chiefEditor(HttpSession session, Model model) {
+        // 检查登录状态
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser == null) {
+            return "redirect:/Login.html";
+        }
+        // 将用户信息放到 Model 中，方便页面访问
+        model.addAttribute("username", loginUser.getUserName());
+        return "chiefeditor";
+    }
 }

@@ -5,10 +5,8 @@
   <title>稿件管理系统 - 作者端</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
-
   <style>
     body { background-color: #f8f9fa; }
     .main-card { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-top: 20px; }
@@ -21,6 +19,11 @@
   </style>
 </head>
 <body>
+<div th:if="${message}" class="alert alert-success alert-dismissible fade show mx-4 mt-3" role="alert">
+  <i class="bi bi-check-circle-fill me-2"></i>
+  <strong th:text="${message}">提示消息</strong>
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
 
 <div class="container py-4">
   <div class="card border-0 shadow-sm mb-3 rounded-4">
@@ -98,7 +101,9 @@
     </div>
   </div>
 </div>
+
 <p class="text-center mt-4 text-muted small">© 2025 学术论文管理系统 ·作者</p>
+
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
@@ -106,11 +111,13 @@
 <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+
 <script th:inline="none">
+  // 日期筛选插件扩展
   $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
     var min = $('#minDate').val();
     var max = $('#maxDate').val();
-    var dateStr = data[2].split(' ')[0];
+    var dateStr = data[2] ? data[2].split(' ')[0] : "";
     if (
             (min === "" && max === "") ||
             (min === "" && dateStr <= max) ||
@@ -121,6 +128,7 @@
     }
     return false;
   });
+
   $(document).ready(function() {
     var tables = $('.table').DataTable({
       language: {
@@ -133,15 +141,9 @@
         "search": "全文搜索:",
         "emptyTable": "表中无数据",
         "paginate": {
-          "first": "首页",
-          "previous": "上页",
-          "next": "下页",
-          "last": "末页"
+          "first": "首页", "previous": "上页", "next": "下页", "last": "末页"
         },
-        "buttons": {
-          "copy": "复制",
-          "csv": "导出 CSV"
-        }
+        "buttons": { "copy": "复制", "csv": "导出 CSV" }
       },
       dom: '<"d-flex justify-content-between"Bf>rtip',
       buttons: [
@@ -151,7 +153,7 @@
           className: 'btn btn-success btn-sm rounded-pill mb-2',
           charset: 'utf-8',
           bom: true,
-          filename: '我的稿件列表_' + new Date().toLocaleDateString(), // 自定义文件名
+          filename: '我的稿件列表_' + new Date().toLocaleDateString(),
           exportOptions: { columns: [0, 1, 2, 3] }
         }
       ],
@@ -159,10 +161,12 @@
       pageLength: 10,
       autoWidth: false
     });
+
     $('#minDate, #maxDate').on('change', function() {
       tables.draw();
     });
   });
+
   function clearDateFilter() {
     $('#minDate').val('');
     $('#maxDate').val('');

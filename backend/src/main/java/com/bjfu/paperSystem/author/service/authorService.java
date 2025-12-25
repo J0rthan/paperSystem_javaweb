@@ -14,7 +14,7 @@ public interface authorService {
 
     // 根据ID获取稿件（用于编辑草稿）
     Manuscript getManuscriptByIdAndAuthor(int manuscriptId, int authorId);
-
+    void deleteManuscript(int manuscriptId);
     // 个人信息相关
     User getUserById(int userId);
     String updateProfile(User user, int loginUserId);

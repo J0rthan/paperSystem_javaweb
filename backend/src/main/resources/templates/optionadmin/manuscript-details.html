@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>稿件详情 · 编辑部管理员</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">稿件详情</h1>
+        <a href="/optionadmin/manuscripts" class="btn btn-outline-secondary btn-sm">&larr; 返回稿件列表</a>
+    </div>
+
+    <div class="card bg-white">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <h2 th:text="${manuscript.title}" class="h4 mb-3">稿件标题</h2>
+                    <!-- <p class="text-muted mb-3" th:text="${manuscript.authorList}">作者列表</p> -->
+                    
+                    <div class="mb-4">
+                        <h5>摘要</h5>
+                        <p class="text-sm" th:text="${manuscript.abstractText}">稿件摘要内容...</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h5>关键词</h5>
+                        <p class="text-sm" th:text="${manuscript.keywords}">关键词1, 关键词2, 关键词3</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">稿件信息</h5>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <strong>稿件ID:</strong> <span th:text="${manuscript.manuscriptId}">1</span>
+                                </li>
+                                
+                                <li class="mb-2">
+                                    <strong>提交时间:</strong> <span th:text="${#temporals.format(manuscript.submitTime, 'yyyy-MM-dd HH:mm')}">2025-01-01 12:00</span>
+                                </li>
+                               
+                        
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>编辑部管理员工作台</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f5f7fa; }
+        .page-title { font-weight: 700; }
+        .card-icon { font-size: 2.2rem; }
+    </style>
+</head>
+<body>
+<div class="container py-5">
+
+    <!-- 顶部欢迎区 + 右上角个人按钮 -->
+    <div class="row mb-4 align-items-center">
+        <div class="col">
+            <h1 class="page-title">编辑部管理员工作台</h1>
+            <p class="lead">
+                您好，
+                <span th:text="${session.loginUser.userName}">管理员姓名</span>。
+                下面是您在系统中的主要权限和功能入口。
+            </p>
+        </div>
+        <div class="col-auto text-end">
+            <a href="/optionadmin/logout" class="btn btn-secondary btn-sm">
+                退出登录
+            </a>
+        </div>
+    </div>
+
+    <!-- 功能卡片区域 -->
+    <div class="row g-4">
+        <!-- 稿件管理 -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h2 class="h5 mb-0">📂 稿件形式审查</h2>
+                        <span class="badge bg-primary">管理权限</span>
+                    </div>
+                    <p class="text-muted mb-3">
+                        对新投稿进行技术检查，包括字数、格式一致性、查重率），确保符合期刊规范。
+                    </p>
+                    <a th:href="@{/optionadmin/manuscripts}" class="btn btn-outline-primary btn-sm">
+                        进入稿件管理
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 新闻管理 -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h2 class="h5 mb-0">📰 新闻管理</h2>
+                        <span class="badge bg-info">管理权限</span>
+                    </div>
+                    <p class="text-muted mb-3">
+                        管理前台新闻和公告，包括新增、修改、删除，支持定时发布，可上传附件。
+                    </p>
+                    <a th:href="@{/optionadmin/news}" class="btn btn-outline-info btn-sm">
+                        进入新闻管理
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    <p class="text-center mt-4 text-muted small">
+        © 2025 学术论文管理系统 · 编辑部管理员
+    </p>
+</div>
+</body>
+</html>

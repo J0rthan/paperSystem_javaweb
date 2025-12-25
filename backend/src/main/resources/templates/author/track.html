@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>稿件追踪 - 稿件管理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body { background-color: #f4f7f6; }
+        .main-card { background: white; border-radius: 15px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); margin-top: 30px; }
+        .timeline { position: relative; padding: 20px 0; }
+        .timeline::before {
+            content: ''; position: absolute; left: 31px; top: 0;
+            height: 100%; width: 2px; background: #e9ecef;
+        }
+        .timeline-item { position: relative; margin-bottom: 40px; padding-left: 70px; }
+        .timeline-marker {
+            position: absolute; left: 15px; top: 0; width: 34px; height: 34px;
+            background: #fff; border: 2px solid #0d6efd; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; z-index: 1;
+        }
+        .timeline-item.latest .timeline-marker {
+            background: #0d6efd; color: white; box-shadow: 0 0 0 5px rgba(13, 110, 253, 0.2);
+        }
+        .timeline-content {
+            background: #fff; padding: 20px; border-radius: 12px;
+            border: 1px solid #edf2f7; box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            transition: transform 0.2s;
+        }
+        .timeline-content:hover { transform: translateY(-3px); }
+    </style>
+</head>
+<body>
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a th:href="@{/author/manuscript/list}">我的稿件</a></li>
+                <li class="breadcrumb-item active">追踪状态</li>
+            </ol>
+        </nav>
+        <a th:href="@{/author/manuscript/list}" class="btn btn-outline-secondary btn-sm rounded-pill">
+            <i class="bi bi-arrow-left"></i> 返回列表
+        </a>
+    </div>
+
+    <div class="main-card">
+        <div class="row border-bottom pb-4 mb-4">
+            <div class="col-md-8">
+                <small class="text-muted">欢迎您：<span th:text="${session.loginUser.userName}">作者</span></small>
+                <h2 class="fw-bold text-dark mt-2" th:text="|稿件标题：${manuscript.title}|">稿件标题</h2>
+                <p class="text-muted mb-0">
+                    稿件编号：<span class="badge bg-light text-dark border" th:text="|#MS-${manuscript.manuscriptId}|">#MS-000</span>
+                    &nbsp;&nbsp;|&nbsp;&nbsp;
+                    当前状态：
+                    <span class="text-primary fw-bold" th:switch="${manuscript.status}">
+                        <span th:case="'Started Submission'">开始投稿</span>
+                        <span th:case="'Incomplete Submission'">尚未提交的草稿</span>
+                        <span th:case="'Pending Review'">待审查</span>
+                        <span th:case="'Pending Allocation'">待分配</span>
+                        <span th:case="'With Editor'">编辑处理中</span>
+                        <span th:case="'Under Review'">审稿中</span>
+                        <span th:case="'Rejected'">拒稿</span>
+                        <span th:case="'Accepted'">录用</span>
+                        <span th:case="'Need Revision'">需要返修</span>
+                        <span th:case="'With A Decision'">已决议</span>
+                        <span th:case="*" th:text="${manuscript.status}"></span>
+                    </span>
+                </p>
+            </div>
+            <div class="col-md-4 text-md-end d-flex align-items-center justify-content-end">
+                <div th:if="${manuscript.status == 'Under Review'}" class="alert alert-info py-2 mb-0 small">
+                    <i class="bi bi-clock-history"></i> 预计审稿周期：4-6 周
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline">
+            <div th:each="log, stat : ${logs}" class="timeline-item" th:classappend="${stat.first} ? 'latest' : ''">
+                <div class="timeline-marker">
+                    <i th:class="${stat.first} ? 'bi bi-play-fill' : 'bi bi-check-lg'"></i>
+                </div>
+                <div class="timeline-content">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="fw-bold mb-0 text-dark" th:switch="${log.opType}">
+                            <span th:case="'submit'">提交投稿</span>
+                            <span th:case="'save'">保存草稿</span>
+                            <span th:case="'process manuscript'">稿件进入处理环节</span>
+                            <span th:case="*" th:text="${log.opType}">操作类型</span>
+                        </h5>
+                        <span class="text-muted small">
+                            <i class="bi bi-calendar3 me-1"></i>
+                            <span th:text="${#temporals.format(log.opTime, 'yyyy-MM-dd HH:mm:ss')}">时间</span>
+                        </span>
+                    </div>
+                    <p class="text-secondary mb-0">
+                        <span th:if="${log.opType == 'submit'}">您的稿件已正式提交至系统，正在排队等待编辑进行形式审查。</span>
+                        <span th:if="${log.opType == 'save'}">稿件信息已更新至草稿箱，您可以随时继续完善。</span>
+                        <span th:if="${log.opType == 'process manuscript'}">系统已受理该稿件，处理程序已启动。</span>
+                        <span th:unless="${log.opType == 'submit' or log.opType == 'save' or log.opType == 'process manuscript'}"
+                              th:text="|系统记录操作：${log.opType}|"></span>
+                    </p>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(logs)}" class="text-center py-5">
+                <i class="bi bi-inbox text-muted fs-1 d-block mb-3"></i>
+                <p class="text-muted">暂无处理记录</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p class="text-center mt-5 text-muted small">© 2025 学术论文管理系统</p>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

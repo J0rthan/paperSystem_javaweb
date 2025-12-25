@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>待审稿件</title>
+</head>
+<body>
+
+<section aria-label="待处理邀请列表">
+    <h2>待处理邀请列表</h2>
+
+    <!-- 1) method 改为 get，匹配 @GetMapping("filter") -->
+    <form th:action="@{/reviewer/filter}" method="get">
+        <fieldset>
+            <legend>筛选</legend>
+
+            <label for="fromDate">邀请时间从：</label>
+            <input id="fromDate"
+                   name="startTime"
+                   type="datetime-local"
+                   th:value="${startTime == null ? '' : #temporals.format(startTime, 'yyyy-MM-dd''T''HH:mm')}" />
+
+            <label for="toDate">到：</label>
+            <input id="toDate"
+                   name="endTime"
+                   type="datetime-local"
+                   th:value="${endTime == null ? '' : #temporals.format(endTime, 'yyyy-MM-dd''T''HH:mm')}" />
+
+            <button type="submit">查询</button>
+            <a th:href="@{/reviewer/pendingView}">重置</a>
+        </fieldset>
+    </form>
+
+    <table border="1" cellpadding="6" cellspacing="0">
+        <caption>待处理邀请列表（每条包含：稿件标题、摘要、邀请时间）</caption>
+        <thead>
+        <tr>
+            <th scope="col">稿件标题</th>
+            <th scope="col">摘要</th>
+            <th scope="col">邀请时间</th>
+            <th scope="col">操作</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <!-- 2) 用 reviewList 渲染 -->
+        <tr th:if="${reviewList == null or #lists.isEmpty(reviewList)}">
+            <td colspan="4">暂无数据</td>
+        </tr>
+
+        <tr th:each="r : ${reviewList}">
+            <!-- 注意：Review 实体里目前没有 title/abstract 字段，下面先给占位写法 -->
+            <td th:text="${r.manuId}">manuId</td>
+            <td>（摘要需从稿件表/DTO提供）</td>
+
+            <td th:text="${r.invitationTime == null ? '' : #temporals.format(r.invitationTime, 'yyyy-MM-dd HH:mm')}">
+                2025-12-24 10:30
+            </td>
+
+            <td>
+                <a th:href="@{'/reviewer/invitations/' + ${r.reviewId}}">查看详情</a>
+                |
+                <form th:action="@{'/reviewer/invitations/' + ${r.reviewId} + '/accept'}" method="post" style="display:inline;">
+                    <button type="submit">接受</button>
+                </form>
+                <form th:action="@{'/reviewer/invitations/' + ${r.reviewId} + '/reject'}" method="post" style="display:inline;">
+                    <button type="submit">拒绝</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+</section>
+
+</body>
+</html>

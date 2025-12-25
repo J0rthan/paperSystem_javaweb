@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/editor")
-public class editorController {
+public class  editorController {
     @GetMapping
     public String editor() {
         return "editor";

@@ -22,9 +22,6 @@ public class Manuscript {
 
     private String title;
 
-    @Column(name = "author_list", columnDefinition = "TEXT")
-    private String authorList; // 所有作者姓名列表，用分号或逗号分隔
-
     @Column(columnDefinition = "TEXT")
     private String abstractText;
 
@@ -45,6 +42,11 @@ public class Manuscript {
 
     @Column(name = "assign_reason")
     private String assignReason; // 选择当前编辑原因
+    @Transient
+    private List<ManuscriptAuthor> authors = new ArrayList<>();
+
+    @Transient
+    private List<RecommendedReviewer> reviewers = new ArrayList<>();
 
     // --- Getter and Setter ---
     public int getManuscriptId() { return manuscriptId; }
@@ -61,9 +63,6 @@ public class Manuscript {
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
-
-    public String getAuthorList() { return authorList; }
-    public void setAuthorList(String authorList) { this.authorList = authorList; }
 
     public String getAbstractText() { return abstractText; }
     public void setAbstractText(String abstractText) { this.abstractText = abstractText; }
@@ -92,4 +91,9 @@ public class Manuscript {
     public String getCoverLetterPath() { return coverLetterPath; }
     public void setCoverLetterPath(String coverLetterPath) { this.coverLetterPath = coverLetterPath; }
 
+    public List<ManuscriptAuthor> getAuthors() { return authors; }
+    public void setAuthors(List<ManuscriptAuthor> authors) { this.authors = authors; }
+
+    public List<RecommendedReviewer> getReviewers() { return reviewers; }
+    public void setReviewers(List<RecommendedReviewer> reviewers) { this.reviewers = reviewers; }
 }

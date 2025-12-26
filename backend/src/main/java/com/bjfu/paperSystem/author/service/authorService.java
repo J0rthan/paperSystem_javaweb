@@ -1,8 +1,10 @@
 package com.bjfu.paperSystem.author.service;
 
 import com.bjfu.paperSystem.javabeans.*;
+import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
+import java.io.IOException;
 
 public interface authorService {
     // 获取分类后的稿件列表
@@ -17,6 +19,13 @@ public interface authorService {
     // 个人信息相关
     User getUserById(int userId);
     String updateProfile(User user, int loginUserId);
+    User findUserById(int userId);
 
     List<Versions> getVersionsByManuscriptId(int manuscriptId);
+    void submitRevision(int manuscriptId,
+                        MultipartFile cleanFile,
+                        MultipartFile markedFile,
+                        MultipartFile replyFile,
+                        String responseText,
+                        User user) throws IOException;
 }

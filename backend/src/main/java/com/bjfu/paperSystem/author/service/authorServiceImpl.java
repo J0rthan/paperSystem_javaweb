@@ -4,9 +4,12 @@ import com.bjfu.paperSystem.javabeans.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.io.File;
 @Service
 public class authorServiceImpl implements authorService {
     @Autowired private ManuscriptDao manuscriptDao;
@@ -16,6 +19,9 @@ public class authorServiceImpl implements authorService {
     @Autowired private authorDao authorDao;
     @Autowired private VersionsDao versionsDao;
     @Autowired private FilesDao filesDao;
+    @Autowired
+    private LogsDao logsDao;
+
     private String translateStatus(String status) {
         if (status == null) return "未知状态";
         return switch (status) {
@@ -67,8 +73,7 @@ public class authorServiceImpl implements authorService {
                 filesDao.save(f);
             }
         }
-
-        String logAction = "submit".equals(action) ? "提交投稿" : "保存草稿";
+        String logAction = "submit".equals(action) ? "submit" : "save";
         logService.record(user.getUserId(), logAction, mid);
         if (manuscript.getAuthors() != null) {
             for (ManuscriptAuthor author : manuscript.getAuthors()) {
@@ -124,6 +129,11 @@ public class authorServiceImpl implements authorService {
     }
     @Override public User getUserById(int userId) { return authorDao.findById(userId).orElse(null); }
     @Override
+    public User findUserById(int userId) {
+        // 使用 JPA 默认的 findById 方法
+        return authorDao.findById(userId).orElse(null);
+    }
+    @Override
     @Transactional
     public String updateProfile(User user, int loginUserId) {
         User dbUser = authorDao.findById(loginUserId).orElse(null);
@@ -136,10 +146,64 @@ public class authorServiceImpl implements authorService {
         authorDao.save(dbUser);
         return null;
     }
-
+    @Override
+    @Transactional
+    public void submitRevision(int manuscriptId, MultipartFile cleanFile, MultipartFile markedFile,
+                               MultipartFile replyFile, String responseText, User user) throws IOException {
+        String cleanPath = saveFile(cleanFile, "manuscripts");
+        String markedPath = saveFile(markedFile, "marked");
+        String replyPath = saveFile(replyFile, "replies");
+        Integer maxVersion = versionsDao.findMaxVersionNumberByManuscriptId(manuscriptId);
+        int nextVersion = (maxVersion == null) ? 1 : maxVersion + 1;
+        Versions newV = new Versions();
+        newV.setManuscriptId(manuscriptId);
+        newV.setVersionNumber(nextVersion);
+        newV.setFilePathOriginal(cleanPath);
+        newV.setFilePathAnon(markedPath);
+        newV.setResponseLetterPath(replyPath);
+        newV.setResponseText(responseText);
+        versionsDao.save(newV);
+        // 4. 更新稿件状态
+        Manuscript ms = manuscriptDao.findById(manuscriptId).get();
+        ms.setStatus("Under Review");
+        manuscriptDao.save(ms);
+        Logs log = new Logs();
+        log.setPaperId(manuscriptId);
+        log.setOporId(user.getUserId());
+        log.setOpType("Submit Revision");
+        log.setOpTime(LocalDateTime.now());
+        logsDao.save(log);
+    }
+    private String saveFile(MultipartFile file, String subDir) {
+        if (file == null || file.isEmpty()) return null;
+        try {
+            String originalFileName = file.getOriginalFilename();
+            String suffix = originalFileName.substring(originalFileName.lastIndexOf("."));
+            String fileName = UUID.randomUUID().toString() + suffix;
+            String projectPath = System.getProperty("user.dir");
+            // 1. 源码目录路径（为了让 IDEA 里的资源同步）
+            String srcPath = projectPath + "/backend/src/main/resources/static/uploads/" + subDir + "/";
+            File srcDir = new File(srcPath);
+            if (!srcDir.exists()) srcDir.mkdirs();
+            File srcFile = new File(srcDir, fileName);
+            String classPath = java.net.URLDecoder.decode(this.getClass().getClassLoader().getResource("").getPath(), "UTF-8");
+            if (System.getProperty("os.name").toLowerCase().contains("win") && classPath.startsWith("/")) {
+                classPath = classPath.substring(1);
+            }
+            String targetPath = classPath + "static/uploads/" + subDir + "/";
+            File targetDir = new File(targetPath);
+            if (!targetDir.exists()) targetDir.mkdirs();
+            File targetFile = new File(targetDir, fileName);
+            file.transferTo(srcFile);
+            org.springframework.util.FileCopyUtils.copy(srcFile, targetFile);
+            return "/uploads/" + subDir + "/" + fileName;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
     @Override
     public List<Versions> getVersionsByManuscriptId(int manuscriptId) {
-        // 按照版本号倒序排列，让最新的版本排在最前面
         return versionsDao.findByManuscriptIdOrderByVersionNumberDesc(manuscriptId);
     }
 }

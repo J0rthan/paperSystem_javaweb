@@ -19,13 +19,10 @@ import java.util.UUID;
 @Controller
 @RequestMapping("/author/manuscript")
 public class manuscriptSystemController {
-
     @Autowired
     private authorService authorService;
-
     @Autowired
-    private logService logService; // 注入日志服务
-
+    private logService logService;
     @GetMapping("/list")
     public String list(Model model, HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
@@ -34,7 +31,6 @@ public class manuscriptSystemController {
         model.addAllAttributes(data);
         return "author/list";
     }
-
     @GetMapping("/submit")
     public String toSubmit(Model model) {
         Manuscript manuscript = new Manuscript();
@@ -72,7 +68,6 @@ public class manuscriptSystemController {
             return "redirect:/author/manuscript/submit";
         }
     }
-
     @GetMapping("/edit")
     public String toEdit(@RequestParam("id") int id, Model model, HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
@@ -82,7 +77,6 @@ public class manuscriptSystemController {
         model.addAttribute("manuscript", manuscript);
         return "author/submit";
     }
-
     @GetMapping("/delete")
     public String delete(@RequestParam("id") int id, HttpSession session, RedirectAttributes ra) {
         User loginUser = (User) session.getAttribute("loginUser");
@@ -103,27 +97,62 @@ public class manuscriptSystemController {
         if (manuscript == null) return "redirect:/author/manuscript/list";
         List<Logs> logs = logService.getLogsByManuscriptId(id);
         List<Versions> versions = authorService.getVersionsByManuscriptId(id);
+        java.util.Map<Integer, String> userNames = new java.util.HashMap<>();
+        for (Logs log : logs) {
+            User opUser = authorService.findUserById(log.getOporId());
+            if (opUser != null) {
+                String name = "Reviewer".equalsIgnoreCase(opUser.getUserType()) ? "匿名审稿人" : opUser.getFullName();
+                userNames.put(log.getOporId(), name);
+            } else {
+                userNames.put(log.getOporId(), "系统用户");
+            }
+        }
         model.addAttribute("manuscript", manuscript);
         model.addAttribute("logs", logs);
         model.addAttribute("versions", versions);
+        model.addAttribute("userNames", userNames);
         return "author/track";
+    }
+    @GetMapping("/revise")
+    public String toRevise(@RequestParam("id") int id, Model model, HttpSession session) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser == null) return "redirect:/login";
+        Manuscript manuscript = authorService.getManuscriptByIdAndAuthor(id, loginUser.getUserId());
+        if (manuscript == null || !"Need Revision".equals(manuscript.getStatus())) {
+            return "redirect:/author/manuscript/list";
+        }
+        model.addAttribute("manuscript", manuscript);
+        return "author/revise";
+    }
+    @PostMapping("/doRevise")
+    public String doRevise(@RequestParam("manuscriptId") int manuscriptId,
+                           @RequestParam("cleanFile") MultipartFile cleanFile,
+                           @RequestParam("markedFile") MultipartFile markedFile,
+                           @RequestParam("replyFile") MultipartFile replyFile,
+                           @RequestParam("responseText") String responseText,
+                           HttpSession session, RedirectAttributes ra) {
+
+        User loginUser = (User) session.getAttribute("loginUser");
+        try {
+            authorService.submitRevision(manuscriptId, cleanFile, markedFile, replyFile, responseText, loginUser);
+            ra.addFlashAttribute("message", "修回已提交，进入下一轮审稿");
+            return "redirect:/author/manuscript/list";
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "提交失败：" + e.getMessage());
+            return "redirect:/author/manuscript/revise?id=" + manuscriptId;
+        }
     }
     private String saveFile(MultipartFile file, String subDir) {
         try {
             String originalFileName = file.getOriginalFilename();
             String suffix = originalFileName.substring(originalFileName.lastIndexOf("."));
             String fileName = UUID.randomUUID().toString() + suffix;
-
-            // --- 1. 定位【源码目录】(用于持久保存) ---
             String projectPath = System.getProperty("user.dir");
-            // 确保指向 backend 模块下的 src
             String srcPath = projectPath + "/backend/src/main/resources/static/uploads/" + subDir + "/";
             File srcDir = new File(srcPath);
             if (!srcDir.exists()) srcDir.mkdirs();
             File srcFile = new File(srcDir, fileName);
-
             String classPath = java.net.URLDecoder.decode(this.getClass().getClassLoader().getResource("").getPath(), "UTF-8");
-            // 处理 Windows 路径
             if (System.getProperty("os.name").toLowerCase().contains("win") && classPath.startsWith("/")) {
                 classPath = classPath.substring(1);
             }
@@ -131,9 +160,7 @@ public class manuscriptSystemController {
             File targetDir = new File(targetPath);
             if (!targetDir.exists()) targetDir.mkdirs();
             File targetFile = new File(targetDir, fileName);
-
             file.transferTo(srcFile);
-            // 再通过工具类拷贝到编译目录（因为 file.transferTo 只能执行一次）
             org.springframework.util.FileCopyUtils.copy(srcFile, targetFile);
             return "/uploads/" + subDir + "/" + fileName;
         } catch (IOException e) {

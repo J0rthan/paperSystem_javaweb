@@ -15,14 +15,11 @@
             <tbody>
             <tr th:each="p : ${list}">
                 <td th:text="${'#MS-' + p.manuscriptId}"></td>
-
                 <td>
                     <span th:if="${p.title == null or p.title == ''}" class="text-muted fst-italic">（未填写标题）</span>
                     <span th:if="${p.title != null and p.title != ''}" th:text="${p.title}" class="text-truncate d-inline-block" style="max-width: 250px;"></span>
                 </td>
-
                 <td th:text="${p.submitTime != null ? #temporals.format(p.submitTime, 'yyyy-MM-dd HH:mm:ss') : '-'}"></td>
-
                 <td>
                     <span class="badge rounded-pill px-3"
                           th:classappend="${p.status == 'Accepted' or p.status == '录用'} ? 'bg-success' :
@@ -43,7 +40,6 @@
                         <span th:case="*" th:text="${p.status}"></span>
                     </span>
                 </td>
-
                 <td>
                     <div class="btn-group">
                         <th:block th:if="${type == 'draft'}">
@@ -56,19 +52,16 @@
                                 <i class="bi bi-trash"></i> 删除
                             </a>
                         </th:block>
-
                         <a th:if="${type == 'track'}"
                            th:href="@{/author/manuscript/track(id=${p.manuscriptId})}"
                            class="btn btn-sm btn-outline-info text-dark">
                             <i class="bi bi-eye"></i> 追踪状态
                         </a>
-
                         <a th:if="${type == 'revise'}"
-                           th:href="@{/author/manuscript/edit(id=${p.manuscriptId})}"
+                           th:href="@{/author/manuscript/revise(id=${p.manuscriptId})}"
                            class="btn btn-sm btn-success">
-                            <i class="bi bi-arrow-repeat"></i> 修改稿件
+                            <i class="bi bi-arrow-repeat"></i>提交修回
                         </a>
-
                         <a th:if="${type == 'final'}"
                            th:href="@{/author/manuscript/track(id=${p.manuscriptId})}"
                            class="btn btn-sm btn-outline-dark">
@@ -80,7 +73,6 @@
             </tbody>
         </table>
     </div>
-
     <div class="text-center py-5 text-muted" th:if="${#lists.isEmpty(list)}">
         <i class="bi bi-folder2-open fs-2 d-block mb-2"></i> 暂无此类稿件
     </div>

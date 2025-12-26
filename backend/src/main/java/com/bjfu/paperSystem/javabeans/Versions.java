@@ -29,6 +29,8 @@ public class Versions {
     @Column(name = "response_letter_path", length = 255)
     private String responseLetterPath; // 回复信路径（修改稿时使用）
 
+    @Column(name = "response_text", columnDefinition = "TEXT")
+    private String responseText;
     // 无参构造函数
     public Versions() {
     }
@@ -89,5 +91,13 @@ public class Versions {
 
     public void setResponseLetterPath(String responseLetterPath) {
         this.responseLetterPath = responseLetterPath;
+    }
+
+    public String getResponseText() {
+        return responseText;
+    }
+
+    public void setResponseText(String responseText) {
+        this.responseText = responseText;
     }
 }

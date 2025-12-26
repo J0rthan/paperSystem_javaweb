@@ -1,6 +1,7 @@
 package com.bjfu.paperSystem.optionAdmin.controller;
 
 import com.bjfu.paperSystem.javabeans.Manuscript;
+import com.bjfu.paperSystem.javabeans.User;
 import com.bjfu.paperSystem.optionAdmin.service.optionAdminService;
 
 import jakarta.servlet.http.HttpSession;
@@ -38,22 +39,22 @@ public class ManuscriptManagementController {
 
     // 通过稿件审核
     @PostMapping("/manuscripts/approve")
-    public String approveManuscript(@RequestParam("manuscriptId") Integer manuscriptId) {
-        // 获取稿件对象
-        Manuscript manuscript = service.getManuscriptById(manuscriptId);
-        // 使用稿件的authorId作为操作ID
-        Integer operatorId = manuscript.getAuthorId();
+    public String approveManuscript(@RequestParam("manuscriptId") Integer manuscriptId, HttpSession session) {
+        // 获取当前登录用户
+        User loginUser = (User) session.getAttribute("loginUser");
+        // 使用当前用户的ID作为操作ID
+        Integer operatorId = loginUser.getUserId();
         service.approveManuscript(manuscriptId, operatorId);
         return "redirect:/optionadmin/manuscripts";
     }
 
     // 拒绝稿件审核
     @PostMapping("/manuscripts/reject")
-    public String rejectManuscript(@RequestParam("manuscriptId") Integer manuscriptId) {
-        // 获取稿件对象
-        Manuscript manuscript = service.getManuscriptById(manuscriptId);
-        // 使用稿件的authorId作为操作ID
-        Integer operatorId = manuscript.getAuthorId();
+    public String rejectManuscript(@RequestParam("manuscriptId") Integer manuscriptId, HttpSession session) {
+        // 获取当前登录用户
+        User loginUser = (User) session.getAttribute("loginUser");
+        // 使用当前用户的ID作为操作ID
+        Integer operatorId = loginUser.getUserId();
         service.rejectManuscript(manuscriptId, operatorId);
         return "redirect:/optionadmin/manuscripts";
     }

@@ -31,7 +31,7 @@ public class Review {
     private LocalDateTime submissionTime;
 
     @Column(name = "status")
-    private String status;
+    private String status; // pending 等待处理 accepted 接受审稿 rejected 拒绝审稿 finished 完成审稿
 
     @Column(name = "invitation_time")
     private LocalDateTime invitationTime;

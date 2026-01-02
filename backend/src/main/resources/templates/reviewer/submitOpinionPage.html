@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>提交审稿意见</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+
+<h2>提交审稿意见</h2>
+
+<!-- 基本信息（可选） -->
+<div style="margin-bottom: 12px;">
+    <p>
+        <strong>稿件：</strong>
+        <span th:text="${review.getManuScript().getTitle()}"></span>
+    </p>
+    <p>
+        <strong>审稿任务ID：</strong>
+        <span th:text="${review.getReviewId()}"></span>
+    </p>
+</div>
+
+<form th:action="@{/reviewer/submitOpinion}" method="post">
+    <!-- 必须带回 reviewId，用于后端定位审稿任务 -->
+    <input type="hidden" name="reviewId" th:value="${review.getReviewId()}"/>
+
+    <!-- ① Confidential to Editor -->
+    <fieldset style="margin-bottom: 16px;">
+        <legend><strong>给编辑的保密意见（Confidential to Editor）</strong></legend>
+
+        <p style="margin: 6px 0;"><strong>打分表（1~5 分）</strong></p>
+
+        <div style="margin-bottom: 8px;">
+            <label for="scoreNovelty">创新性：</label>
+            <select id="scoreNovelty" name="scoreNovelty" required>
+                <option value="">请选择</option>
+                <option value="1">1/5</option>
+                <option value="2">2/5</option>
+                <option value="3">3/5</option>
+                <option value="4">4/5</option>
+                <option value="5">5/5</option>
+            </select>
+        </div>
+
+        <div style="margin-bottom: 8px;">
+            <label for="scoreMethod">方法论：</label>
+            <select id="scoreMethod" name="scoreMethod" required>
+                <option value="">请选择</option>
+                <option value="1">1/5</option>
+                <option value="2">2/5</option>
+                <option value="3">3/5</option>
+                <option value="4">4/5</option>
+                <option value="5">5/5</option>
+            </select>
+        </div>
+
+        <div style="margin-bottom: 8px;">
+            <label for="scoreQuality">整体质量：</label>
+            <select id="scoreQuality" name="scoreQuality" required>
+                <option value="">请选择</option>
+                <option value="1">1/5</option>
+                <option value="2">2/5</option>
+                <option value="3">3/5</option>
+                <option value="4">4/5</option>
+                <option value="5">5/5</option>
+            </select>
+        </div>
+
+        <div style="margin: 10px 0;">
+            <label for="keyComments"><strong>关键评价：</strong></label><br/>
+            <textarea id="keyComments"
+                      name="keyComments"
+                      rows="4"
+                      cols="80"
+                      placeholder="例如：研究创新，但实验部分需加强验证"
+                      required></textarea>
+        </div>
+
+        <div style="margin: 10px 0;">
+            <label for="recommendation"><strong>总体建议：</strong></label>
+            <select id="recommendation" name="recommendation" required>
+                <option value="">请选择</option>
+                <option value="REJECT">拒稿</option>
+                <option value="MINOR_REVISION">小修</option>
+                <option value="MAJOR_REVISION">大修</option>
+                <option value="ACCEPT">接受</option>
+            </select>
+        </div>
+    </fieldset>
+
+    <!-- ② Comments to Author -->
+    <fieldset style="margin-bottom: 16px;">
+        <legend><strong>给作者的公开意见（Comments to Author）</strong></legend>
+
+        <div style="margin: 10px 0;">
+            <label for="commentsToAuthor"><strong>具体修改建议：</strong></label><br/>
+            <textarea id="commentsToAuthor"
+                      name="commentsToAuthor"
+                      rows="6"
+                      cols="80"
+                      placeholder="例如：建议在第 4 节添加更多对比实验；图表需清晰标注"
+                      required></textarea>
+        </div>
+    </fieldset>
+
+    <!-- 提交按钮 -->
+    <div>
+        <button type="submit">提交意见</button>
+        <a th:href="@{/reviewer/reviewJobs}" style="margin-left: 10px;">返回我的审稿任务</a>
+    </div>
+</form>
+</body>
+</html>

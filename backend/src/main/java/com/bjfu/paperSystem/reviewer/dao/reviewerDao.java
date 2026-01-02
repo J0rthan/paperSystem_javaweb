@@ -21,4 +21,20 @@ public interface reviewerDao extends JpaRepository<Review, Integer> {
 """)
     List<Review> findWithManuscript(@Param("start") LocalDateTime start,
                                     @Param("end") LocalDateTime end);
+
+    Review findByReviewIdAndManuId(int reviewId, int manuId);
+
+    @Query("""
+    select r from Review r
+    join fetch r.manuscript m
+    where (r.status = :status)
+""")
+    List<Review> findWithStatus(@Param("status") String status);
+
+    @Query("""
+    select r from Review r
+    join fetch r.manuscript m
+    where r.reviewId = :id
+""")
+    Review findByIdWithManuscript(@Param("id") int id);
 }

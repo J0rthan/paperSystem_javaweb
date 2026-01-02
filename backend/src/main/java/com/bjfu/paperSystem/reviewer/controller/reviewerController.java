@@ -34,6 +34,14 @@ public class reviewerController {
         return "/reviewer/pendingView";
     }
 
+    @GetMapping("reviewJobs")
+    public String toReviewJobsPage(Model model) {
+        List<Review> list = revService.filterByStatus("accepted");
+        model.addAttribute("jobList", list);
+
+        return "/reviewer/jobPage";
+    }
+
     @GetMapping("filter")
     public String filter(@RequestParam(required = false)
                              @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
@@ -52,11 +60,39 @@ public class reviewerController {
     @GetMapping("getManuSummary/{manuId}")
     @ResponseBody
     public String getManuSummary(@PathVariable int manuId) {
-        return "";
+        return revService.findByManuId(manuId).getAbstractText();
     }
 
-    @GetMapping("invitations/accept")
-    public String acceptManu(@RequestParam("manuId") int manuId) {
+    @PostMapping("invitations/accept")
+    @ResponseBody
+    public String acceptManu(@RequestParam("manuId") int manuId, @RequestParam("reviewId") int reviewId) {
+        return revService.acceptManu(reviewId, manuId);
+    }
+
+    @PostMapping("invitations/reject")
+    @ResponseBody
+    public String rejectManu(@RequestParam("manuId") int manuId, @RequestParam("reviewId") int reviewId) {
+        return revService.rejectManu(reviewId, manuId);
+    }
+
+    @GetMapping("submitOpinionPage/{reviewId}")
+    public String tpSubmitOpinionPage(@PathVariable int reviewId, Model model) {
+        System.out.println(reviewId);
+        Review review = revService.findByRevId(reviewId);
+        if (review == null) {
+            System.out.println("null");
+        }
+        else {
+            System.out.println("not null");
+        }
+
+        System.out.println(review.getManuScript().getTitle());
+        model.addAttribute("review", review);
+        return "/reviewer/submitOpinionPage";
+    }
+
+    @PostMapping("submitOpinion")
+    public String handleSubmitOpinion() {
         return "";
     }
 }

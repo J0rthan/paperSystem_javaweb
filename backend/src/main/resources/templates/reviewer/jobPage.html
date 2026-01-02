@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>我的审稿任务</title>
+</head>
+<body>
+
+<h2>我的审稿任务</h2>
+
+<table border="1" cellpadding="6" cellspacing="0">
+    <thead>
+    <tr>
+        <th>稿件标题</th>
+        <th>摘要</th>
+        <th>邀请时间</th>
+        <th>截止时间</th>
+        <th>当前状态</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <!-- 没有任务时 -->
+    <tr th:if="${jobList == null or #lists.isEmpty(jobList)}">
+        <td colspan="6">暂无审稿任务</td>
+    </tr>
+
+    <!-- 有任务时 -->
+    <tr th:each="r : ${jobList}">
+        <td th:text="${r.getManuScript().getTitle()}">标题</td>
+        <td th:text="${r.getManuScript().getAbstractText()}">摘要</td>
+
+        <td th:text="${r.invitationTime == null ? '' :
+                #temporals.format(r.getInvitationTime(), 'yyyy-MM-dd HH:mm')}">
+        </td>
+
+        <td th:text="${r.endTime == null ? '' :
+                #temporals.format(r.getEndTime(), 'yyyy-MM-dd HH:mm')}">
+        </td>
+
+        <td th:text="${r.getStatus()}">ACCEPTED</td>
+
+        <td>
+            <a th:href="@{/reviewer/getManuSummary/{id}(id=${r.getManuScript().getManuscriptId()})}">
+                查看稿件
+            </a>
+            |
+            <a th:href="@{/reviewer/submitOpinionPage/{id}(id=${r.getReviewId()})}">
+                提交评审意见
+            </a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

@@ -57,16 +57,39 @@
             </td>
 
             <td>
-                <a th:href="@{'/reviewer/getManuSummary/' + ${r.getManuId()}}">查看详情</a>
-                |
-                <form th:action="@{'/reviewer/invitations/accept'}" method="post" style="display:inline;">
-                    <button type="hidden" name="manuId" th:value="${r.getManuId()}"></button>
-                    <button type="submit">接受</button>
-                </form>
-                <form th:action="@{'/reviewer/invitations/reject'}" method="post" style="display:inline;">
-                    <button type="hidden" name="manuId" th:value="${r.getManuId()}"></button>
-                    <button type="submit">拒绝</button>
-                </form>
+                <div th:if="${r.getStatus().equals('pending')}">
+                    <a th:href="@{'/reviewer/getManuSummary/' + ${r.getManuId()}}">查看详情</a>
+                    |
+                    <form th:action="@{'/reviewer/invitations/accept'}"
+                          method="post"
+                          style="display:inline;">
+                        <input type="hidden" name="manuId" th:value="${r.getManuId()}"/>
+                        <input type="hidden" name="reviewId" th:value="${r.getReviewId()}"/>
+                        <button type="submit">接受</button>
+                    </form>
+
+                    <form th:action="@{'/reviewer/invitations/reject'}"
+                          method="post"
+                          style="display:inline;">
+                        <input type="hidden" name="manuId" th:value="${r.getManuId()}"/>
+                        <input type="hidden" name="reviewId" th:value="${r.getReviewId()}"/>
+                        <button type="submit">拒绝</button>
+                    </form>
+                </div>
+
+                <!-- 2️⃣ 已接受 -->
+                <span th:if="${r.getStatus().equals('accepted')}"
+                      style="color: green;">
+                        <a th:href="@{'/reviewer/getManuSummary/' + ${r.getManuId()}}">查看详情</a>
+                    | 已接受
+                </span>
+
+                <!-- 3️⃣ 已拒绝 -->
+                <span th:if="${r.getStatus().equals('rejected')}"
+                      style="color: red;">
+                        <a th:href="@{'/reviewer/getManuSummary/' + ${r.getManuId()}}">查看详情</a>
+                    | 已拒绝
+                </span>
             </td>
         </tr>
         </tbody>

@@ -2,55 +2,305 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>稿件总览 · 主编</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
+    <title>稿件全览 | 主编工作台</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Noto+Serif+SC:wght@300;500;700;900&display=swap" rel="stylesheet">
 
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h3 mb-0">稿件总览</h1>
-        <a href="/chiefeditor" class="btn btn-outline-secondary btn-sm">&larr; 返回主编工作台</a>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --primary-navy: #2c3e50;    /* 沉稳深蓝 */
+            --nature-red: #c0392b;      /* 强调红 */
+            --bg-gray: #f8f9fa;
+            /* 字体定义 */
+            --font-serif: 'Noto Serif SC', serif; /* 思源宋体 */
+            --font-sans: 'Lato', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-gray);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: #2d3436;
+        }
+
+        /* --- 顶部期刊头 --- */
+        .journal-header {
+            background: #fff;
+            border-bottom: 3px solid var(--primary-navy);
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.04);
+        }
+        .journal-title {
+            font-family: var(--font-serif);
+            font-weight: 900;
+            font-size: 1.8rem;
+            color: var(--primary-navy);
+            letter-spacing: 1px;
+        }
+        .page-subtitle {
+            font-family: var(--font-sans);
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            color: #7f8c8d;
+            margin-top: 5px;
+            font-weight: 700;
+        }
+
+        /* --- 筛选栏 --- */
+        .filter-bar {
+            background: #fff;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        /* --- 标签页导航 --- */
+        .nav-tabs-custom {
+            border-bottom: 2px solid #e1e4e8;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+        }
+        .nav-tabs-custom .nav-link {
+            text-decoration: none;
+            border: none;
+            color: #636e72;
+            font-weight: 500; /* 思源宋体 */
+            font-family: var(--font-serif);
+            font-size: 1.05rem;
+            padding: 10px 5px;
+            background: transparent;
+            position: relative;
+            transition: color 0.3s;
+        }
+        .nav-tabs-custom .nav-link.active {
+            color: var(--nature-red);
+            font-weight: 700;
+        }
+        .nav-tabs-custom .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--nature-red);
+        }
+        .nav-tabs-custom .nav-link:hover {
+            color: var(--primary-navy);
+        }
+
+        /* --- 稿件卡片 --- */
+        .paper-item {
+            background: #fff;
+            border: 1px solid #e1e4e8;
+            border-left: 5px solid #bdc3c7; /* 默认灰色 */
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s ease;
+        }
+        .paper-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+            border-color: #b2bec3;
+        }
+
+        /* 状态颜色定义 */
+        .paper-item.status-pending { border-left-color: #f39c12; }   /* 待处理: 橙色 */
+        .paper-item.status-review { border-left-color: #3498db; }    /* 审稿中: 蓝色 */
+        .paper-item.status-revision { border-left-color: #9b59b6; }  /* 需返修: 紫色 */
+        .paper-item.status-accepted { border-left-color: #27ae60; }  /* 录用: 绿色 */
+        .paper-item.status-rejected { border-left-color: #e74c3c; }  /* 拒稿: 红色 */
+
+        .paper-meta {
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            color: #636e72;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        .paper-title {
+            font-family: var(--font-serif);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d3436;
+            margin-bottom: 0.8rem;
+            line-height: 1.4;
+        }
+        .paper-info {
+            font-size: 0.9rem;
+            color: #2d3436;
+        }
+
+        /* 状态徽章 */
+        .status-badge {
+            display: inline-block;
+            padding: 0.3em 0.8em;
+            font-size: 0.8rem;
+            font-weight: 700;
+            border-radius: 4px;
+            background-color: #edf2f7;
+            color: #2d3436;
+            font-family: var(--font-serif); /* 中文状态用宋体更有质感 */
+        }
+        .badge-pending { background-color: #fef5e6; color: #d35400; border: 1px solid #f39c12; }
+        .badge-processing { background-color: #eaf6ff; color: #2980b9; border: 1px solid #3498db; }
+        .badge-revision { background-color: #f5efff; color: #8e44ad; border: 1px solid #9b59b6; }
+        .badge-accepted { background-color: #eafaf1; color: #27ae60; border: 1px solid #2ecc71; }
+        .badge-rejected { background-color: #fdedec; color: #c0392b; border: 1px solid #e74c3c; }
+
+        .btn-action {
+            font-weight: 600;
+            padding: 0.4rem 1.2rem;
+            border-radius: 4px;
+            font-family: var(--font-sans);
+        }
+    </style>
+</head>
+<body>
+
+<header class="journal-header">
+    <div class="container d-flex justify-content-between align-items-center">
+        <div>
+            <div class="journal-title">国际人工智能研究 (IAIR)</div>
+            <div class="page-subtitle">International AI Research · 主编工作台</div>
+        </div>
+        <div>
+            <span class="me-3 text-secondary small">当前用户: <strong th:text="${session.loginUser?.userName}">Admin</strong></span>
+            <a href="/chiefeditor" class="btn btn-outline-dark btn-sm rounded-0 px-3">
+                <i class="bi bi-grid-fill"></i> 返回面板
+            </a>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+
+    <div class="filter-bar d-flex justify-content-between align-items-center">
+        <form th:action="@{/chiefeditor/manuscripts}" method="get" class="d-flex align-items-center gap-3 w-75">
+            <input type="hidden" name="tab" th:value="${currentTab}">
+
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" name="keyword" class="form-control border-start-0 ps-0"
+                       placeholder="搜索稿件标题、作者..." th:value="${keyword}">
+                <button class="btn btn-dark" type="submit">搜 索</button>
+            </div>
+            <a th:href="@{/chiefeditor/manuscripts(tab=${currentTab})}" class="text-secondary small text-decoration-none">重置筛选</a>
+        </form>
+
+        <a th:href="@{/chiefeditor/manuscripts/export}" class="btn btn-outline-success btn-sm btn-action">
+            <i class="bi bi-file-earmark-spreadsheet me-1"></i> 导出报表 (CSV)
+        </a>
     </div>
 
-    <!-- 简单提示 -->
-    <p class="text-muted">
-        这里展示系统中的所有稿件。后续我们可以再加筛选条件（按状态、按栏目等）。
-    </p>
+    <div class="nav nav-tabs-custom">
+        <a class="nav-link" th:classappend="${currentTab == 'all'} ? 'active'"
+           th:href="@{/chiefeditor/manuscripts(tab='all')}">全部稿件</a>
 
-    <!-- 稿件表格 -->
-    <table class="table table-hover table-sm align-middle bg-white">
-        <thead class="table-light">
-        <tr>
-            <th>稿件ID</th>
-            <th>标题</th>
-            <th>作者列表</th>
-            <th>状态</th>
-            <th>提交时间</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="m : ${manuscripts}">
-            <td th:text="${m.manuscriptId}">1</td>
-            <td th:text="${m.title}">示例标题</td>
-            <td th:text="${m.authorList}">张三, 李四</td>
-            <td>
-                <span th:switch="${m.status}">
-                    <span th:case="'SUBMITTED'">已提交</span>
-                    <span th:case="'UNDER_REVIEW'">审稿中</span>
-                    <span th:case="'NEED_REVISION'">需修回</span>
-                    <span th:case="'ACCEPTED'">已接收</span>
-                    <span th:case="'REJECTED'">已拒稿</span>
-                    <span th:case="*"
-                          th:text="${m.status}">未知</span>
-                </span>
-            </td>
-            <td th:text="${#temporals.format(m.submitTime, 'yyyy-MM-dd HH:mm')}">
-                2025-01-01 12:00
-            </td>
-        </tr>
-        </tbody>
-    </table>
+        <a class="nav-link" th:classappend="${currentTab == 'pending'} ? 'active'"
+           th:href="@{/chiefeditor/manuscripts(tab='pending')}">待审查</a>
+
+        <a class="nav-link" th:classappend="${currentTab == 'pending'} ? 'active'"
+           th:href="@{/chiefeditor/manuscripts(tab='pending')}">待分配</a>
+
+        <a class="nav-link" th:classappend="${currentTab == 'review'} ? 'active'"
+           th:href="@{/chiefeditor/manuscripts(tab='review')}">编辑处理中</a>
+
+        <a class="nav-link" th:classappend="${currentTab == 'review'} ? 'active'"
+           th:href="@{/chiefeditor/manuscripts(tab='review')}">审稿中</a>
+
+        <a class="nav-link" th:classappend="${currentTab == 'decision'} ? 'active'"
+           th:href="@{/chiefeditor/manuscripts(tab='decision')}">已决议</a>
+
+        <a class="nav-link" th:classappend="${currentTab == 'revision'} ? 'active'"
+           th:href="@{/chiefeditor/manuscripts(tab='revision')}">需要返修</a>
+    </div>
+
+    <div class="manuscript-list">
+
+        <div th:if="${#lists.isEmpty(manuscripts)}" class="text-center py-5">
+            <i class="bi bi-journal-x text-muted" style="font-size: 3rem;"></i>
+            <p class="mt-3 text-muted" style="font-family: var(--font-serif);">当前分类下暂无稿件。</p>
+        </div>
+
+        <div th:each="m : ${manuscripts}" class="paper-item"
+             th:classappend="${
+                (m.status == 'Accepted') ? 'status-accepted' :
+                (m.status == 'Rejected') ? 'status-rejected' :
+                (m.status == 'Need Revision') ? 'status-revision' :
+                (m.status == 'Under Review' or m.status == 'With Editor') ? 'status-review' :
+                (m.status == 'Pending Review' or m.status == 'Pending Allocation') ? 'status-pending' : ''
+             }">
+
+            <div class="row align-items-center">
+                <div class="col-md-9">
+                    <div class="paper-meta">
+                        <span th:text="${'稿件编号: #MS-' + m.manuscriptId}">ID: 123</span>
+                        <span class="mx-2 text-muted">|</span>
+                        <i class="bi bi-clock"></i> 提交时间:
+                        <span th:text="${m.submitTime != null ? #temporals.format(m.submitTime, 'yyyy年MM月dd日') : '-'}">Date</span>
+                    </div>
+
+                    <h3 class="paper-title" th:text="${m.title}">稿件标题占位符</h3>
+
+                    <div class="mt-2">
+                        <span class="status-badge"
+                              th:classappend="${
+                                  (m.status == 'Accepted') ? 'badge-accepted' :
+                                  (m.status == 'Rejected') ? 'badge-rejected' :
+                                  (m.status == 'Need Revision') ? 'badge-revision' :
+                                  (m.status == 'Under Review' or m.status == 'With Editor') ? 'badge-processing' :
+                                  (m.status == 'Pending Review' or m.status == 'Pending Allocation') ? 'badge-pending' : 'bg-light border'
+                              }">
+                            <span th:switch="${m.status}">
+                                <span th:case="'Started Submission'">开始投稿</span>
+                                <span th:case="'Incomplete Submission'">尚未提交的草稿</span>
+                                <span th:case="'Pending Review'">待审查</span>
+                                <span th:case="'Pending Allocation'">待分配</span>
+                                <span th:case="'With Editor'">编辑处理中</span>
+                                <span th:case="'Under Review'">审稿中</span>
+                                <span th:case="'Rejected'">拒稿</span>
+                                <span th:case="'Accepted'">录用</span>
+                                <span th:case="'Need Revision'">需要返修</span>
+                                <span th:case="*" th:text="${m.status}">未知状态</span>
+                            </span>
+                        </span>
+
+                        <span class="ms-3 small text-muted font-sans">
+                            <i class="bi bi-person-fill"></i> 作者ID: <span th:text="${m.authorId}"></span>
+                            <span th:if="${m.editorId != null}"> • 编辑ID: <span th:text="${m.editorId}"></span></span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-md-3 text-end border-start">
+                    <div class="d-grid gap-2">
+                        <a th:if="${m.status == 'Pending Allocation'}"
+                           th:href="@{/chiefeditor/assign-editor}"
+                           class="btn btn-warning btn-sm btn-action text-dark">
+                            <i class="bi bi-person-plus-fill"></i> 指派编辑
+                        </a>
+
+                        <button class="btn btn-outline-secondary btn-sm btn-action">
+                            查看详情
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="text-center py-4 text-muted small" style="font-family: var(--font-serif);">
+    &copy; 2025 国际人工智能研究 (International AI Research). 版权所有.
 </div>
 
 </body>

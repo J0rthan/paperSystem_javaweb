@@ -50,6 +50,9 @@ public class Manuscript {
     @Column(name = "assign_reason", length = 500)
     private String assignReason;
 
+    @Column(name = "assign_time")
+    private LocalDateTime assignTime;
+
     @Transient
     private List<ManuscriptAuthor> authors = new ArrayList<>();
 
@@ -104,4 +107,7 @@ public class Manuscript {
 
     public List<RecommendedReviewer> getReviewers() { return reviewers; }
     public void setReviewers(List<RecommendedReviewer> reviewers) { this.reviewers = reviewers; }
+
+    public LocalDateTime getAssignTime() {return assignTime;}
+    public void setAssignTime(LocalDateTime assignTime) {this.assignTime = assignTime;}
 }

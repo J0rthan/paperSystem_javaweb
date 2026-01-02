@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -57,6 +58,9 @@ public class AssignEditorServiceImpl implements AssignEditorService {
 
             // 3. 保存分配理由 (需要在 Manuscript 实体中添加此字段)
             paper.setAssignReason(reason);
+
+            // 4. 保存
+            paper.setAssignTime(LocalDateTime.now()); // 记录分配时间
 
             // 4. 执行更新
             manuscriptDao.save(paper);

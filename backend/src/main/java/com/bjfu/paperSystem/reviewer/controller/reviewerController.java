@@ -1,14 +1,14 @@
 package com.bjfu.paperSystem.reviewer.controller;
 
+import com.bjfu.paperSystem.javabeans.Manuscript;
+import com.bjfu.paperSystem.author.service.authorService;
 import com.bjfu.paperSystem.javabeans.Review;
 import com.bjfu.paperSystem.reviewer.service.reviewerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,14 +19,19 @@ public class reviewerController {
     @Autowired
     private reviewerService revService;
 
+    @Autowired
+    private authorService autService;
+
     @GetMapping
-    public String reviewer() {
-        return "reviewer";
+    public String toReviewerPage() {
+        return "/reviewer";
     }
 
     @GetMapping("pendingView")
-    public String toPendingViewPage() {
-        return "reviewer/pendingView";
+    public String toPendingViewPage(Model model) {
+        List<Review> list = revService.filterByTime(null, null);
+        model.addAttribute("reviewList", list);
+        return "/reviewer/pendingView";
     }
 
     @GetMapping("filter")
@@ -41,6 +46,17 @@ public class reviewerController {
         model.addAttribute("startTime", startTime);
         model.addAttribute("endTime", endTime);
         model.addAttribute("reviewList", list);
-        return "reviewer/pendingView";
+        return "/reviewer/pendingView";
+    }
+
+    @GetMapping("getManuSummary/{manuId}")
+    @ResponseBody
+    public String getManuSummary(@PathVariable int manuId) {
+        return "";
+    }
+
+    @GetMapping("invitations/accept")
+    public String acceptManu(@RequestParam("manuId") int manuId) {
+        return "";
     }
 }

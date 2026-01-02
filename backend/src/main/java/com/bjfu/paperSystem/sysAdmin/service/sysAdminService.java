@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface sysAdminService {
     // 创建一个用户
-    public void createAccount(String username, String password, String user_type);
+    public void createAccount(User user);
 
     // 查找所有用户（包括被禁用的）
     public List<User> findAllUsers();

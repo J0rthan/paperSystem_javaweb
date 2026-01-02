@@ -35,6 +35,51 @@
         </select>
     </div>
 
+    <div>
+        <label for="email">邮箱</label>
+        <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="example@domain.com"
+                pattern="^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
+                required
+        >
+    </div>
+
+    <div>
+        <label for="fullName">全名</label>
+        <input
+                type="text"
+                id="fullName"
+                name="fullName"
+                placeholder="请输入您的全名"
+                required
+        >
+    </div>
+
+    <div>
+        <label for="company">公司</label>
+        <input
+                type="text"
+                id="company"
+                name="company"
+                placeholder="请输入您的公司名"
+                required
+        >
+    </div>
+
+    <div>
+        <label for="investigationDirection">就业方向</label>
+        <input
+                type="text"
+                id="investigationDirection"
+                name="investigationDirection"
+                placeholder="请输入您的就业方向"
+                required
+        >
+    </div>
+
     <div style="margin-top: 10px;">
         <button type="submit">创建用户</button>
         <button type="reset">重置</button>

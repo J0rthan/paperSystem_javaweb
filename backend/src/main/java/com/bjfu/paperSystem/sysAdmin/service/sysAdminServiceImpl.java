@@ -21,12 +21,7 @@ public class sysAdminServiceImpl implements sysAdminService {
     private systemManageDao sysManageDao;
 
     @Override
-    public void createAccount(String username, String password, String user_type) {
-        User user = new User();
-
-        user.setUserName(username);
-        user.setPassword(password);
-        user.setUserType(user_type);
+    public void createAccount(User user) {
         // 设置状态为exist
         user.setStatus("exist");
 

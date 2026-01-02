@@ -45,7 +45,7 @@ public class userManageController {
     // 业务逻辑函数
     @PostMapping("createAccount")
     public String createAccount(User user) {
-       suAdminService.createAccount(user.getUserName(), user.getPassword(), user.getUserType());
+       suAdminService.createAccount(user);
        return "superadmin/userManage/createAccountPage";
     }
 

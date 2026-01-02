@@ -11,13 +11,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface reviewerDao extends JpaRepository<User, Integer> {
-    List<User> findByStatus(String status);
-
+public interface reviewerDao extends JpaRepository<Review, Integer> {
     @Query("""
-        select r from Review r
-        where (r.invitationTime is null or r.invitationTime >= :startTime) and (r.invitationTime is null or r.invitationTime <= :endTime)
-        order by r.invitationTime asc
+    select r from Review r
+    join fetch r.manuscript m
+    where (:start is null or r.invitationTime >= :start)
+      and (:end is null or r.invitationTime <= :end)
+    order by r.invitationTime asc
 """)
-    List<Review> findAllByInvitationTime(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
+    List<Review> findWithManuscript(@Param("start") LocalDateTime start,
+                                    @Param("end") LocalDateTime end);
 }

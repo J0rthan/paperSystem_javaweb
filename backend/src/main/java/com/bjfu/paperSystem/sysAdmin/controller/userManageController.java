@@ -49,7 +49,7 @@ public class userManageController {
     // 业务逻辑函数
     @PostMapping("createAccount")
     public String createAccount(User user) {
-        sysService.createAccount(user.getUserName(), user.getPassword(), user.getUserType());
+        sysService.createAccount(user);
         return "sysadmin/userManage/createAccountPage";
     }
 

@@ -50,20 +50,21 @@
 
         <tr th:each="r : ${reviewList}">
             <!-- 注意：Review 实体里目前没有 title/abstract 字段，下面先给占位写法 -->
-            <td th:text="${r.manuId}">manuId</td>
-            <td>（摘要需从稿件表/DTO提供）</td>
+            <td th:text="${r.getManuScript().getTitle()}"></td>
+            <td th:text="${r.getManuScript().getAbstractText()}"></td>
 
-            <td th:text="${r.invitationTime == null ? '' : #temporals.format(r.invitationTime, 'yyyy-MM-dd HH:mm')}">
-                2025-12-24 10:30
+            <td th:text="${r.getInvitationTime() == null ? '' : #temporals.format(r.getInvitationTime(), 'yyyy-MM-dd HH:mm')}">
             </td>
 
             <td>
-                <a th:href="@{'/reviewer/invitations/' + ${r.reviewId}}">查看详情</a>
+                <a th:href="@{'/reviewer/getManuSummary/' + ${r.getManuId()}}">查看详情</a>
                 |
-                <form th:action="@{'/reviewer/invitations/' + ${r.reviewId} + '/accept'}" method="post" style="display:inline;">
+                <form th:action="@{'/reviewer/invitations/accept'}" method="post" style="display:inline;">
+                    <button type="hidden" name="manuId" th:value="${r.getManuId()}"></button>
                     <button type="submit">接受</button>
                 </form>
-                <form th:action="@{'/reviewer/invitations/' + ${r.reviewId} + '/reject'}" method="post" style="display:inline;">
+                <form th:action="@{'/reviewer/invitations/reject'}" method="post" style="display:inline;">
+                    <button type="hidden" name="manuId" th:value="${r.getManuId()}"></button>
                     <button type="submit">拒绝</button>
                 </form>
             </td>

@@ -39,6 +39,11 @@ public class Review {
     @Column(name = "end_time")
     private LocalDateTime endTime;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "manu_id", referencedColumnName = "manuscript_id",
+            insertable = false, updatable = false)
+    private Manuscript manuscript;
+
     // getter and setter method
     public int getReviewId() {
         return reviewId;
@@ -118,5 +123,13 @@ public class Review {
 
     public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
+    }
+
+    public Manuscript getManuScript() {
+        return this.manuscript;
+    }
+
+    public void setManuScript(Manuscript manu) {
+        this.manuscript = manu;
     }
 }

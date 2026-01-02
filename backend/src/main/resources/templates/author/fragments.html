@@ -42,6 +42,25 @@
                 </td>
                 <td>
                     <div class="btn-group">
+                        <div class="btn-group" role="group">
+                            <button th:if="${(p.manuscriptPath != null and p.manuscriptPath != '') or (p.coverLetterPath != null and p.coverLetterPath != '')}"
+                                    type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                <i class="bi bi-download"></i>
+                            </button>
+                            <ul class="dropdown-menu shadow-sm">
+                                <li th:if="${p.manuscriptPath != null and p.manuscriptPath != ''}">
+                                    <a class="dropdown-item small" th:href="@{/author/manuscript/download(path=${p.manuscriptPath})}">
+                                        <i class="bi bi-file-earmark-text me-2"></i>主稿件
+                                    </a>
+                                </li>
+                                <li th:if="${p.coverLetterPath != null and p.coverLetterPath != ''}">
+                                    <a class="dropdown-item small" th:href="@{/author/manuscript/download(path=${p.coverLetterPath})}">
+                                        <i class="bi bi-envelope me-2"></i>投稿信 (Cover Letter)
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+
                         <th:block th:if="${type == 'draft'}">
                             <a th:href="@{/author/manuscript/edit(id=${p.manuscriptId})}" class="btn btn-sm btn-outline-primary">
                                 <i class="bi bi-pencil-square"></i> 继续填写
@@ -52,16 +71,19 @@
                                 <i class="bi bi-trash"></i> 删除
                             </a>
                         </th:block>
+
                         <a th:if="${type == 'track'}"
                            th:href="@{/author/manuscript/track(id=${p.manuscriptId})}"
                            class="btn btn-sm btn-outline-info text-dark">
                             <i class="bi bi-eye"></i> 追踪状态
                         </a>
+
                         <a th:if="${type == 'revise'}"
                            th:href="@{/author/manuscript/revise(id=${p.manuscriptId})}"
                            class="btn btn-sm btn-success">
-                            <i class="bi bi-arrow-repeat"></i>提交修回
+                            <i class="bi bi-arrow-repeat"></i> 提交修回
                         </a>
+
                         <a th:if="${type == 'final'}"
                            th:href="@{/author/manuscript/track(id=${p.manuscriptId})}"
                            class="btn btn-sm btn-outline-dark">

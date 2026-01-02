@@ -11,4 +11,5 @@ public interface ManuscriptAuthorDao extends JpaRepository<ManuscriptAuthor, Int
     @Modifying
     @Query("delete from ManuscriptAuthor a where a.manuscriptId = ?1")
     void deleteByManuscriptId(Integer manuscriptId);
+    List<ManuscriptAuthor> findByManuscriptId(int manuscriptId);
 }

@@ -19,7 +19,6 @@ public class profileSystemController {
     public String profile(HttpSession session, Model model) {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) return "redirect:/Login.html";
-
         model.addAttribute("user", authorService.getUserById(loginUser.getUserId()));
         return "author/profile";
     }
@@ -28,14 +27,12 @@ public class profileSystemController {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) return "redirect:/Login.html";
         String errorMsg = authorService.updateProfile(user, loginUser.getUserId());
-
         if (errorMsg != null) {
             ra.addFlashAttribute("error", errorMsg);
             return "redirect:/author/profile";
         }
         session.setAttribute("loginUser", authorService.getUserById(loginUser.getUserId()));
         ra.addFlashAttribute("msg", "信息修改成功！");
-
         return "redirect:/author/profile";
     }
 }

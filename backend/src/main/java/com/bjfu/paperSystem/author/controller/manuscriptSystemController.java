@@ -1,8 +1,7 @@
 package com.bjfu.paperSystem.author.controller;
-
-import com.bjfu.paperSystem.author.service.authorService;
-import com.bjfu.paperSystem.author.service.logService; // 确保导入了logService
+import com.bjfu.paperSystem.author.service.*;
 import com.bjfu.paperSystem.javabeans.*;
+import com.bjfu.paperSystem.author.dao.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -15,7 +14,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
 @Controller
 @RequestMapping("/author/manuscript")
 public class manuscriptSystemController {
@@ -141,6 +139,61 @@ public class manuscriptSystemController {
             ra.addFlashAttribute("error", "提交失败：" + e.getMessage());
             return "redirect:/author/manuscript/revise?id=" + manuscriptId;
         }
+    }
+    @GetMapping("/download")
+    public org.springframework.http.ResponseEntity<org.springframework.core.io.Resource> downloadFile(
+            @RequestParam("path") String filePath,
+            HttpSession session) {
+        if (session.getAttribute("loginUser") == null) {
+            return org.springframework.http.ResponseEntity.status(403).build();
+        }
+        try {
+            String projectPath = System.getProperty("user.dir");
+            File file = new File(projectPath + "/backend/src/main/resources/static" + filePath);
+            if (!file.exists()) {
+                String classPath = java.net.URLDecoder.decode(this.getClass().getClassLoader().getResource("").getPath(), "UTF-8");
+                if (System.getProperty("os.name").toLowerCase().contains("win") && classPath.startsWith("/")) {
+                    classPath = classPath.substring(1);
+                }
+                file = new File(classPath + "static" + filePath);
+            }
+
+            if (!file.exists()) {
+                return org.springframework.http.ResponseEntity.notFound().build();
+            }
+
+            org.springframework.core.io.Resource resource = new org.springframework.core.io.FileSystemResource(file);
+            String fileName = file.getName();
+            String encodedFileName = java.net.URLEncoder.encode(fileName, "UTF-8").replace("+", "%20");
+
+            return org.springframework.http.ResponseEntity.ok()
+                    .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + encodedFileName + "\"")
+                    .contentType(org.springframework.http.MediaType.APPLICATION_OCTET_STREAM)
+                    .body(resource);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return org.springframework.http.ResponseEntity.internalServerError().build();
+        }
+    }
+    @Autowired
+    private ManuscriptDao manuscriptDao;
+    @Autowired
+    private ManuscriptAuthorDao manuscriptAuthorDao;
+    @Autowired
+    private RecommendedReviewerDao recommendedReviewerDao;
+    @GetMapping("/detail")
+    public String showDetail(@RequestParam("id") int id, Model model) {
+        Manuscript manuscript = manuscriptDao.findById(id).orElse(null);
+        if (manuscript == null) {
+            return "redirect:/author/manuscript/list";
+        }
+        List<ManuscriptAuthor> authors = manuscriptAuthorDao.findByManuscriptId(id);
+        manuscript.setAuthors(authors);
+        List<RecommendedReviewer> reviewers = recommendedReviewerDao.findByManuscriptId(id);
+        manuscript.setReviewers(reviewers);
+        model.addAttribute("manuscript", manuscript);
+        return "author/detailedInformation";
     }
     private String saveFile(MultipartFile file, String subDir) {
         try {

@@ -11,11 +11,9 @@
     </style>
 </head>
 <body>
-
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-7">
-
             <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
                 <strong>错误：</strong> <span th:text="${error}">错误消息</span>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -24,14 +22,12 @@
                 <strong>成功：</strong> <span th:text="${msg}">成功消息</span>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
-
             <div class="card shadow">
                 <div class="card-header bg-dark text-white p-3">
                     <h5 class="mb-0">⚙️ 账号信息设置</h5>
                 </div>
                 <div class="card-body p-4">
                     <form th:action="@{/author/profile/update}" method="post">
-
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">账号名</label>
@@ -44,25 +40,21 @@
                                        th:value="${user.fullName}">
                             </div>
                         </div>
-
                         <div class="mb-3">
                             <label class="form-label fw-bold">邮箱</label>
                             <input type="email" name="email" class="form-control"
                                    th:value="${user.email}">
                         </div>
-
                         <div class="mb-3">
                             <label class="form-label fw-bold">单位</label>
                             <input type="text" name="company" class="form-control"
                                    th:value="${user.company}">
                         </div>
-
                         <div class="mb-3">
                             <label class="form-label fw-bold">研究方向</label>
                             <input type="text" name="investigationDirection" class="form-control"
                                    th:value="${user.investigationDirection}">
                         </div>
-
                         <div class="mb-4">
                             <label class="form-label">修改密码</label>
                             <input type="password"

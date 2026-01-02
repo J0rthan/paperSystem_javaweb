@@ -18,13 +18,10 @@
     </div>
     <a th:href="@{/author/manuscript/list}" class="btn btn-sm btn-outline-secondary rounded-pill">返回稿件中心</a>
 </div>
-
 <form th:action="@{/author/manuscript/doSubmit}" th:object="${manuscript}" method="post" enctype="multipart/form-data">
-
     <input type="hidden" th:field="*{manuscriptId}">
     <input type="hidden" th:field="*{manuscriptPath}">
     <input type="hidden" th:field="*{coverLetterPath}">
-
     <div class="section-box">
         <h4>1. 稿件信息</h4>
         <div class="row g-3">
@@ -50,7 +47,6 @@
             </div>
         </div>
     </div>
-
     <div class="section-box">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4>2. 作者列表</h4>
@@ -73,7 +69,6 @@
             </div>
         </div>
     </div>
-
     <div class="section-box">
         <h4>3. 文件上传</h4>
         <div class="mb-3">
@@ -91,7 +86,6 @@
             </div>
         </div>
     </div>
-
     <div class="section-box">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4>4. 推荐审稿人</h4>
@@ -105,15 +99,12 @@
             </div>
         </div>
     </div>
-
     <div class="text-center mt-5 mb-5">
         <button type="submit" name="action" value="save" class="btn btn-outline-primary btn-lg px-5">保存草稿</button>
         <button type="submit" name="action" value="submit" class="btn btn-primary btn-lg px-5 ms-3" onclick="return validateSubmit()">最终提交</button>
     </div>
 </form>
-
 <script>
-    // 提交校验逻辑
     function validateSubmit() {
         const titleField = document.getElementById('titleField');
         if (!titleField.value || titleField.value.trim() === "") {
@@ -123,7 +114,6 @@
         }
         return confirm('确认最终提交吗？提交后将进入审核流程，不可再修改。');
     }
-
     function addAuthor() {
         const container = document.getElementById('author-list');
         const i = container.children.length;

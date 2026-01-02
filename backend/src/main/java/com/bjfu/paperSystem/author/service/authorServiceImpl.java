@@ -21,7 +21,6 @@ public class authorServiceImpl implements authorService {
     @Autowired private FilesDao filesDao;
     @Autowired
     private LogsDao logsDao;
-
     private String translateStatus(String status) {
         if (status == null) return "未知状态";
         return switch (status) {
@@ -113,7 +112,6 @@ public class authorServiceImpl implements authorService {
         map.put("revisionPapers", all.stream().filter(m -> m.getStatus().equals("需要返修")).collect(Collectors.toList()));
         map.put("pendingAllocationList", all.stream().filter(m -> m.getStatus().equals("待分配")).collect(Collectors.toList()));
         map.put("withEditorList", all.stream().filter(m -> m.getStatus().equals("编辑处理中")).collect(Collectors.toList()));
-
         return map;
     }
     @Override
@@ -130,7 +128,6 @@ public class authorServiceImpl implements authorService {
     @Override public User getUserById(int userId) { return authorDao.findById(userId).orElse(null); }
     @Override
     public User findUserById(int userId) {
-        // 使用 JPA 默认的 findById 方法
         return authorDao.findById(userId).orElse(null);
     }
     @Override
@@ -163,14 +160,13 @@ public class authorServiceImpl implements authorService {
         newV.setResponseLetterPath(replyPath);
         newV.setResponseText(responseText);
         versionsDao.save(newV);
-        // 4. 更新稿件状态
         Manuscript ms = manuscriptDao.findById(manuscriptId).get();
         ms.setStatus("Under Review");
         manuscriptDao.save(ms);
         Logs log = new Logs();
         log.setPaperId(manuscriptId);
         log.setOporId(user.getUserId());
-        log.setOpType("Submit Revision");
+        log.setOpType("submit revision");
         log.setOpTime(LocalDateTime.now());
         logsDao.save(log);
     }
@@ -181,7 +177,6 @@ public class authorServiceImpl implements authorService {
             String suffix = originalFileName.substring(originalFileName.lastIndexOf("."));
             String fileName = UUID.randomUUID().toString() + suffix;
             String projectPath = System.getProperty("user.dir");
-            // 1. 源码目录路径（为了让 IDEA 里的资源同步）
             String srcPath = projectPath + "/backend/src/main/resources/static/uploads/" + subDir + "/";
             File srcDir = new File(srcPath);
             if (!srcDir.exists()) srcDir.mkdirs();

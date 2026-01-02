@@ -21,7 +21,6 @@
       <small class="text-muted">欢迎您：<span th:text="${session.loginUser.userName}">作者</span></small>
       <form th:action="@{/author/manuscript/doRevise}" method="post" enctype="multipart/form-data">
         <input type="hidden" name="manuscriptId" th:value="${manuscript.manuscriptId}">
-
         <h5 class="text-primary border-bottom pb-2">1. 上传修改后的文件</h5>
         <div class="row g-3 mb-4">
           <div class="col-md-4">
@@ -37,7 +36,6 @@
             <input type="file" name="replyFile" class="form-control" accept=".doc,.docx" required>
           </div>
         </div>
-
         <h5 class="text-primary border-bottom pb-2">2. 逐点回复审稿意见 (Response Text)</h5>
         <div class="editor-container">
           <div id="toolbar-container" class="editor-toolbar"></div>
@@ -53,7 +51,6 @@
     </div>
   </div>
 </div>
-
 <script src="https://unpkg.com/@wangeditor/editor@latest/dist/index.js"></script>
 <script>
   const { createEditor, createToolbar } = window.wangEditor;

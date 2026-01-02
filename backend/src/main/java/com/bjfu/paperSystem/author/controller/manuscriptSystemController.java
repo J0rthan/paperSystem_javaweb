@@ -11,9 +11,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.time.LocalDateTime;
 @Controller
 @RequestMapping("/author/manuscript")
 public class manuscriptSystemController {
@@ -21,12 +20,25 @@ public class manuscriptSystemController {
     private authorService authorService;
     @Autowired
     private logService logService;
+    @Autowired
+    private LogsDao logsDao;
     @GetMapping("/list")
     public String list(Model model, HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) return "redirect:/login";
         Map<String, List<Manuscript>> data = authorService.getCategorizedManuscripts(loginUser.getUserId());
+        Map<Integer, LocalDateTime> lastUpdateTimes = new HashMap<>();
+        data.values().forEach(list -> {
+            if (list != null) {
+                for (Manuscript m : list) {
+                    Optional<Logs> latestLog = logsDao.findTopByPaperIdOrderByOpTimeDesc(m.getManuscriptId());
+                    LocalDateTime lastTime = latestLog.map(Logs::getOpTime).orElse(m.getSubmitTime());
+                    lastUpdateTimes.put(m.getManuscriptId(), lastTime);
+                }
+            }
+        });
         model.addAllAttributes(data);
+        model.addAttribute("lastUpdateTimes", lastUpdateTimes);
         return "author/list";
     }
     @GetMapping("/submit")
@@ -38,7 +50,6 @@ public class manuscriptSystemController {
         model.addAttribute("manuscript", manuscript);
         return "author/submit";
     }
-
     @PostMapping("/doSubmit")
     public String doSubmit(@ModelAttribute Manuscript manuscript,
                            @RequestParam("action") String action,
@@ -157,15 +168,12 @@ public class manuscriptSystemController {
                 }
                 file = new File(classPath + "static" + filePath);
             }
-
             if (!file.exists()) {
                 return org.springframework.http.ResponseEntity.notFound().build();
             }
-
             org.springframework.core.io.Resource resource = new org.springframework.core.io.FileSystemResource(file);
             String fileName = file.getName();
             String encodedFileName = java.net.URLEncoder.encode(fileName, "UTF-8").replace("+", "%20");
-
             return org.springframework.http.ResponseEntity.ok()
                     .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + encodedFileName + "\"")
                     .contentType(org.springframework.http.MediaType.APPLICATION_OCTET_STREAM)

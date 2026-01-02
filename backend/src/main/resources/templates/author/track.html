@@ -99,9 +99,11 @@
                         <div class="timeline-content">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <div>
+                                    
                                     <h5 class="fw-bold mb-1 text-dark" th:switch="${log.opType}">
                                         <span th:case="'submit'">初始投稿提交</span>
                                         <span th:case="'through review'">通过初步审查</span>
+                                        <span th:case="'finish allocation'">完成分配</span>>
                                         <span th:case="'submit revision'">提交修改稿 (Revision)</span>
                                         <span th:case="*" th:text="${log.opType}">系统记录</span>
                                     </h5>
@@ -133,26 +135,22 @@
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="badge bg-secondary version-badge" th:text="'Version ' + ${v.versionNumber}">V1</span>
                         </div>
-
                         <div class="d-grid gap-2">
                             <a th:if="${v.filePathOriginal != null and v.filePathOriginal != ''}"
                                th:href="@{/author/manuscript/download(path=${v.filePathOriginal})}"
                                class="btn btn-sm btn-outline-primary text-start">
                                 <i class="bi bi-file-earmark-word me-2"></i>下载稿件 (Clean)
                             </a>
-
                             <a th:if="${v.coverLetterPath != null and v.coverLetterPath != ''}"
                                th:href="@{/author/manuscript/download(path=${v.coverLetterPath})}"
                                class="btn btn-sm btn-outline-info text-start">
                                 <i class="bi bi-envelope-paper me-2"></i>下载投稿信 (Cover Letter)
                             </a>
-
                             <a th:if="${v.filePathAnon != null and v.filePathAnon != ''}"
                                th:href="@{/author/manuscript/download(path=${v.filePathAnon})}"
                                class="btn btn-sm btn-outline-warning text-start">
                                 <i class="bi bi-file-earmark-diff me-2"></i>下载标记版 (Marked)
                             </a>
-
                             <a th:if="${v.responseLetterPath != null and v.responseLetterPath != ''}"
                                th:href="@{/author/manuscript/download(path=${v.responseLetterPath})}"
                                class="btn btn-sm btn-outline-success text-start">

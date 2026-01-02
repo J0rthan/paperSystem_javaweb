@@ -19,7 +19,16 @@
                     <span th:if="${p.title == null or p.title == ''}" class="text-muted fst-italic">（未填写标题）</span>
                     <span th:if="${p.title != null and p.title != ''}" th:text="${p.title}" class="text-truncate d-inline-block" style="max-width: 250px;"></span>
                 </td>
-                <td th:text="${p.submitTime != null ? #temporals.format(p.submitTime, 'yyyy-MM-dd HH:mm:ss') : '-'}"></td>
+                <td>
+                    <span th:with="uTime=${lastUpdateTimes != null ? lastUpdateTimes[p.manuscriptId] : null}">
+                        <span th:if="${uTime != null}"
+                            th:text="${#temporals.format(uTime, 'yyyy-MM-dd HH:mm:ss')}">
+                        </span>
+                        <span th:if="${uTime == null}"
+                            th:text="${p.submitTime != null ? #temporals.format(p.submitTime, 'yyyy-MM-dd HH:mm:ss') : '-'}">
+                        </span>
+                    </span>
+                </td>
                 <td>
                     <span class="badge rounded-pill px-3"
                           th:classappend="${p.status == 'Accepted' or p.status == '录用'} ? 'bg-success' :

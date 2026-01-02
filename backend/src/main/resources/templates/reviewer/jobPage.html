@@ -49,6 +49,27 @@
             <a th:href="@{/reviewer/submitOpinionPage/{id}(id=${r.getReviewId()})}">
                 提交评审意见
             </a>
+            |
+            <form th:action="@{/reviewer/download}" method="get" style="display:inline;">
+                <!-- 可选：带上 reviewId 方便你后端做权限校验（不影响下载） -->
+                <input type="hidden" name="reviewId" th:value="${r.reviewId}" />
+
+                <select name="path" required>
+                    <option value="" disabled selected>请选择要下载的文件</option>
+
+                    <!-- 主稿 -->
+                    <option th:value="${r.manuScript.manuscriptPath}">
+                        主稿（PDF）
+                    </option>
+
+                    <!-- 补充材料列表：需要你在 model 里给每个 Review 对应的附件列表 -->
+                    <option th:value="${r.manuScript.coverLetterPath}">
+                        投稿信(Cover Letter)
+                    </option>
+                </select>
+
+                <button type="submit">下载</button>
+            </form>
         </td>
     </tr>
     </tbody>

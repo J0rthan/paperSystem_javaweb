@@ -18,14 +18,14 @@ public class profileSystemController {
     @GetMapping
     public String profile(HttpSession session, Model model) {
         User loginUser = (User) session.getAttribute("loginUser");
-        if (loginUser == null) return "redirect:/Login.html";
+        if (loginUser == null) return "redirect:/index";
         model.addAttribute("user", authorService.getUserById(loginUser.getUserId()));
         return "author/profile";
     }
     @PostMapping("/update")
     public String update(User user, HttpSession session, RedirectAttributes ra) {
         User loginUser = (User) session.getAttribute("loginUser");
-        if (loginUser == null) return "redirect:/Login.html";
+        if (loginUser == null) return "redirect:/index";
         String errorMsg = authorService.updateProfile(user, loginUser.getUserId());
         if (errorMsg != null) {
             ra.addFlashAttribute("error", errorMsg);

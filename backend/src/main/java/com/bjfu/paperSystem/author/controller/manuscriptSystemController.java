@@ -22,6 +22,12 @@ public class manuscriptSystemController {
     private logService logService;
     @Autowired
     private LogsDao logsDao;
+    @Autowired
+    private ManuscriptDao manuscriptDao;
+    @Autowired
+    private ManuscriptAuthorDao manuscriptAuthorDao;
+    @Autowired
+    private RecommendedReviewerDao recommendedReviewerDao;
     @GetMapping("/list")
     public String list(Model model, HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
@@ -184,12 +190,6 @@ public class manuscriptSystemController {
             return org.springframework.http.ResponseEntity.internalServerError().build();
         }
     }
-    @Autowired
-    private ManuscriptDao manuscriptDao;
-    @Autowired
-    private ManuscriptAuthorDao manuscriptAuthorDao;
-    @Autowired
-    private RecommendedReviewerDao recommendedReviewerDao;
     @GetMapping("/detail")
     public String showDetail(@RequestParam("id") int id, Model model) {
         Manuscript manuscript = manuscriptDao.findById(id).orElse(null);

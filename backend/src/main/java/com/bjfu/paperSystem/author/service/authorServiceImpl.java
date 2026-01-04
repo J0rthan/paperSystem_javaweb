@@ -133,6 +133,10 @@ public class authorServiceImpl implements authorService {
     @Override
     @Transactional
     public String updateProfile(User user, int loginUserId) {
+        User duplicateUser = authorDao.findByUserName(user.getUserName());
+        if (duplicateUser != null && duplicateUser.getUserId() != loginUserId) {
+            return "用户名已被占用，请更换其他账号名";
+        }
         User dbUser = authorDao.findById(loginUserId).orElse(null);
         if (dbUser == null) return "用户不存在";
         dbUser.setUserName(user.getUserName());

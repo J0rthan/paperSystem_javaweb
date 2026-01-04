@@ -33,4 +33,7 @@ public interface superAdminService {
                                 Integer oporId,
                                 String opType,
                                 Integer paperId);
+
+    // 根据用户类型查找用户
+    public List<User> findUserByType(String userType);
 }

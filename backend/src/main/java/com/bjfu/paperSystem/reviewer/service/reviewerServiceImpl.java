@@ -64,4 +64,19 @@ public class reviewerServiceImpl implements reviewerService{
     public Review findByRevId(int review_id) {
         return revDao.findByIdWithManuscript(review_id);
     }
+
+    // 更新系统状态为“完成审稿”
+    @Override
+    @Transactional
+    public String updateFinish(Integer review_id) {
+        Review review = revDao.findById(review_id).orElse(null);
+        if (review != null) {
+            review.setStatus("finished");
+
+            return "ok";
+        }
+
+        // 未找到review
+        return "false";
+    }
 }

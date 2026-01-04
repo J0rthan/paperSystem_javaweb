@@ -1,10 +1,12 @@
 package com.bjfu.paperSystem.superAdmin.service;
 
 import com.bjfu.paperSystem.javabeans.Logs;
+import com.bjfu.paperSystem.javabeans.Review;
 import com.bjfu.paperSystem.javabeans.User;
 import com.bjfu.paperSystem.superAdmin.dao.superAdminDao;
 import com.bjfu.paperSystem.superAdmin.dao.systemManageDao;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -125,5 +127,12 @@ public class superAdminServiceImpl implements superAdminService{
             // where 条件拼接
             return cb.and(predicates.toArray(new Predicate[0]));
         });
+    }
+
+    @Override
+    public List<User> findUserByType(String userType) {
+        List<User> editorList = suAdminDao.findByUserType("editor");
+
+        return editorList;
     }
 }

@@ -7,14 +7,14 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MailUtil {
+public class mailUtil {
     private final JavaMailSender mailSender;
-    private final String from;
 
-    public MailUtil(JavaMailSender mailSender,
-                    @Value("${spring.mail.username}") String from) {
+    @Value("${spring.mail.username}")
+    private String from;
+
+    public mailUtil(JavaMailSender mailSender) {  // 构造注入（推荐）
         this.mailSender = mailSender;
-        this.from = from;
     }
 
     public void sendTextMail(String to, String subject, String content) {
@@ -23,6 +23,7 @@ public class MailUtil {
         message.setTo(to);
         message.setSubject(subject);
         message.setText(content);
+
         mailSender.send(message);
     }
 }

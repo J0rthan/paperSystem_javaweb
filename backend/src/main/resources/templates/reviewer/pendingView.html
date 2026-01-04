@@ -9,7 +9,6 @@
 <section aria-label="待处理邀请列表">
     <h2>待处理邀请列表</h2>
 
-    <!-- 1) method 改为 get，匹配 @GetMapping("filter") -->
     <form th:action="@{/reviewer/filter}" method="get">
         <fieldset>
             <legend>筛选</legend>
@@ -43,13 +42,11 @@
         </thead>
 
         <tbody>
-        <!-- 2) 用 reviewList 渲染 -->
         <tr th:if="${reviewList == null or #lists.isEmpty(reviewList)}">
             <td colspan="4">暂无数据</td>
         </tr>
 
         <tr th:each="r : ${reviewList}">
-            <!-- 注意：Review 实体里目前没有 title/abstract 字段，下面先给占位写法 -->
             <td th:text="${r.getManuScript().getTitle()}"></td>
             <td th:text="${r.getManuScript().getAbstractText()}"></td>
 
@@ -77,14 +74,14 @@
                     </form>
                 </div>
 
-                <!-- 2️⃣ 已接受 -->
+                <!-- 已接受 -->
                 <span th:if="${r.getStatus().equals('accepted')}"
                       style="color: green;">
                         <a th:href="@{'/reviewer/getManuSummary/' + ${r.getManuId()}}">查看详情</a>
                     | 已接受
                 </span>
 
-                <!-- 3️⃣ 已拒绝 -->
+                <!-- 已拒绝 -->
                 <span th:if="${r.getStatus().equals('rejected')}"
                       style="color: red;">
                         <a th:href="@{'/reviewer/getManuSummary/' + ${r.getManuId()}}">查看详情</a>

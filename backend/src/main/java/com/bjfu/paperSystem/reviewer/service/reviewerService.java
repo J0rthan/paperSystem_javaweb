@@ -24,4 +24,7 @@ public interface reviewerService {
 
     // 根据主键查稿件
     public Review findByRevId(int review_id);
+
+    // 更新系统状态为“完成审稿”
+    public String updateFinish(Integer review_id);
 }

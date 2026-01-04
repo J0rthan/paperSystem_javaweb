@@ -8,7 +8,7 @@
 
 <h2>提交审稿意见</h2>
 
-<!-- 基本信息（可选） -->
+<!-- 基本信息 -->
 <div style="margin-bottom: 12px;">
     <p>
         <strong>稿件：</strong>
@@ -24,9 +24,19 @@
     <!-- 必须带回 reviewId，用于后端定位审稿任务 -->
     <input type="hidden" name="reviewId" th:value="${review.getReviewId()}"/>
 
-    <!-- ① Confidential to Editor -->
+    <!-- Confidential to Editor -->
     <fieldset style="margin-bottom: 16px;">
         <legend><strong>给编辑的保密意见（Confidential to Editor）</strong></legend>
+        <div style="margin: 10px 0;">
+            <label for="editorId"><strong>指定编辑：</strong></label>
+            <select id="editorId" name="editorId" required>
+                <option value="">请选择编辑</option>
+                <option th:each="editor : ${editors}"
+                        th:value="${editor.getUserId()}"
+                        th:text="${editor.getFullName()} + '（' + ${editor.getUserName()} + '）'">
+                </option>
+            </select>
+        </div>
 
         <p style="margin: 6px 0;"><strong>打分表（1~5 分）</strong></p>
 
@@ -88,7 +98,7 @@
         </div>
     </fieldset>
 
-    <!-- ② Comments to Author -->
+    <!-- Comments to Author -->
     <fieldset style="margin-bottom: 16px;">
         <legend><strong>给作者的公开意见（Comments to Author）</strong></legend>
 

@@ -3,7 +3,11 @@ package com.bjfu.paperSystem.reviewer.controller;
 import com.bjfu.paperSystem.javabeans.Manuscript;
 import com.bjfu.paperSystem.author.service.authorService;
 import com.bjfu.paperSystem.javabeans.Review;
+import com.bjfu.paperSystem.javabeans.User;
+import com.bjfu.paperSystem.mailUtils.Service.mailService;
+import com.bjfu.paperSystem.mailUtils.mailUtil;
 import com.bjfu.paperSystem.reviewer.service.reviewerService;
+import com.bjfu.paperSystem.superAdmin.service.superAdminService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -23,6 +27,18 @@ public class reviewerController {
 
     @Autowired
     private authorService autService;
+
+    @Autowired
+    private superAdminService suService;
+
+    @Autowired
+    private mailService mSerivice;
+
+    private final mailUtil mailUtil1;
+
+    public reviewerController(mailUtil mailUtil) {
+        this.mailUtil1 = mailUtil;
+    }
 
     @GetMapping
     public String toReviewerPage() {
@@ -97,12 +113,58 @@ public class reviewerController {
 
         System.out.println(review.getManuScript().getTitle());
         model.addAttribute("review", review);
+        model.addAttribute("editors",
+                suService.findUserByType("editor"));
+        if (suService.findUserByType("editor").isEmpty()) {
+            System.out.println("it's empty");
+        }
+        else {
+            System.out.println("it's not empty");
+        }
         return "/reviewer/submitOpinionPage";
     }
 
     @PostMapping("submitOpinion")
-    public String handleSubmitOpinion() {
-        return "";
+    @ResponseBody
+    public String handleSubmitOpinion(
+            @RequestParam Integer reviewId, // 当前reviewId 可以查到编辑和作者id
+            @RequestParam Integer scoreNovelty, // 创新性打分1-5
+            @RequestParam Integer scoreMethod, // 方法论打分1-5
+            @RequestParam Integer scoreQuality, // 整体质量打分1-5
+            @RequestParam String keyComments, // 关键评价
+            @RequestParam String recommendation, // 总体建议
+            @RequestParam String commentsToAuthor // 给作者的具体修改建议
+    ) {
+        // 先查到编辑和作者id
+        Review review = revService.findByRevId(reviewId);
+        Manuscript manu = review.getManuScript();
+        int editor_id = manu.getEditorId();
+        int author_id = manu.getAuthorId();
+
+        // 再根据user表查具体的邮箱地址
+        String editor_email = suService.findUserById(editor_id).getEmail();
+        String author_email = suService.findUserById(author_id).getEmail();
+
+        // 开始发送邮件信息
+        String toEditorMessage = String.format("""
+                创新性打分:%d,
+                方法论打分:%d,
+                整体质量打分: %d,
+                关键评价: %s,
+                整体建议: %s
+                """, scoreNovelty, scoreMethod, scoreQuality, keyComments, recommendation);
+        String toAuthorMessage = String.format("""
+                具体修改建议: %s
+                """, commentsToAuthor);
+
+        mailUtil1.sendTextMail("982080681@qq.com", "给编辑的意见", toEditorMessage);
+        mailUtil1.sendTextMail("982080681@qq.com", "给作者的建议", toAuthorMessage);
+        // 发送邮件的同时写入邮件信息表
+        mSerivice.insertRecord("982080681@qq.com", "982080681@qq.com", toEditorMessage, manu.getManuscriptId(), manu);
+
+        String exitCode = revService.updateFinish(reviewId);
+
+        return "意见已提交";
     }
 
     @GetMapping("download")

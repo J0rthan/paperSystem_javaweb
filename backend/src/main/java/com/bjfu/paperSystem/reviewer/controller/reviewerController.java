@@ -143,7 +143,9 @@ public class reviewerController {
 
         // 再根据user表查具体的邮箱地址
         String editor_email = suService.findUserById(editor_id).getEmail();
+        System.out.println("editor_email: " + editor_email);
         String author_email = suService.findUserById(author_id).getEmail();
+        System.out.println("author_email: " + author_email);
 
         // 开始发送邮件信息
         String toEditorMessage = String.format("""
@@ -157,10 +159,10 @@ public class reviewerController {
                 具体修改建议: %s
                 """, commentsToAuthor);
 
-        mailUtil1.sendTextMail("982080681@qq.com", "给编辑的意见", toEditorMessage);
-        mailUtil1.sendTextMail("982080681@qq.com", "给作者的建议", toAuthorMessage);
+        mailUtil1.sendTextMail(editor_email, "给编辑的意见", toEditorMessage);
+        mailUtil1.sendTextMail(author_email, "给作者的建议", toAuthorMessage);
         // 发送邮件的同时写入邮件信息表
-        mSerivice.insertRecord("982080681@qq.com", "982080681@qq.com", toEditorMessage, manu.getManuscriptId(), manu);
+        mSerivice.insertRecord(editor_email, author_email, toEditorMessage, manu.getManuscriptId(), manu);
 
         String exitCode = revService.updateFinish(reviewId);
 

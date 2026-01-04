@@ -35,8 +35,8 @@
                 #temporals.format(r.getInvitationTime(), 'yyyy-MM-dd HH:mm')}">
         </td>
 
-        <td th:text="${r.endTime == null ? '' :
-                #temporals.format(r.getEndTime(), 'yyyy-MM-dd HH:mm')}">
+        <td th:text="${r.deadline == null ? '' :
+                #temporals.format(r.deadline, 'yyyy-MM-dd HH:mm')}">
         </td>
 
         <td th:text="${r.getStatus()}">ACCEPTED</td>

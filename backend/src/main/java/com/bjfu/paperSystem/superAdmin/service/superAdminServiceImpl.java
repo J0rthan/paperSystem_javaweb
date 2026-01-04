@@ -132,6 +132,7 @@ public class superAdminServiceImpl implements superAdminService{
     @Override
     public List<User> findUserByType(String userType) {
         List<User> editorList = suAdminDao.findByUserType("editor");
+        editorList.removeIf(e -> "not_exist".equals(e.getStatus()));
 
         return editorList;
     }

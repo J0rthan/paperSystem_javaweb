@@ -20,6 +20,24 @@ public class ClientMessage {
     @Column(name = "message_body", nullable = false, length = 200)
     private String messageBody;
 
+    /**
+     * 外键字段（数据库真实存在的列）
+     */
+    @Column(name = "manu_id", nullable = false)
+    private Integer manuId;
+
+    /**
+     * JPA 关联对象（不直接写入列）
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "manu_id",
+            referencedColumnName = "manuscript_id",
+            insertable = false,
+            updatable = false
+    )
+    private Manuscript manuscript;
+
     // ===== Getter / Setter =====
 
     public Integer getClientMesId() {
@@ -52,5 +70,21 @@ public class ClientMessage {
 
     public void setMessageBody(String messageBody) {
         this.messageBody = messageBody;
+    }
+
+    public Integer getManuId() {
+        return manuId;
+    }
+
+    public void setManuId(Integer manuId) {
+        this.manuId = manuId;
+    }
+
+    public Manuscript getManuscript() {
+        return manuscript;
+    }
+
+    public void setManuscript(Manuscript manuscript) {
+        this.manuscript = manuscript;
     }
 }

@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface reviewerService {
     // 利用时间来筛选邀请列表
-    public List<Review> filterByTime(LocalDateTime startTime, LocalDateTime endTime);
+    public List<Review> filterByTime(LocalDateTime startTime, LocalDateTime endTime, int reviewer_id);
 
     // 通过manu_id查找稿件
     public Manuscript findByManuId(int manu_id);
@@ -20,7 +20,7 @@ public interface reviewerService {
     public String rejectManu(int review_id, int manu_id);
 
     // 查找已经接受的稿件
-    public List<Review> filterByStatus(String status);
+    public List<Review> filterByStatus(String status, int reviewer_id);
 
     // 根据主键查稿件
     public Review findByRevId(int review_id);

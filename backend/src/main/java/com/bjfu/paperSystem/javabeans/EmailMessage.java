@@ -2,8 +2,10 @@ package com.bjfu.paperSystem.javabeans;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 @Entity
-@Table(name = "EmailMessage")
+@Table(name = "email_message")
 public class EmailMessage {
 
     @Id
@@ -19,6 +21,9 @@ public class EmailMessage {
 
     @Column(name = "message_body", nullable = false, length = 200)
     private String messageBody;
+
+    @Column(name = "sending_time", nullable = false)
+    private LocalDateTime sendingTime;
 
     /**
      * 外键字段（数据库真实存在的列）
@@ -87,4 +92,8 @@ public class EmailMessage {
     public void setManuscript(Manuscript manuscript) {
         this.manuscript = manuscript;
     }
+
+    public void setSendingTime(LocalDateTime sendingTime) {this.sendingTime = sendingTime;}
+
+    public LocalDateTime getSendingTime(LocalDateTime sendingTime) {return this.sendingTime;}
 }

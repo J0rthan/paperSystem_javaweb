@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 public class mailServiceImpl implements mailService{
     @Autowired
@@ -19,6 +21,7 @@ public class mailServiceImpl implements mailService{
         emailMes.setMessageBody(messageBody);
         emailMes.setManuId(manuId);
         emailMes.setManuscript(manu);
+        emailMes.setSendingTime(LocalDateTime.now());
 
         mailDao1.save(emailMes);
 

@@ -1,6 +1,7 @@
 package com.bjfu.paperSystem.Login.controller;
 
 import com.bjfu.paperSystem.Login.service.UserService;
+import com.bjfu.paperSystem.superAdmin.service.superAdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,6 +19,9 @@ public class UserController {
     
     @Autowired
     private UserDao userDao;
+
+    @Autowired
+    private superAdminService suService;
 
     // 处理登陆请求
     @PostMapping("/login")
@@ -43,6 +47,9 @@ public class UserController {
 
         // 首先要确保是存在的用户，如果用户被封禁则提示无法登陆
         if ("exist".equalsIgnoreCase(status)) {
+            // session传user_id
+            int user_id = suService.findUseIdByName(user.getUserName());
+            session.setAttribute("user_id", user_id);
             // 如果是超级管理员(super_admin)
             if ("super_admin".equalsIgnoreCase(userType)) {
                 return "redirect:/superadmin";

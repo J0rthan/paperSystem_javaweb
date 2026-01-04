@@ -23,8 +23,10 @@ public class reviewerServiceImpl implements reviewerService{
 
     // 通过时间范围筛选稿件
     @Override
-    public List<Review> filterByTime(LocalDateTime startTime, LocalDateTime endTime) {
-        return revDao.findWithManuscript(startTime, endTime);
+    public List<Review> filterByTime(LocalDateTime startTime, LocalDateTime endTime, int reviewer_id) {
+        List<Review> result = revDao.findWithManuscript(startTime, endTime);
+        result.removeIf(r -> r.getReviewerId() != reviewer_id);
+        return result;
     }
 
     // 通过manu_id查找稿件
@@ -55,8 +57,10 @@ public class reviewerServiceImpl implements reviewerService{
 
     @Override
     @Transactional
-    public List<Review> filterByStatus(String status) {
-        return revDao.findWithStatus(status);
+    public List<Review> filterByStatus(String status, int reviewer_id) {
+        List<Review> result = revDao.findWithStatus(status);
+        result.removeIf(r -> r.getReviewerId() != reviewer_id);
+        return result;
     }
 
     @Override

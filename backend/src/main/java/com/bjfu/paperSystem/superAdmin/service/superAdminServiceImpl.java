@@ -136,4 +136,10 @@ public class superAdminServiceImpl implements superAdminService{
 
         return editorList;
     }
+
+    @Override
+    public int findUseIdByName(String userName) {
+        User user = (User) suAdminDao.findByUserName(userName);
+        return user.getUserId();
+    }
 }

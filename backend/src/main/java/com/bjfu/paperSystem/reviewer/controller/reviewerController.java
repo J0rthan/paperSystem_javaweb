@@ -1,15 +1,17 @@
 package com.bjfu.paperSystem.reviewer.controller;
 
+import com.bjfu.paperSystem.clientMessageUtils.Service.clientMessageService;
+import com.bjfu.paperSystem.javabeans.ClientMessage;
 import com.bjfu.paperSystem.javabeans.Manuscript;
 import com.bjfu.paperSystem.author.service.authorService;
 import com.bjfu.paperSystem.javabeans.Review;
-import com.bjfu.paperSystem.javabeans.User;
 import com.bjfu.paperSystem.mailUtils.Service.mailService;
 import com.bjfu.paperSystem.mailUtils.MailUtil;
 import com.bjfu.paperSystem.reviewer.service.reviewerService;
 import com.bjfu.paperSystem.superAdmin.service.superAdminService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -34,6 +36,9 @@ public class reviewerController {
     @Autowired
     private mailService mSerivice;
 
+    @Autowired
+    private clientMessageService cService;
+
     private final MailUtil mailUtil1;
 
     public reviewerController(MailUtil mailUtil) {
@@ -46,15 +51,17 @@ public class reviewerController {
     }
 
     @GetMapping("pendingView")
-    public String toPendingViewPage(Model model) {
-        List<Review> list = revService.filterByTime(null, null);
+    public String toPendingViewPage(Model model, HttpSession session) {
+        int reviewer_id = (int) session.getAttribute("user_id");
+        List<Review> list = revService.filterByTime(null, null, reviewer_id);
         model.addAttribute("reviewList", list);
         return "/reviewer/pendingView";
     }
 
     @GetMapping("reviewJobs")
-    public String toReviewJobsPage(Model model) {
-        List<Review> list = revService.filterByStatus("accepted");
+    public String toReviewJobsPage(Model model, HttpSession session) {
+        int reviewer_id = (int) session.getAttribute("user_id");
+        List<Review> list = revService.filterByStatus("accepted", reviewer_id);
         model.addAttribute("jobList", list);
 
         for (Review r : list) {
@@ -74,8 +81,9 @@ public class reviewerController {
                          @RequestParam(required = false)
                              @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
                              LocalDateTime endTime,
-                         Model model) {
-        List<Review> list = revService.filterByTime(startTime, endTime);
+                         Model model, HttpSession session) {
+        int reviewer_id = (int) session.getAttribute("user_id");
+        List<Review> list = revService.filterByTime(null, null, reviewer_id);
         model.addAttribute("startTime", startTime);
         model.addAttribute("endTime", endTime);
         model.addAttribute("reviewList", list);
@@ -169,6 +177,7 @@ public class reviewerController {
         return "意见已提交";
     }
 
+    // 下载功能
     @GetMapping("download")
     public org.springframework.http.ResponseEntity<org.springframework.core.io.Resource> downloadFile(
             @RequestParam("path") String filePath,
@@ -204,5 +213,23 @@ public class reviewerController {
             e.printStackTrace();
             return org.springframework.http.ResponseEntity.internalServerError().build();
         }
+    }
+
+    // 查看自己的消息列表
+    @GetMapping("ClientMessagesPage")
+    public String toClientMessagesPage(Model model, HttpSession session) {
+        int reviewer_id = (int) session.getAttribute("user_id");
+        List<ClientMessage> sentMessages = cService.findMessageBySender(reviewer_id);
+        List<ClientMessage> receivedMessages = cService.findMessageByReceiver(reviewer_id);
+        model.addAttribute("sentMessages", sentMessages);
+        model.addAttribute("receivedMessage", receivedMessages);
+
+        return "/reviewer/MessageList";
+    }
+
+    // 退出登录
+    @GetMapping("logout")
+    public String toLoginPage() {
+        return "redirect:/Login.html";
     }
 }

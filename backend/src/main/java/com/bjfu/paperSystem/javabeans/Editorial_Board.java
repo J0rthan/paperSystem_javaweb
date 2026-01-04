@@ -2,13 +2,15 @@ package com.bjfu.paperSystem.javabeans;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "editorial_board")
 public class Editorial_Board {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private int member_id;
 
     // 关联到 User 表，方便获取姓名、邮箱
     @OneToOne(fetch = FetchType.EAGER)
@@ -25,8 +27,8 @@ public class Editorial_Board {
     private String specialty;
 
     // Getters and Setters
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() { return member_id; }
+    public void setId(int id) { this.member_id = id; }
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
     public String getPosition() { return position; }

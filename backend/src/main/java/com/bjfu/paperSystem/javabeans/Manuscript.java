@@ -14,9 +14,6 @@ public class Manuscript {
     @Column(name = "author_id", nullable = false)
     private int authorId;
 
-    @Column(name = "editor_id")
-    private Integer editorId;
-
     @Column(name = "title", length = 500)
     private String title;
 
@@ -53,6 +50,9 @@ public class Manuscript {
     @Column(name = "assign_time")
     private LocalDateTime assignTime;
 
+    @Column(name = "editor_id")
+    private Integer editorId;
+
     @Transient
     private List<ManuscriptAuthor> authors = new ArrayList<>();
 
@@ -68,9 +68,6 @@ public class Manuscript {
 
     public int getAuthorId() { return authorId; }
     public void setAuthorId(int authorId) { this.authorId = authorId; }
-
-    public Integer getEditorId() { return editorId; }
-    public void setEditorId(Integer editorId) { this.editorId = editorId; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
@@ -110,4 +107,7 @@ public class Manuscript {
 
     public LocalDateTime getAssignTime() {return assignTime;}
     public void setAssignTime(LocalDateTime assignTime) {this.assignTime = assignTime;}
+
+    public Integer getEditorId() { return editorId; }
+    public void setEditorId(Integer editorId) { this.editorId = editorId; }
 }

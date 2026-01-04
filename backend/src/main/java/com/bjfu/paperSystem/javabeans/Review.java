@@ -36,8 +36,8 @@ public class Review {
     @Column(name = "invitation_time")
     private LocalDateTime invitationTime;
 
-    @Column(name = "end_time")
-    private LocalDateTime endTime;
+    @Column(name = "deadline")
+    private LocalDateTime deadline;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manu_id", referencedColumnName = "manuscript_id",
@@ -117,14 +117,6 @@ public class Review {
         this.invitationTime = invitationTime;
     }
 
-    public LocalDateTime getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(LocalDateTime endTime) {
-        this.endTime = endTime;
-    }
-
     public Manuscript getManuScript() {
         return this.manuscript;
     }
@@ -132,4 +124,8 @@ public class Review {
     public void setManuScript(Manuscript manu) {
         this.manuscript = manu;
     }
+
+    public LocalDateTime getDeadline() { return deadline; }
+
+    public void setDeadline(LocalDateTime deadline) { this.deadline = deadline; }
 }

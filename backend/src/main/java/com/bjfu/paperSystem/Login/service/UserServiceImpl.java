@@ -32,7 +32,12 @@ public class UserServiceImpl implements UserService {
         }
         // 设置默认值
         user.setRegisterTime(LocalDateTime.now());
-        user.setStatus("exist"); // 设置状态为活跃
+        // 若注册的是作者author，则设置状态Status为 not_exist
+        if ("author".equals(userType)) {
+            user.setStatus("not_exist");
+        } else {
+            user.setStatus("exist"); // 设置状态为活跃
+        }
         return userDao.save(user);
     }
 

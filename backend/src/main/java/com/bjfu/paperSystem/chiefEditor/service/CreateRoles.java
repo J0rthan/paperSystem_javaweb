@@ -45,12 +45,12 @@ public class CreateRoles {
         // 根据角色设置 User 表特有的字段
         if ("editor".equals(role)) {
             user.setUserType("editor");
-        } else if ("REVIEWER".equals(role)) {
-            user.setUserType("REVIEWER");
+        } else if ("reviewer".equals(role)) {
+            user.setUserType("reviewer");
             // 审稿人的研究方向直接存在 User 表的 investigationDirection 字段
             user.setInvestigationDirection(specialty);
-        } else if ("editorIAL_ADMIN".equals(role)) {
-            user.setUserType("editorIAL_ADMIN");
+        } else if ("option_admin".equals(role)) {
+            user.setUserType("option_admin");
         }
 
         // 2. === 第二步：保存 User，拿到生成的 ID ===

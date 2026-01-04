@@ -34,7 +34,7 @@ public class clientMessageServiceImpl implements clientMessageService {
 
     @Override
     @Transactional
-    public String insertMessage(Integer clientMesId, Integer senderId, Integer receiverId, String messageBody, LocalDateTime sendingTime, Integer manuId) {
+    public String insertMessage(Integer senderId, Integer receiverId, String messageBody, LocalDateTime sendingTime, Integer manuId) {
         ClientMessage message = new ClientMessage();
         message.setSenderId(senderId);
         message.setReceiverId(receiverId);

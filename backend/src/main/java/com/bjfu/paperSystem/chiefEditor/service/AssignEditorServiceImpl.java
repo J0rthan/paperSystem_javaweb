@@ -3,10 +3,10 @@ package com.bjfu.paperSystem.chiefEditor.service;
 import com.bjfu.paperSystem.author.dao.ManuscriptDao;
 import com.bjfu.paperSystem.author.service.logService;
 import com.bjfu.paperSystem.chiefEditor.dao.ChiefEditorEditorial_BoardDao;
-import com.bjfu.paperSystem.chiefEditor.dao.RecordAllocationDao; // 1. 引入新DAO
+import com.bjfu.paperSystem.chiefEditor.dao.RecordAllocationDao;
 import com.bjfu.paperSystem.javabeans.Editorial_Board;
 import com.bjfu.paperSystem.javabeans.Manuscript;
-import com.bjfu.paperSystem.javabeans.Record_Allocation; // 2. 引入新Bean
+import com.bjfu.paperSystem.javabeans.Record_Allocation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,7 +48,7 @@ public class AssignEditorServiceImpl implements AssignEditorService {
 
     @Override
     @Transactional
-    public void assignEditor(int manuscriptId, int UserId, String reason) {
+    public void assignEditor(int manuscriptId, int editorId, String reason) {
         // 获取稿件
         Manuscript paper = manuscriptDao.findById(manuscriptId).orElse(null);
 
@@ -62,7 +62,7 @@ public class AssignEditorServiceImpl implements AssignEditorService {
             // --- 1. 更新 Manuscript 表 (维护当前状态) ---
             // 必须保留！因为 EditorProcessService 里的 getManuscriptDetail 方法是根据
             // m.getEditorId() == editorId 来判断权限的。
-            paper.setEditorId(UserId);
+            paper.setEditorId(editorId);
             paper.setStatus("With Editor");
 
             // 注意：不再调用 paper.setAssignReason(...) 和 paper.setAssignTime(...)
@@ -73,14 +73,14 @@ public class AssignEditorServiceImpl implements AssignEditorService {
             // --- 2. 插入 Record_Allocation 表 (记录分配详情) ---
             Record_Allocation record = new Record_Allocation();
             record.setManuscriptId(manuscriptId);
-            record.setUserId(UserId); // 记录指派给了谁
+            record.setEditorId(editorId); // 记录指派给了谁
             record.setAssignReason(reason);
             record.setAssignTime(LocalDateTime.now());
 
             recordAllocationDao.save(record); // 保存到新表
 
             // --- 3. 记录系统日志 ---
-            String logDescription = "分配编辑 (编辑ID: " + UserId + ", 理由: " + reason + ")";
+            String logDescription = "分配编辑 (编辑ID: " + editorId + ", 理由: " + reason + ")";
             logService.record(0, logDescription, manuscriptId);
         }
     }

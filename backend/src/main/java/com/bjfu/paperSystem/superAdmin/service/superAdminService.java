@@ -37,6 +37,9 @@ public interface superAdminService {
     // 根据用户类型查找用户
     public List<User> findUserByType(String userType);
 
-    // 根据用户名查找用户
+    // 根据用户名查找用户id
     public int findUseIdByName(String userName);
+
+    // 根据用户名查找用户
+    public User findUserByName(String userName);
 }

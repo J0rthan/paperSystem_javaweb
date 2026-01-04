@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/editor")
-public class EditorController {
+public class editorController {
 
     @GetMapping
     public String index(HttpSession session, Model model) {

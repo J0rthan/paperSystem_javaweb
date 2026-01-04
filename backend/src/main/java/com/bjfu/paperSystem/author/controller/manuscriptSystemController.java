@@ -151,8 +151,8 @@ public class manuscriptSystemController {
         List<Record_Allocation> allocations = recordAllocationDao.findByManuscriptId(id);
         List<User> assignedEditors = new ArrayList<>();
         for (Record_Allocation allocation : allocations) {
-            if (allocation.getUserId() != null) {
-                User editor = authorService.findUserById(allocation.getUserId());
+            if (allocation.getEditorId() != null) {
+                User editor = authorService.findUserById(allocation.getEditorId());
                 if (editor != null) {
                     assignedEditors.add(editor);
                 }

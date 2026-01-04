@@ -15,5 +15,5 @@ public interface EditorRecordAllocationDao extends JpaRepository<Record_Allocati
 
     // === 【新增】根据编辑ID查找他被分配的所有记录 ===
     // Spring Data JPA 会自动根据方法名生成 SQL，不需要手动写 Query
-    List<Record_Allocation> findByuserId(Integer userId);
+    List<Record_Allocation> findByEditorId(Integer editorId);
 }

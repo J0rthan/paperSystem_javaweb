@@ -54,7 +54,7 @@ public class EditorManuscriptController {
         // ================== 【基于分配表获取稿件】 ==================
         // 2.1 调用 EditorRecordAllocationDao 查该编辑被分配了哪些记录
         //
-        List<Record_Allocation> allocations = editorRecordAllocationDao.findByuserId(loginUser.getUserId());
+        List<Record_Allocation> allocations = editorRecordAllocationDao.findByEditorId(loginUser.getUserId());
 
         // 2.2 提取出所有的 manuscriptId
         List<Integer> manuIds = allocations.stream()

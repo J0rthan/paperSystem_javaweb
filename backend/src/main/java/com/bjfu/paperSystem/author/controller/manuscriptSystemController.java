@@ -31,7 +31,7 @@ public class manuscriptSystemController {
     @GetMapping("/list")
     public String list(Model model, HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
-        if (loginUser == null) return "redirect:/login";
+        if (loginUser == null) return "redirect:/index";
         Map<String, List<Manuscript>> data = authorService.getCategorizedManuscripts(loginUser.getUserId());
         Map<Integer, LocalDateTime> lastUpdateTimes = new HashMap<>();
         data.values().forEach(list -> {
@@ -86,7 +86,7 @@ public class manuscriptSystemController {
     @GetMapping("/edit")
     public String toEdit(@RequestParam("id") int id, Model model, HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
-        if (loginUser == null) return "redirect:/login";
+        if (loginUser == null) return "redirect:/index";
         Manuscript manuscript = authorService.getManuscriptByIdAndAuthor(id, loginUser.getUserId());
         if (manuscript == null) return "redirect:/author/manuscript/list";
         model.addAttribute("manuscript", manuscript);
@@ -96,7 +96,6 @@ public class manuscriptSystemController {
     public String delete(@RequestParam("id") int id, HttpSession session, RedirectAttributes ra) {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) return "redirect:/login";
-
         Manuscript m = authorService.getManuscriptByIdAndAuthor(id, loginUser.getUserId());
         if (m != null) {
             authorService.deleteManuscript(id);
@@ -114,12 +113,23 @@ public class manuscriptSystemController {
         List<Versions> versions = authorService.getVersionsByManuscriptId(id);
         java.util.Map<Integer, String> userNames = new java.util.HashMap<>();
         for (Logs log : logs) {
-            User opUser = authorService.findUserById(log.getOporId());
+            Integer oporId = log.getOporId();
+            if (oporId == null) {
+                userNames.put(oporId, "系统记录");
+                continue;
+            }
+            User opUser = authorService.findUserById(oporId);
             if (opUser != null) {
-                String name = "Reviewer".equalsIgnoreCase(opUser.getUserType()) ? "匿名审稿人" : opUser.getFullName();
-                userNames.put(log.getOporId(), name);
+                String name;
+                if ("Reviewer".equalsIgnoreCase(opUser.getUserType())) {
+                    name = "匿名审稿人";
+                } else {
+                    name = (opUser.getFullName() != null && !opUser.getFullName().isEmpty())
+                            ? opUser.getFullName() : opUser.getUserName();
+                }
+                userNames.put(oporId, name);
             } else {
-                userNames.put(log.getOporId(), "系统用户");
+                userNames.put(oporId, "系统用户");
             }
         }
         model.addAttribute("manuscript", manuscript);

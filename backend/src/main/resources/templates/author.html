@@ -3,6 +3,7 @@
 <head>
     <title>学术论文管理系统-作者端</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 </head>
 <body class="bg-light">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
@@ -16,43 +17,47 @@
         </div>
     </div>
 </nav>
-
 <div class="container py-5">
-    <div class="row mb-5">
+    <div class="row mb-4">
         <div class="col text-center">
             <p class="text-muted">请选择您需要办理的业务模块</p>
         </div>
     </div>
-
     <div class="row g-4 justify-content-center">
-        <div class="col-md-5">
+        <div class="col-md-4">
             <div class="card h-100 shadow-sm border-0">
                 <div class="card-body text-center p-4">
-                    <div class="mb-3 fs-1">👤</div>
-                    <h2 class="card-title h4">个人信息管理</h2>
-                    <p class="card-text text-muted">修改您的全名、邮箱、所属机构及研究方向。</p>
+                    <div class="mb-3 fs-1 text-primary">👤</div>
+                    <h2 class="card-title h5">个人信息管理</h2>
+                    <p class="card-text text-muted small">修改全名、邮箱、所属机构及研究方向。</p>
                     <a th:href="@{/author/profile}" class="btn btn-outline-primary w-100 mt-3">进入模块</a>
                 </div>
             </div>
         </div>
-
-        <div class="col-md-5">
+        <div class="col-md-4">
             <div class="card h-100 shadow-sm border-0 border-top border-success border-4">
                 <div class="card-body text-center p-4">
-                    <div class="mb-3 fs-1">📄</div>
-                    <h2 class="card-title h4 text-success">稿件管理业务</h2>
-                    <p class="card-text text-muted">提交新稿件、查询审稿进度、查看历史投稿记录。</p>
+                    <div class="mb-3 fs-1 text-success">📄</div>
+                    <h2 class="card-title h5 text-success">稿件管理业务</h2>
+                    <p class="card-text text-muted small">提交新稿、查询进度、查看历史投稿。</p>
                     <a th:href="@{/author/manuscript/list}" class="btn btn-success w-100 mt-3">进入模块</a>
                 </div>
             </div>
         </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0 border-top border-warning border-4">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3 fs-1 text-warning">✉️</div>
+                    <h2 class="card-title h5 text-warning">消息与通知中心</h2>
+                    <p class="card-text text-muted small">与编辑联系、查看审稿意见邮件及延期请求。</p>
+                    <a th:href="@{/author/message/list}" class="btn btn-warning w-100 mt-3 text-white">进入中心</a>
+                </div>
+            </div>
+        </div>
     </div>
-
     <p class="text-center mt-5 text-muted small">
         © 2025 学术论文管理系统 · 作者
     </p>
 </div>
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 </body>
 </html>

@@ -25,7 +25,6 @@
             <th>稿件ID</th>
             <th>标题</th>
             <th>提交时间</th>
-            <th>稿件文件</th>
             <th>标记</th>
             <th>操作</th>
         </tr>
@@ -35,16 +34,6 @@
             <td th:text="${m.manuscriptId}">1</td>
             <td th:text="${m.title}">示例标题</td>   
             <td th:text="${#temporals.format(m.submitTime, 'yyyy-MM-dd HH:mm')}">2025-01-01 12:00</td>
-            <td>
-                <div th:if="${m.manuscriptPath != null and m.manuscriptPath != ''}">
-                    <a th:href="@{${m.manuscriptPath}}" target="_blank" class="btn btn-outline-primary btn-sm">
-                        查看稿件
-                    </a>
-                </div>
-                <span th:unless="${m.manuscriptPath != null and m.manuscriptPath != ''}" class="text-muted">
-                    无文件
-                </span>
-            </td>
             <td>
                 <span th:if="${#strings.length(m.abstractText) > 8000}" class="badge bg-danger">字数超限</span>
                 <span th:if="${#strings.isEmpty(m.keywords) or #strings.isEmpty(m.subjectArea)}" class="badge bg-warning">格式不符</span>

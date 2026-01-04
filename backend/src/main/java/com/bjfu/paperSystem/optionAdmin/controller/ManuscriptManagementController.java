@@ -2,6 +2,7 @@ package com.bjfu.paperSystem.optionAdmin.controller;
 
 import com.bjfu.paperSystem.javabeans.Manuscript;
 import com.bjfu.paperSystem.javabeans.User;
+import com.bjfu.paperSystem.javabeans.EmailMessage;
 import com.bjfu.paperSystem.optionAdmin.service.optionAdminService;
 
 import jakarta.servlet.http.HttpSession;
@@ -56,6 +57,22 @@ public class ManuscriptManagementController {
         // 使用当前用户的ID作为操作ID
         Integer operatorId = loginUser.getUserId();
         service.rejectManuscript(manuscriptId, operatorId);
+        return "redirect:/optionadmin/manuscripts";
+    }
+    
+    // 拒绝稿件并发送反馈
+    @PostMapping("/manuscripts/rejectWithFeedback")
+    public String rejectWithFeedback(@RequestParam("manuscriptId") Integer manuscriptId,
+                                   @RequestParam("messageBody") String messageBody,
+                                   HttpSession session) {
+        // 获取当前登录用户
+        User loginUser = (User) session.getAttribute("loginUser");
+        // 使用当前用户的ID作为操作ID
+        Integer operatorId = loginUser.getUserId();
+        
+        // 调用服务层方法处理拒绝和发送反馈
+        service.rejectManuscriptWithFeedback(manuscriptId, operatorId, messageBody, loginUser.getEmail());
+        
         return "redirect:/optionadmin/manuscripts";
     }
 }

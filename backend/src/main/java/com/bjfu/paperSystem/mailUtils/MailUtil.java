@@ -17,12 +17,18 @@ public class MailUtil {
     }
 
     public void sendTextMail(String to, String subject, String content) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(from);
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(content);
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(from);
+            message.setTo(to);
+            message.setSubject(subject);
+            message.setText(content);
 
-        mailSender.send(message);
+            mailSender.send(message);
+        } catch (Exception e) {
+            // 记录邮件发送失败的异常，但不向上抛出，避免影响主流程
+            System.err.println("Failed to send email to " + to + ": " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

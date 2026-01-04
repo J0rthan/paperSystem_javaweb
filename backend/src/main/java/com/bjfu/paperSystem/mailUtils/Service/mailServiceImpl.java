@@ -15,16 +15,21 @@ public class mailServiceImpl implements mailService{
     mailDao mailDao1;
 
     public String insertRecord(String senderEmail, String receiverEmail, String messageBody, int manuId, Manuscript manu) {
-        EmailMessage emailMes = new EmailMessage();
-        emailMes.setSenderEmail(senderEmail);
-        emailMes.setReceiverEmail(receiverEmail);
-        emailMes.setMessageBody(messageBody);
-        emailMes.setManuId(manuId);
-        emailMes.setManuscript(manu);
-        emailMes.setSendingTime(LocalDateTime.now());
-
-        mailDao1.save(emailMes);
-
-        return "ok";
+        try {
+            EmailMessage emailMes = new EmailMessage();
+            emailMes.setSenderEmail(senderEmail);
+            emailMes.setReceiverEmail(receiverEmail);
+            emailMes.setMessageBody(messageBody);
+            emailMes.setManuId(manuId);
+            emailMes.setManuscript(manu);
+            emailMes.setSendingTime(LocalDateTime.now());
+            mailDao1.save(emailMes);
+            return "ok";
+        } catch (Exception e) {
+            // 记录数据库保存失败的异常，但不向上抛出，避免影响主流程
+            System.err.println("Failed to save email record to database: " + e.getMessage());
+            e.printStackTrace();
+            return "error";
+        }
     }
 }

@@ -3,9 +3,13 @@ package com.bjfu.paperSystem.optionAdmin.service;
 import com.bjfu.paperSystem.optionAdmin.dao.optionAdminDao;
 import com.bjfu.paperSystem.author.dao.ManuscriptDao;
 import com.bjfu.paperSystem.author.dao.LogsDao;
+import com.bjfu.paperSystem.author.dao.EmailMessageDao;
+import com.bjfu.paperSystem.mailUtils.MailUtil;
+import com.bjfu.paperSystem.mailUtils.Service.mailService;
 import com.bjfu.paperSystem.javabeans.Manuscript;
 import com.bjfu.paperSystem.javabeans.User;
 import com.bjfu.paperSystem.javabeans.Logs;
+import com.bjfu.paperSystem.javabeans.EmailMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +26,15 @@ public class optionAdminServiceImpl implements optionAdminService {
     
     @Autowired
     private LogsDao logsDao;
+    
+    @Autowired
+    private EmailMessageDao emailMessageDao;
+    
+    @Autowired
+    private MailUtil mailUtil;
+    
+    @Autowired
+    private mailService mailService;
 
     // 稿件管理相关方法实现
     @Override
@@ -69,6 +82,30 @@ public class optionAdminServiceImpl implements optionAdminService {
         log.setOpType("return");
         log.setPaperId(manuscriptId);
         logsDao.save(log);
+    }
+    
+    @Override
+    public void rejectManuscriptWithFeedback(Integer manuscriptId, Integer operatorId, String messageBody, String senderEmail) {
+        // 先调用普通的拒绝方法
+        rejectManuscript(manuscriptId, operatorId);
+        
+        // 获取稿件信息
+        Manuscript manuscript = manuscriptDao.findById(manuscriptId).orElse(null);
+        if (manuscript != null) {
+            // 获取作者信息
+            User author = optionAdminDao.findById(manuscript.getAuthorId()).orElse(null);
+            if (author != null && author.getEmail() != null && !author.getEmail().isEmpty()) {
+                // 使用 mailService 保存邮件记录到数据库
+                mailService.insertRecord(senderEmail, author.getEmail(), messageBody, manuscriptId, manuscript);
+                
+                // 使用 MailUtil 发送实际邮件
+                String subject = "稿件反馈：" + manuscript.getTitle();
+                mailUtil.sendTextMail(author.getEmail(), subject, messageBody);
+            } else {
+                // 记录日志或处理作者邮箱为空的情况
+                System.err.println("Author email is null or empty for manuscript ID: " + manuscriptId);
+            }
+        }
     }
 
     // 编辑管理相关方法实现

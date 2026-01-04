@@ -46,10 +46,48 @@
                         <input type="hidden" name="manuscriptId" th:value="${m.manuscriptId}">
                         <button type="submit" class="btn btn-outline-success">通过</button>
                     </form>
-                    <form th:action="@{/optionadmin/manuscripts/reject}" method="post" style="display: inline;">
-                        <input type="hidden" name="manuscriptId" th:value="${m.manuscriptId}">
-                        <button type="submit" class="btn btn-outline-danger">失败</button>
-                    </form>
+                    <!-- 失败按钮触发模态框 -->
+                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#rejectModal" th:attr="data-manuscript-id=${m.manuscriptId}">失败</button>
+
+<!-- 失败模态框 -->
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rejectModalLabel">稿件问题反馈</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="rejectForm" th:action="@{/optionadmin/manuscripts/rejectWithFeedback}" method="post">
+          <input type="hidden" id="manuscriptId" name="manuscriptId">
+          <div class="mb-3">
+            <label for="feedback" class="form-label">问题列表和修改指南</label>
+            <textarea class="form-control" id="feedback" name="messageBody" rows="6" placeholder="请输入稿件的问题列表和修改指南..." required></textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+            <button type="submit" class="btn btn-danger">提交反馈</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// JavaScript 用于将稿件ID传递给模态框
+var rejectModal = document.getElementById('rejectModal');
+rejectModal.addEventListener('show.bs.modal', function (event) {
+  // 获取触发模态框的按钮
+  var button = event.relatedTarget;
+  // 提取按钮中存储的稿件ID
+  var manuscriptId = button.getAttribute('data-manuscript-id');
+  // 将稿件ID设置到隐藏字段中
+  var modalForm = document.getElementById('rejectForm');
+  var manuscriptIdField = document.getElementById('manuscriptId');
+  manuscriptIdField.value = manuscriptId;
+});
+</script>
                 </div>
             </td>
         </tr>

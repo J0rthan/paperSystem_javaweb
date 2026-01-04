@@ -107,7 +107,12 @@ public class optionAdminServiceImpl implements optionAdminService {
     @Override
     public String updateProfile(User user, Integer loginUserId) {
         // 检查用户名是否被占用（除了当前用户自己）
-        User existingUser = optionAdminDao.findById(user.getUserId()).orElse(null);
+        User duplicateUser = optionAdminDao.findByUserName(user.getUserName());
+        if (duplicateUser != null && duplicateUser.getUserId() != loginUserId) {
+            return "用户名已被占用，请更换其他账号名";
+        }
+        
+        User existingUser = optionAdminDao.findById(loginUserId).orElse(null);
         if (existingUser == null) {
             return "用户不存在";
         }

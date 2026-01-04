@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface optionAdminDao extends JpaRepository<User, Integer> {
     List<User> findByStatus(String status);
+    User findByUserName(String userName);
 }

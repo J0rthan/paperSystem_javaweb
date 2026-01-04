@@ -20,20 +20,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User register(String userName, String password, String userType) {
+    public User register(User user) {
         // 检查用户名是否存在
-        if (isUserNameExists(userName)) {
+        if (isUserNameExists(user.getUserName())) {
             return null;
         }
         // 只允许作者和审稿人注册
+        String userType = user.getUserType();
         if (!"author".equals(userType) && !"reviewer".equals(userType)) {
             return null;
         }
-        // 创建新用户
-        User user = new User();
-        user.setUserName(userName);
-        user.setPassword(password);
-        user.setUserType(userType);
+        // 设置默认值
         user.setRegisterTime(LocalDateTime.now());
         user.setStatus("exist"); // 设置状态为活跃
         return userDao.save(user);

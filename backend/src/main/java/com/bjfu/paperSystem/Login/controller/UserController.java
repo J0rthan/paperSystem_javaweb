@@ -123,7 +123,7 @@ public class UserController {
             return "redirect:/?error=username_exists";
         }
         // 调用服务层注册用户
-        User newUser = userService.register(user.getUserName(), user.getPassword(), user.getUserType());
+        User newUser = userService.register(user);
         if (newUser == null) {
             return "redirect:/?error=register_error";
         }

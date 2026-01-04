@@ -20,6 +20,10 @@ public class NewsServiceImpl implements NewsService {
     @Override
     public void saveNews(News news) {
         news.setCreateTime(LocalDateTime.now());
+        // 确保publishTime不为空
+        if (news.getPublishTime() == null) {
+            news.setPublishTime(LocalDateTime.now());
+        }
         news.setUpdateTime(LocalDateTime.now());
         news.setStatus("published");
         newsDao.save(news);
@@ -27,6 +31,14 @@ public class NewsServiceImpl implements NewsService {
 
     @Override
     public void updateNews(News news) {
+        // 确保createTime不为空
+        if (news.getCreateTime() == null) {
+            news.setCreateTime(LocalDateTime.now());
+        }
+        // 确保publishTime不为空
+        if (news.getPublishTime() == null) {
+            news.setPublishTime(LocalDateTime.now());
+        }
         news.setUpdateTime(LocalDateTime.now());
         newsDao.save(news);
     }
@@ -67,6 +79,10 @@ public class NewsServiceImpl implements NewsService {
         if (news != null) {
             news.setStatus("published");
             news.setPublishTime(LocalDateTime.now());
+            // 确保createTime不为空
+            if (news.getCreateTime() == null) {
+                news.setCreateTime(LocalDateTime.now());
+            }
             news.setUpdateTime(LocalDateTime.now());
             newsDao.save(news);
         }
@@ -77,7 +93,15 @@ public class NewsServiceImpl implements NewsService {
         News news = newsDao.findById(newsId).orElse(null);
         if (news != null) {
             news.setStatus("scheduled");
+            // 确保publishTime不为空
+            if (publishTime == null) {
+                publishTime = LocalDateTime.now();
+            }
             news.setPublishTime(publishTime);
+            // 确保createTime不为空
+            if (news.getCreateTime() == null) {
+                news.setCreateTime(LocalDateTime.now());
+            }
             news.setUpdateTime(LocalDateTime.now());
             newsDao.save(news);
         }
@@ -86,6 +110,10 @@ public class NewsServiceImpl implements NewsService {
     @Override
     public void saveDraft(News news) {
         news.setCreateTime(LocalDateTime.now());
+        // 确保publishTime不为空
+        if (news.getPublishTime() == null) {
+            news.setPublishTime(LocalDateTime.now());
+        }
         news.setUpdateTime(LocalDateTime.now());
         news.setStatus("draft");
         newsDao.save(news);

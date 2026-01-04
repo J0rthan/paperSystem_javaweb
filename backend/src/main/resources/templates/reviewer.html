@@ -4,6 +4,72 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>审稿人页</title>
+    <style>
+        /* 整个页面内容居中 */
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;      /* 水平居中 */
+            background-color: #f6f7fb;
+            font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+        }
+
+        /* 顶部标题居中 */
+        header {
+            margin-top: 40px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        /* 导航整体居中 */
+        nav {
+            display: flex;
+            justify-content: center;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: center;
+        }
+
+        nav li {
+            margin: 12px 0;
+        }
+
+        /* 按钮样式 */
+        nav a {
+            display: inline-block;
+            width: 200px;
+            padding: 12px 0;
+
+            text-align: center;       /* 按钮中文字居中 */
+            text-decoration: none;
+            font-size: 15px;
+            color: #333;
+
+            background-color: #f2f2f2;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+
+            transition: background-color 0.2s ease,
+            box-shadow 0.2s ease;
+        }
+
+        nav a:hover {
+            background-color: #e6f0ff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+        }
+
+        /* 退出登录按钮区分一下（可选） */
+        nav a[href*="logout"] {
+            background-color: #fff0f0;
+            border-color: #fca5a5;
+        }
+    </style>
 </head>
 
 <body>

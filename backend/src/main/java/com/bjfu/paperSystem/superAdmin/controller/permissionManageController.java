@@ -9,12 +9,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 // 还未完成
 
 @Controller
-@RequestMapping("/superadmin/permissionsManage")
+@RequestMapping("/superadmin/permissionManage")
 public class permissionManageController {
     @Autowired
     private superAdminService suAdminService;
 
+    @GetMapping
     public String permissionManage() {
-        return "superadmin/permissionManage";
+        return "/superadmin/permissionManage";
     }
 }

@@ -1,13 +1,80 @@
-<html>
-    <head>
-        <title>登陆页面</title>
-        <meta charset="UTF-8"></meta>
-    </head>
-    <body>
-        <form action="/login" method="post">
-            用户账号：<input type="text" name="userName">
-            账号密码：<input type="password" name="password">
-            <input type="submit">
-        </form>
-    </body>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>登录页面</title>
+
+    <style>
+        /* 整个页面居中 */
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;      /* 水平居中 */
+            justify-content: center;  /* 垂直居中 */
+            font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+            background-color: #f6f7fb;
+        }
+
+        /* 标题居中 */
+        h2 {
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        /* 表单整体居中 */
+        form {
+            background: #ffffff;
+            padding: 24px 30px;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+            text-align: center;
+        }
+
+        /* 每一行 */
+        .form-row {
+            margin-bottom: 14px;
+        }
+
+        label {
+            display: inline-block;
+            width: 80px;
+            text-align: right;
+            margin-right: 8px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 180px;
+            padding: 6px;
+        }
+
+        input[type="submit"] {
+            margin-top: 12px;
+            padding: 8px 30px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>系统登录</h2>
+
+<form action="/login" method="post">
+    <div class="form-row">
+        <label>账号：</label>
+        <input type="text" name="userName">
+    </div>
+
+    <div class="form-row">
+        <label>密码：</label>
+        <input type="password" name="password">
+    </div>
+
+    <input type="submit" value="登录">
+</form>
+
+</body>
 </html>

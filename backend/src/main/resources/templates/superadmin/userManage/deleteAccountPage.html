@@ -2,7 +2,71 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>删除账号页</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            margin: 0;
+            font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+            background-color: #f6f7fb;
+            color: #333;
+            text-align: center;
+        }
+
+        /* 顶部功能按钮 */
+        .tab-button {
+            display: inline-block;
+            margin: 20px 10px;
+            padding: 8px 18px;
+            text-decoration: none;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            color: #333;
+            background-color: #fff;
+        }
+
+        .tab-button.active {
+            background-color: #eaeaea;
+            font-weight: bold;
+        }
+
+        h2 {
+            margin: 20px 0;
+        }
+
+        /* 表格居中 */
+        table {
+            margin: 0 auto 30px;
+            border-collapse: collapse;
+            background-color: #fff;
+            min-width: 600px;
+        }
+
+        th, td {
+            padding: 10px 16px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f0f2f5;
+            font-weight: bold;
+        }
+
+        /* 删除按钮 */
+        input[type="submit"] {
+            padding: 4px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
+
 <body>
 
 <a href="/superadmin/userManage/createAccountPage" class="tab-button active">创建账号</a>

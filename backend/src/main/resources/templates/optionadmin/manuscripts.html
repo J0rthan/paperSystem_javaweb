@@ -10,7 +10,7 @@
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h3 mb-0">稿件管理</h1>
-        <a href="/optionadmin" class="btn btn-outline-secondary btn-sm">&larr; 返回工作台</a>
+        <a href="/optionadmin" class="btn btn-outline-secondary btn-sm">&larr; 返回编辑部管理员页面</a>
     </div>
 
     <!-- 简单提示 -->
@@ -47,7 +47,7 @@
                         <button type="submit" class="btn btn-outline-success">通过</button>
                     </form>
                     <!-- 失败按钮触发模态框 -->
-                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#rejectModal" th:attr="data-manuscript-id=${m.manuscriptId}">失败</button>
+                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#rejectModal" th:attr="data-manuscript-id=${m.manuscriptId}">退回修改</button>
 
 <!-- 失败模态框 -->
 <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">

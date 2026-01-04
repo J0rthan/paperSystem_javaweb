@@ -98,14 +98,14 @@
                                         <small class="text-muted d-block">[[${rev.opinion}]]</small>
                                     </td>
                                     <td>
-                                        <span th:if="${rev.status == 'PENDING'}" class="badge bg-warning text-dark">等待回复</span>
-                                        <span th:if="${rev.status == 'ACCEPTED'}" class="badge bg-primary">审稿中</span>
-                                        <span th:if="${rev.status == 'REJECTED'}" class="badge bg-danger">已拒绝</span>
-                                        <span th:if="${rev.status == 'COMPLETED'}" class="badge bg-success">已完成</span>
-                                        <span th:if="${rev.status == 'CANCELLED'}" class="badge bg-secondary">已撤销</span>
+                                        <span th:if="${rev.status == 'pending'}" class="badge bg-warning text-dark">等待回复</span>
+                                        <span th:if="${rev.status == 'accepted'}" class="badge bg-primary">审稿中</span>
+                                        <span th:if="${rev.status == 'rejected'}" class="badge bg-danger">已拒绝</span>
+                                        <span th:if="${rev.status == 'finished'}" class="badge bg-success">已完成</span>
+                                        <span th:if="${rev.status == 'undo'}" class="badge bg-secondary">已撤销</span>
                                     </td>
                                     <td>
-                                        <form th:if="${rev.status == 'PENDING' || rev.status == 'ACCEPTED'}"
+                                        <form th:if="${rev.status == 'pending'}"
                                               th:action="@{/editor/process/revoke}" method="post"
                                               onsubmit="return confirm('确定要撤销此邀请吗？');">
                                             <input type="hidden" name="reviewId" th:value="${rev.reviewId}">

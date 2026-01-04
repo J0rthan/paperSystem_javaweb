@@ -27,4 +27,6 @@ public interface EditorProcessService {
     void inviteReviewer(int manuscriptId, int reviewerId, LocalDateTime deadline, int currentEditorId);
 
     void revokeInvitation(int reviewId, int currentEditorId);
+
+    void checkAndUpdateManuscriptStatus(int manuscriptId);
 }

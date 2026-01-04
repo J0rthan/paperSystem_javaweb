@@ -100,7 +100,7 @@ public class EditorProcessServiceImpl implements EditorProcessService {
         Review review = new Review();
         review.setManuId(manuscriptId);
         review.setReviewerId(reviewerId);
-        review.setStatus("PENDING"); // 初始状态
+        review.setStatus("pending"); // 初始状态
         review.setScore(0);
         review.setDeadline(deadline);
         review.setInvitationTime(LocalDateTime.now());
@@ -134,6 +134,25 @@ public class EditorProcessServiceImpl implements EditorProcessService {
         logService.record(currentEditorId, "INVITE_REVIEWER: Invited " + reviewer.getFullName(), manuscriptId);
     }
 
+    @Override
+    public void checkAndUpdateManuscriptStatus(int manuscriptId) {
+        // 1. 获取该稿件所有的审稿记录
+        List<Review> reviews = reviewDao.findByManuId(manuscriptId);
+        // 2. 统计状态为 审稿中 或 已完成 的人数
+        long validReviewerCount = reviews.stream()
+                .filter(r -> "accepted".equalsIgnoreCase(r.getStatus())
+                        || "finished".equalsIgnoreCase(r.getStatus()))
+                .count();
+
+        // 3. 获取稿件当前信息
+        Manuscript manuscript = manuscriptDao.findById(manuscriptId).orElse(null);
+        // 4. 核心判断逻辑：
+        if (manuscript != null && validReviewerCount >= 3 && "With Editor".equalsIgnoreCase(manuscript.getStatus())) {
+            manuscript.setStatus("Under Review");
+            manuscriptDao.save(manuscript);
+        }
+    }
+
     /**
      * 核心功能：撤销邀请
      */
@@ -144,10 +163,10 @@ public class EditorProcessServiceImpl implements EditorProcessService {
         if (review == null) return;
 
         // 只能撤销 PENDING 或 ACCEPTED
-        if ("PENDING".equals(review.getStatus()) || "ACCEPTED".equals(review.getStatus())) {
+        if ("pending".equals(review.getStatus())) {
 
             String oldStatus = review.getStatus();
-            review.setStatus("CANCELLED"); // 软删除状态
+            review.setStatus("undo"); // 软删除状态
             reviewDao.save(review);
 
             // === 修复点：日志内容缩短，防止数据库报错 ===

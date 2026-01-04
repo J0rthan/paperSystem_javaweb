@@ -60,8 +60,8 @@ public class EditorManuscriptServiceImpl implements EditorManuscriptService {
                 LocalDateTime now = LocalDateTime.now();
 
                 for (Review r : reviews) {
-                    // 只检查未完成的审稿 (PENDING 或 ACCEPTED)
-                    if (r.getDeadline() != null && !"FINISHED".equalsIgnoreCase(r.getStatus())) {
+                    // 只检查未完成的审稿 (PENDING)
+                    if (r.getDeadline() != null && !"finished".equalsIgnoreCase(r.getStatus())) {
                         long daysLeft = ChronoUnit.DAYS.between(now, r.getDeadline());
                         // 如果逾期 或者 剩余时间不足3天
                         if (daysLeft < 3) {

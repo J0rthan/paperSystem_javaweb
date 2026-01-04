@@ -25,7 +25,7 @@ public class CreateRoles {
      * @param password 密码
      * @param fullName 真实姓名
      * @param email 邮箱
-     * @param role 角色类型: EDITOR(责编), REVIEWER(审稿人), EDITORIAL_ADMIN(编辑部管理员)
+     * @param role 角色类型: editor(责编), REVIEWER(审稿人), editorIAL_ADMIN(编辑部管理员)
      * @param specialty 专长/研究方向 (用于责编和审稿人)
      * @param profile 简介 (仅用于责编)
      */
@@ -40,25 +40,25 @@ public class CreateRoles {
         user.setFullName(fullName);
         user.setEmail(email);
         user.setRegisterTime(LocalDateTime.now());
-        user.setStatus("ACTIVE"); // 默认激活账号
+        user.setStatus("exist"); // 默认激活账号
 
         // 根据角色设置 User 表特有的字段
-        if ("EDITOR".equals(role)) {
-            user.setUserType("EDITOR");
+        if ("editor".equals(role)) {
+            user.setUserType("editor");
         } else if ("REVIEWER".equals(role)) {
             user.setUserType("REVIEWER");
             // 审稿人的研究方向直接存在 User 表的 investigationDirection 字段
             user.setInvestigationDirection(specialty);
-        } else if ("EDITORIAL_ADMIN".equals(role)) {
-            user.setUserType("EDITORIAL_ADMIN");
+        } else if ("editorIAL_ADMIN".equals(role)) {
+            user.setUserType("editorIAL_ADMIN");
         }
 
         // 2. === 第二步：保存 User，拿到生成的 ID ===
         // 这一步非常关键！执行 save 后，user 对象里就会自动填入数据库生成的 user_id
         User savedUser = userRepository.save(user);
 
-        // 3. === 第三步：如果是责编，关联写入 Editorial_Board 表 ===
-        if ("EDITOR".equals(role)) {
+        // 3. === 第三步：如果是责编，关联写入 editorial_Board 表 ===
+        if ("editor".equals(role)) {
             Editorial_Board board = new Editorial_Board();
 
             // --- 这里就是你问的“正确关联” ---

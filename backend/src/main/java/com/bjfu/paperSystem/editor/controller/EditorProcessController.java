@@ -3,12 +3,22 @@ package com.bjfu.paperSystem.editor.controller;
 import com.bjfu.paperSystem.javabeans.*;
 import com.bjfu.paperSystem.editor.service.EditorProcessService;
 import com.bjfu.paperSystem.editor.dao.EditorUserDao;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpSession;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.io.File;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -63,22 +73,43 @@ public class EditorProcessController {
         model.addAttribute("manuscript", manuscript);
         model.addAttribute("activeTab", tab);
 
-        if ("Under Review".equalsIgnoreCase(manuscript.getStatus())) {
+        // 1. 获取当前状态
+        String status = manuscript.getStatus();
+
+        // 将判断条件改为：如果是 "Under Review" 或者 "With Editor"，都进行检查
+        if ("Under Review".equalsIgnoreCase(status) || "With Editor".equalsIgnoreCase(status)) {
+
             List<Review> reviews = processService.getCurrentReviews(manuscriptId);
             StringBuilder alertMsg = new StringBuilder();
             LocalDateTime now = LocalDateTime.now();
 
             for (Review r : reviews) {
-                if (r.getDeadline() != null && !"FINISHED".equalsIgnoreCase(r.getStatus())) {
+                // 【修改点2】 安全检查：
+                // 1. 必须有截止日期 (防止 null 报错)
+                // 2. 状态必须是 ACCEPTED (审稿中) 或者 PENDING (等待回复)
+                //    (如果你只关心已接单的，就把 || "PENDING"... 这一段删掉)
+                if (r.getDeadline() != null &&
+                        ("ACCEPTED".equalsIgnoreCase(r.getStatus()) || "PENDING".equalsIgnoreCase(r.getStatus()))) {
+
                     long hoursLeft = java.time.temporal.ChronoUnit.HOURS.between(now, r.getDeadline());
 
                     if (hoursLeft < 0) {
-                        alertMsg.append("⚠️ Reviewer ID ").append(r.getReviewerId()).append(" 已逾期! \n");
-                    } else if (hoursLeft < 72) { // 3天 = 72小时
-                        alertMsg.append("⚠️ Reviewer ID ").append(r.getReviewerId()).append(" 截止日期不足 3 天! \n");
+                        // 已逾期 - 红色提醒
+                        alertMsg.append("<div class='text-danger mb-2'>")
+                                .append("<i class='bi bi-exclamation-triangle-fill'></i> <strong>Reviewer (ID: ")
+                                .append(r.getReviewerId()).append(")</strong> 已逾期!")
+                                .append("</div>");
+                    } else if (hoursLeft < 72) {
+                        // 剩余不足3天 - 黄色提醒
+                        alertMsg.append("<div class='text-warning mb-2'>")
+                                .append("<i class='bi bi-clock-history'></i> <strong>Reviewer (ID: ")
+                                .append(r.getReviewerId()).append(")</strong> 截止日期不足 3 天!")
+                                .append("</div>");
                     }
                 }
             }
+
+            // 如果拼接出了消息，就放入 model
             if (alertMsg.length() > 0) {
                 model.addAttribute("alertMessage", alertMsg.toString());
             }
@@ -89,7 +120,6 @@ public class EditorProcessController {
         model.addAttribute("activeTab", tab);
 
         return "editor/process";
-
     }
 
     @PostMapping("/process/invite")
@@ -131,5 +161,69 @@ public class EditorProcessController {
         processService.revokeInvitation(reviewId, currentUser.getUserId());
 
         return "redirect:/editor/process/" + manuscriptId + "?tab=review";
+    }
+
+    @GetMapping("/download/{manuscriptId}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable int manuscriptId, HttpSession session) {
+        User currentUser = (User) session.getAttribute("loginUser");
+        if (currentUser == null) return ResponseEntity.status(403).build();
+
+        // 获取稿件信息
+        Manuscript manuscript = processService.getManuscriptDetail(manuscriptId, currentUser.getUserId());
+
+        // 判空检查
+        if (manuscript == null || manuscript.getManuscriptPath() == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        try {
+            String filePathString = manuscript.getManuscriptPath();
+            File file;
+
+            // 处理路径：如果路径是绝对路径（包含盘符或以/开头但不是相对web路劲），直接使用
+            // 但根据你的 AuthorController 参考，看起来主要是存的相对路径 "/uploads/..."
+
+            String projectPath = System.getProperty("user.dir");
+            // 尝试在源码目录找 (开发环境)
+            String staticPath = "/backend/src/main/resources/static";
+            if (filePathString.startsWith("/")) {
+                file = new File(projectPath + staticPath + filePathString);
+            } else {
+                file = new File(projectPath + staticPath + "/" + filePathString);
+            }
+
+            // 如果源码目录找不到，尝试在编译后的 target 目录找 (运行环境)
+            if (!file.exists()) {
+                String targetPath = "/target/classes/static";
+                if (filePathString.startsWith("/")) {
+                    file = new File(projectPath + targetPath + filePathString);
+                } else {
+                    file = new File(projectPath + targetPath + "/" + filePathString);
+                }
+            }
+
+            // 最后确认文件是否存在
+            if (!file.exists()) {
+                System.out.println("File not found: " + file.getAbsolutePath());
+                return ResponseEntity.notFound().build();
+            }
+
+            // 构造资源返回
+            Resource resource = new UrlResource(file.toPath().toUri());
+            if (resource.exists() || resource.isReadable()) {
+                // 处理中文文件名乱码
+                String originalFileName = file.getName();
+                String encodedFileName = URLEncoder.encode(originalFileName, StandardCharsets.UTF_8.toString()).replaceAll("\\+", "%20");
+
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + encodedFileName)
+                        .body(resource);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
     }
 }

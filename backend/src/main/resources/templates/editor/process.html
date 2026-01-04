@@ -135,14 +135,41 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning-subtle text-warning-emphasis">
+                <h5 class="modal-title" id="alertModalLabel">
+                    <i class="bi bi-bell-fill"></i> 截稿预警
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="modalAlertContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">知道了</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div> <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script th:inline="javascript">
     document.addEventListener('DOMContentLoaded', function() {
-        // 获取后端 Model 传来的 alertMessage
-        var msg = /*[[${alertMessage}]]*/ null;
+        // 1. 获取后端传来的 HTML 字符串
+        var msgHtml = /*[[${alertMessage}]]*/ null;
 
-        if (msg && msg.trim() !== "") {
-            // 这里使用了简单的 alert，也可以换成 Bootstrap Modal
-            alert(msg);
+        // 2. 检查是否有内容
+        if (msgHtml && msgHtml.trim() !== "") {
+
+            // 3. 填充内容到模态框 Body
+            document.getElementById('modalAlertContent').innerHTML = msgHtml;
+
+            // 4. 使用 Bootstrap 5 的 JS API 呼出弹窗
+            var myModal = new bootstrap.Modal(document.getElementById('alertModal'));
+            myModal.show();
         }
     });
 </script>

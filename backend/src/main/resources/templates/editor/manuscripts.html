@@ -32,7 +32,6 @@
         <th>Title</th>
         <th>Status</th>
         <th>Assigned Date</th>
-        <th>Author Info (Blind)</th>
         <th>Action</th>
       </tr>
       </thead>
@@ -55,10 +54,6 @@
 
         <td th:text="${m.assignTime != null ? #temporals.format(m.assignTime, 'yyyy-MM-dd HH:mm') : 'N/A'}">
           2025-01-01
-        </td>
-
-        <td class="text-secondary">
-          <i class="bi bi-incognito"></i> <span th:text="${m.authorInfo}">Affiliation Hidden</span>
         </td>
 
         <td>

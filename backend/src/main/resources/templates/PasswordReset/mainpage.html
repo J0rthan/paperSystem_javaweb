@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>找回密码</title>
+    <style>
+        body{margin:0;font-family:Arial,"PingFang SC","Microsoft YaHei",sans-serif;background:#f6f7fb}
+        .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+        .card{width:420px;background:#fff;border:1px solid #e6e8ee;border-radius:14px;box-shadow:0 8px 20px rgba(0,0,0,.06);padding:22px}
+        h1{margin:0 0 14px 0;font-size:20px;text-align:center}
+        .row{margin:12px 0}
+        label{display:block;font-size:13px;color:#444;margin-bottom:6px}
+        input{width:100%;padding:10px 12px;border:1px solid #d9dde6;border-radius:10px;font-size:14px;outline:none}
+        input:focus{border-color:#8aa4ff}
+        .code-line{display:flex;gap:10px}
+        .code-line input{flex:1}
+        button{cursor:pointer;border:0;border-radius:10px;padding:10px 12px;font-size:14px}
+        .btn-primary{width:100%;background:#2f6bff;color:#fff}
+        .btn-secondary{background:#eef2ff;color:#2f6bff;white-space:nowrap}
+        .msg{margin-top:12px;font-size:13px;color:#333;min-height:18px;text-align:center}
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="card">
+        <h1>找回密码</h1>
+
+        <!-- 用户名 -->
+        <div class="row">
+            <input id="userName"
+                   name="userName"
+                   type="text"
+                   placeholder="请输入用户名"
+                   th:value="${userName}"
+                   readonly />
+        </div>
+
+        <!-- 验证码 + 发送验证码按钮 -->
+        <div class="row">
+            <label for="code">验证码</label>
+            <div class="code-line">
+                <input id="code" name="code" type="text" placeholder="请输入验证码" />
+                <button type="button" class="btn-secondary" id="sendCodeBtn">发送验证码</button>
+            </div>
+        </div>
+
+        <!-- 新密码 -->
+        <div class="row">
+            <label for="newPassword">新密码</label>
+            <input id="newPassword" name="newPassword" type="password" placeholder="请输入新密码" />
+        </div>
+
+        <!-- 确认新密码 -->
+        <div class="row">
+            <label for="confirmPassword">确认新密码</label>
+            <input id="confirmPassword" name="confirmPassword" type="password" placeholder="请再次输入新密码" />
+        </div>
+
+        <!-- 提交按钮 -->
+        <div class="row">
+            <button type="button" class="btn-primary" id="resetBtn">修改密码</button>
+        </div>
+
+        <div class="msg" id="msg"></div>
+    </div>
+</div>
+
+<script>
+    const msg = (t) => document.getElementById("msg").textContent = t;
+
+    // 1) 发送验证码：调用你写的 Java 接口 /auth/sendResetCode
+    document.getElementById("sendCodeBtn").addEventListener("click", async () => {
+        const userName = document.getElementById("userName").value.trim();
+        if (!userName) { msg("请先填写用户名"); return; }
+
+        const resp = await fetch("/auth/sendResetCode", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+            body: new URLSearchParams({ userName })
+        });
+
+        const text = await resp.text();
+        msg(text); // 后端返回 “验证码已发送，请查收邮箱”
+    });
+
+    document.getElementById("resetBtn").addEventListener("click", async () => {
+        const userName = document.getElementById("userName").value.trim();
+        const code = document.getElementById("code").value.trim();
+        const newPassword = document.getElementById("newPassword").value.trim();
+        const confirmPassword = document.getElementById("confirmPassword").value.trim();
+
+        if (!code) { msg("请输入验证码"); return; }
+        if (!newPassword) { msg("请输入新密码"); return; }
+        if (newPassword !== confirmPassword) {
+            msg("两次输入的密码不一致");
+            return;
+        }
+
+        const resp = await fetch("/auth/resetPassword", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+            body: new URLSearchParams({
+                userName,
+                code,
+                newPassword
+            })
+        });
+
+        const text = await resp.text();
+        msg(text);
+
+        // 可选：成功后跳回登录页
+        if (resp.ok && text.includes("成功")) {
+            setTimeout(() => {
+                window.location.href = "/index";
+            }, 1500);
+        }
+    });
+</script>
+</body>
+</html>

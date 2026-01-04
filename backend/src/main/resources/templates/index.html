@@ -316,6 +316,9 @@
                                         <button type="submit" class="btn btn-primary btn-lg">
                                             <i class="bi bi-box-arrow-in-right"></i> 登录
                                         </button>
+                                        <button type="button" onclick="goToResetPage()">
+                                            找回密码
+                                        </button>
                                     </div>
                                 </form>
                                 <div class="text-center mt-4">
@@ -433,6 +436,18 @@
             }
         });
     });
+
+    function goToResetPage() {
+        const userName = document.getElementById("loginUserName").value.trim();
+
+        if (!userName) {
+            alert("请先输入用户名");
+            return;
+        }
+
+        window.location.href =
+            "/passwordreset/mainpage?loginUserName=" + encodeURIComponent(userName);
+    }
 
     // 检查URL参数并显示消息
     (function() {

@@ -95,5 +95,5 @@ public class EmailMessage {
 
     public void setSendingTime(LocalDateTime sendingTime) {this.sendingTime = sendingTime;}
 
-    public LocalDateTime getSendingTime(LocalDateTime sendingTime) {return this.sendingTime;}
+    public LocalDateTime getSendingTime() {return this.sendingTime;}
 }

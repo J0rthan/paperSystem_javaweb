@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>页面标题 · 编辑部管理员</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 引入思源宋体字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Science/Nature风格样式 */
+        body {
+            font-family: 'Noto Serif SC', serif;
+            background-color: #f8f9fa;
+            color: #2c3e50;
+            line-height: 1.6;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 1rem;
+        }
+        .container {
+            max-width: 1200px;
+        }
+        .card {
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+        }
+        .card-body {
+            padding: 2rem;
+        }
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .lead {
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: #495057;
+        }
+        .btn {
+            font-weight: 500;
+            border-radius: 0.25rem;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .list-group-item {
+            border-radius: 0.25rem !important;
+            margin-bottom: 0.5rem;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        .list-group-item:hover {
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">页面标题</h1>
+        <a href="/optionadmin" class="btn btn-outline-secondary btn-sm">&larr; 返回工作台</a>
+    </div>
+
+    <div class="card bg-white">
+        <div class="card-body">
+            <h2 class="card-title">欢迎使用</h2>
+            <p class="lead">这是一个基本的页面模板，您可以根据需要修改内容和结构。</p>
+            
+            <div class="mt-4">
+                <h3 class="h5 mb-3">功能特点</h3>
+                <ul class="list-group">
+                    <li class="list-group-item">使用思源宋体作为主要字体，提升阅读体验</li>
+                    <li class="list-group-item">采用Science/Nature风格的设计元素</li>
+                    <li class="list-group-item">响应式布局，适配各种设备</li>
+                    <li class="list-group-item">简洁明了的界面设计</li>
+                </ul>
+            </div>
+            
+            <div class="mt-4">
+                <h3 class="h5 mb-3">操作指南</h3>
+                <ol class="list-group list-group-numbered">
+                    <li class="list-group-item">修改此文件的标题和内容</li>
+                    <li class="list-group-item">添加必要的功能模块</li>
+                    <li class="list-group-item">确保与其他页面风格一致</li>
+                </ol>
+            </div>
+            
+            <div class="mt-5">
+                <a href="/optionadmin" class="btn btn-primary">返回工作台</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

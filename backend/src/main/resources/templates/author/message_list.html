@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+  <meta charset="UTF-8">
   <title>学术论文管理系统-消息中心</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
@@ -11,6 +12,8 @@
     .nav-pills .nav-link { color: #6c757d; font-weight: 500; }
     .nav-pills .nav-link.active { background-color: #0d6efd; box-shadow: 0 2px 6px rgba(13, 110, 253, 0.3); }
     .sender-avatar { width: 40px; height: 40px; background: #e9ecef; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .sort-header { cursor: pointer; transition: background 0.2s; }
+    .sort-header:hover { background-color: #f1f1f1 !important; }
   </style>
 </head>
 <body>
@@ -22,7 +25,7 @@
       <p class="text-muted mb-0">处理您的站内沟通记录与系统邮件通知</p>
     </div>
     <a th:href="@{/author}" class="btn btn-outline-secondary rounded-pill btn-sm">
-      <i class="bi bi-house-door"></i> 返回
+      <i class="bi bi-house-door"></i> 返回主页
     </a>
   </div>
 
@@ -66,7 +69,7 @@
               </div>
               <div class="p-3 bg-light rounded-3 text-secondary" style="font-size: 0.95rem;">
                 <i class="bi bi-quote me-1"></i>
-                <span th:text="${msg.messageBody}">沟通内容内容...</span>
+                <span th:text="${msg.messageBody}">内容...</span>
               </div>
               <div class="mt-3 d-flex justify-content-end">
                 <a th:href="@{/author/manuscript/track(id=${msg.manuId})}" class="btn btn-sm btn-link text-decoration-none text-primary fw-bold">
@@ -82,12 +85,16 @@
     <div class="tab-pane fade" id="tab-email" role="tabpanel">
       <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
         <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0">
+          <table class="table table-hover align-middle mb-0" id="emailTable">
             <thead class="table-light">
             <tr>
               <th class="ps-4">邮件 ID</th>
               <th>内容预览</th>
+              <th>发送邮箱</th>
               <th>接收邮箱</th>
+              <th class="sort-header" onclick="sortTable(4)">
+                发送时间 <i class="bi bi-arrow-down-up ms-1 small"></i>
+              </th>
               <th class="text-end pe-4">操作</th>
             </tr>
             </thead>
@@ -97,20 +104,23 @@
                 <span class="badge bg-secondary-subtle text-secondary" th:text="${'#' + email.emailMesId}">#1</span>
               </td>
               <td>
-                <div class="text-dark fw-medium text-truncate" style="max-width: 350px;" th:text="${email.messageBody}">
-                  您的稿件已成功录用...
+                <div class="text-dark fw-medium text-truncate" style="max-width: 300px;"
+                     th:text="${email.messageBody}" th:title="${email.messageBody}">
+                  预览内容...
                 </div>
               </td>
+              <td th:text="${email.senderEmail ?: '系统发送'}">sender@test.com</td>
               <td th:text="${email.receiverEmail}">author@test.com</td>
+              <td th:text="${#temporals.format(email.sendingTime, 'yyyy-MM-dd HH:mm')}">2026-01-01</td>
               <td class="text-end pe-4">
                 <button class="btn btn-sm btn-outline-primary rounded-pill px-3"
-                        th:onclick="|alert('完整邮件内容：' + '${email.messageBody}')|">
+                        th:onclick="showEmailDetail([[${email.messageBody}]])">
                   查看原文
                 </button>
               </td>
             </tr>
             <tr th:if="${#lists.isEmpty(emailMsgs)}">
-              <td colspan="4" class="text-center py-5 text-muted">无邮件存档记录</td>
+              <td colspan="6" class="text-center py-5 text-muted">无邮件存档记录</td>
             </tr>
             </tbody>
           </table>
@@ -118,10 +128,27 @@
       </div>
     </div>
   </div>
-</div>
-</div>
-<p class="text-center mt-5 text-muted small">© 2025 学术论文管理系统 · 作者端</p>
+  <p class="text-center mt-5 text-muted small">© 2025 学术论文管理系统 · 作者</p>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+  function showEmailDetail(content) {
+    alert("完整邮件内容：\n\n" + content);
+  }
+  let sortOrder = -1;
+  function sortTable(colIndex) {
+    const table = document.getElementById("emailTable");
+    const tbody = table.tBodies[0];
+    const rows = Array.from(tbody.rows);
+    if (rows.length <= 1 && rows[0].cells.length < colIndex) return;
+    sortOrder *= -1;
+    rows.sort((a, b) => {
+      const valA = a.cells[colIndex].innerText.trim();
+      const valB = b.cells[colIndex].innerText.trim();
+      return sortOrder * valA.localeCompare(valB);
+    });
+    rows.forEach(row => tbody.appendChild(row));
+  }
+</script>
 </body>
 </html>

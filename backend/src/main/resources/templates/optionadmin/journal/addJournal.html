@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>新增期刊 · 编辑部管理员</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">新增期刊</h1>
+        <div class="d-flex gap-2">
+            <a href="/optionadmin/journal" class="btn btn-outline-secondary btn-sm">&larr; 返回期刊列表</a>
+            <a href="/optionadmin" class="btn btn-outline-secondary btn-sm">&larr; 返回工作台</a>
+        </div>
+    </div>
+
+    <!-- 简单提示 -->
+    <p class="text-muted">
+        请填写期刊信息，包括名称、介绍、影响因子和发表时间线等。
+    </p>
+
+    <!-- 新增期刊表单 -->
+    <div class="card bg-white shadow-sm">
+        <div class="card-body">
+            <form th:action="@{/optionadmin/journal/save}" method="post">
+                <div class="mb-3">
+                    <label for="name" class="form-label">期刊名称 <span class="text-danger">*</span></label>
+                    <input type="text" id="name" name="name" th:field="${journal.name}" 
+                           class="form-control" placeholder="请输入期刊名称" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="introduction" class="form-label">期刊介绍 <span class="text-danger">*</span></label>
+                    <textarea id="introduction" name="introduction" th:field="${journal.introduction}" 
+                              class="form-control" rows="8" placeholder="请输入期刊介绍" required></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="impactFactor" class="form-label">影响因子</label>
+                    <input type="number" id="impactFactor" name="impactFactor" th:field="${journal.impactFactor}" 
+                           class="form-control" step="0.01" placeholder="请输入影响因子">
+                </div>
+
+                <div class="mb-3">
+                    <label for="publicationTimeline" class="form-label">发表时间线</label>
+                    <textarea id="publicationTimeline" name="publicationTimeline" th:field="${journal.publicationTimeline}" 
+                              class="form-control" rows="5" placeholder="请输入发表时间线（如：投稿截止、审稿完成、录用通知等时间节点）"></textarea>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 pt-3">
+                    <button type="submit" name="action" value="saveAsDraft" class="btn btn-outline-secondary">
+                        保存为草稿
+                    </button>
+                    <button type="submit" name="action" value="saveAndPublish" class="btn btn-primary">
+                        保存并发布
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

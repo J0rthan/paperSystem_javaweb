@@ -10,8 +10,11 @@ public interface optionAdminService {
     List<Manuscript> getAllManuscripts();
     Manuscript getManuscriptById(Integer manuscriptId);
     void updateManuscriptStatus(Integer manuscriptId, String status);
-    void approveManuscript(Integer manuscriptId, Integer operatorId);
+    void approveManuscript(Integer manuscriptId, Integer operatorId);// 拒绝稿件审核
     void rejectManuscript(Integer manuscriptId, Integer operatorId);
+    
+    // 拒绝稿件并发送反馈
+    void rejectManuscriptWithFeedback(Integer manuscriptId, Integer operatorId, String messageBody, String senderEmail);
     
     // 编辑管理相关方法
     List<User> getAllEditors();

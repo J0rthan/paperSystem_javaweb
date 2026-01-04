@@ -17,6 +17,7 @@
     <tr>
       <th>ID</th>
       <th>标题</th>
+      <th>摘要</th>
       <th>作者</th>
       <th>提交时间</th>
       <th>操作</th>
@@ -26,20 +27,21 @@
     <tr th:each="m : ${manuscripts}">
       <td th:text="${m.manuscriptId}">1</td>
       <td th:text="${m.title}">标题</td>
-      <td th:text="${m.authorList}">作者</td>
+      <td th:text="${m.abstractText}">摘要</td>
+      <td th:text="${m.authorId}">作者Id</td>
       <td th:text="${#temporals.format(m.submitTime, 'yyyy-MM-dd HH:mm')}">时间</td>
       <td>
         <form th:action="@{/chiefeditor/initial-review/decision}" method="post" class="d-flex gap-1">
           <input type="hidden" name="manuscriptId" th:value="${m.manuscriptId}"/>
-
-          <select class="form-select form-select-sm" name="decision" required>
-            <option value="ASSIGN_EDITOR">分配编辑</option>
-            <option value="REJECT">拒稿</option>
-          </select>
-
-          <input class="form-control form-control-sm" name="editorId" placeholder="编辑ID(可选)"/>
-
-          <button class="btn btn-primary btn-sm" type="submit">提交</button>
+          <input type="hidden" name="decision" value="ASSIGN_EDITOR"/>
+          <input type="text" name="assignReason" placeholder="请输入送审理由" class="form-control form-control-sm" required/>
+          <button class="btn btn-primary btn-sm" type="submit">送审</button>
+        </form>
+        <form th:action="@{/chiefeditor/initial-review/decision}" method="post" class="d-flex gap-1 mt-1">
+          <input type="hidden" name="manuscriptId" th:value="${m.manuscriptId}"/>
+          <input type="hidden" name="decision" value="REJECT"/>
+          <input type="text" name="assignReason" placeholder="请输入拒稿理由" class="form-control form-control-sm" required/>
+          <button class="btn btn-danger btn-sm" type="submit">拒稿</button>
         </form>
       </td>
     </tr>

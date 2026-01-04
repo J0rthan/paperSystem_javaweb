@@ -1,10 +1,13 @@
 package com.bjfu.paperSystem.chiefEditor.service;
 
+import com.bjfu.paperSystem.author.dao.LogsDao;
 import com.bjfu.paperSystem.author.dao.ManuscriptDao;
+import com.bjfu.paperSystem.javabeans.Logs;
 import com.bjfu.paperSystem.javabeans.Manuscript;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -12,6 +15,9 @@ public class InitialReviewServiceImpl implements InitialReviewService {
 
     @Autowired
     private ManuscriptDao manuscriptDao;
+    
+    @Autowired
+    private LogsDao logsDao;
 
     @Override
     public List<Manuscript> getSubmittedManuscripts() {
@@ -20,18 +26,32 @@ public class InitialReviewServiceImpl implements InitialReviewService {
     }
 
     @Override
-    public void initialDecision(int manuscriptId, String decision, Integer editorId) {
+    public void initialDecision(int manuscriptId, String decision, int userId, String assignReason) {
         Manuscript m = manuscriptDao.findById(manuscriptId).orElse(null);
         if (m == null) return;
 
-        if ("ASSIGN_EDITOR".equalsIgnoreCase(decision) && editorId != null) {
-            m.setEditorId(editorId);
-            m.setStatus("UNDER_REVIEW"); // 分配编辑后进入审稿中
+        // 设置assign_reason
+        m.setAssignReason(assignReason);
+        
+        String logType = "";
+        if ("ASSIGN_EDITOR".equalsIgnoreCase(decision)) {
+            m.setStatus("Pending Allocation II"); // 送审后状态改为Pending Allocation II
+            logType = "Desk Accept";
         } else if ("REJECT".equalsIgnoreCase(decision)) {
-            m.setStatus("REJECTED");
+            m.setStatus("Rejected"); // 拒稿后状态改为Rejected
+            logType = "Desk Reject";
         }
-        // 可以在这里顺便写 m.setDecision(...) 或记录日志，后续再扩展
+        
+        // 保存稿件状态更新
         manuscriptDao.save(m);
+        
+        // 创建日志记录
+        Logs log = new Logs();
+        log.setOporId(userId);
+        log.setOpType(logType);
+        log.setPaperId(manuscriptId);
+        log.setOpTime(LocalDateTime.now());
+        logsDao.save(log);
     }
 
     @Override

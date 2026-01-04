@@ -3,6 +3,8 @@ package com.bjfu.paperSystem.optionAdmin.service;
 import com.bjfu.paperSystem.javabeans.News;
 import com.bjfu.paperSystem.optionAdmin.dao.NewsDao;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -87,5 +89,11 @@ public class NewsServiceImpl implements NewsService {
         news.setUpdateTime(LocalDateTime.now());
         news.setStatus("draft");
         newsDao.save(news);
+    }
+
+    @Override
+    public List<News> getPublishedNews(int limit) {
+        Pageable pageable = PageRequest.of(0, limit);
+        return newsDao.findPublishedNews(pageable);
     }
 }

@@ -1,6 +1,7 @@
 package com.bjfu.paperSystem.optionAdmin.dao;
 
 import com.bjfu.paperSystem.javabeans.News;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -26,4 +27,8 @@ public interface NewsDao extends JpaRepository<News, Integer>, JpaSpecificationE
 
     // 分页查询所有新闻（按创建时间倒序）
     List<News> findAllByOrderByCreateTimeDesc();
+
+    // 查询已发布的新闻（按发布时间倒序，限制数量）
+    @Query("SELECT n FROM News n WHERE n.status = 'published' AND n.publishTime IS NOT NULL ORDER BY n.publishTime DESC")
+    List<News> findPublishedNews(Pageable pageable);
 }

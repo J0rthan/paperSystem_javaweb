@@ -12,337 +12,393 @@
             --secondary-color: #6c757d;
             --success-color: #198754;
         }
-        
+
         .hero-section {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 100px 0;
             margin-bottom: 60px;
         }
-        
+
         .feature-card {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             border: none;
             border-radius: 15px;
             overflow: hidden;
         }
-        
+
         .feature-card:hover {
             transform: translateY(-10px);
             box-shadow: 0 10px 30px rgba(0,0,0,0.15);
         }
-        
+
         .feature-icon {
             font-size: 3rem;
             margin-bottom: 1rem;
             color: var(--primary-color);
         }
-        
+
         .login-section {
             background-color: #f8f9fa;
             padding: 60px 0;
             margin-top: 60px;
         }
-        
+
         .footer {
             background-color: #212529;
             color: white;
             padding: 40px 0;
             margin-top: 60px;
         }
-        
+
         .navbar-brand {
             font-weight: bold;
             font-size: 1.5rem;
         }
-        
+
         .btn-login {
             padding: 12px 30px;
             font-size: 1.1rem;
             border-radius: 50px;
         }
+
+        .news-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+        }
+
+        .news-card .card-title a:hover {
+            color: var(--primary-color) !important;
+        }
     </style>
 </head>
 <body>
-    <!-- 导航栏 -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-        <div class="container">
-            <a class="navbar-brand" href="/">
-                <i class="bi bi-journal-text"></i> 学术论文管理系统
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#features">功能特色</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#about">关于系统</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#login">登录</a>
-                    </li>
-                </ul>
-            </div>
+<!-- 导航栏 -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <i class="bi bi-journal-text"></i> 学术论文管理系统
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#features">功能特色</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#news">最新动态</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#about">关于系统</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#login">登录</a>
+                </li>
+            </ul>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <!-- 英雄区域 -->
-    <section class="hero-section text-center">
-        <div class="container">
-            <h1 class="display-3 fw-bold mb-4">欢迎使用学术论文管理系统</h1>
-            <p class="lead mb-5">专业的学术论文投稿、审稿和管理平台</p>
-            <a href="#login" class="btn btn-light btn-lg btn-login">
-                <i class="bi bi-box-arrow-in-right"></i> 立即登录
-            </a>
-        </div>
-    </section>
+<!-- 英雄区域 -->
+<section class="hero-section text-center">
+    <div class="container">
+        <h1 class="display-3 fw-bold mb-4">欢迎使用学术论文管理系统</h1>
+        <p class="lead mb-5">专业的学术论文投稿、审稿和管理平台</p>
+        <a href="#login" class="btn btn-light btn-lg btn-login">
+            <i class="bi bi-box-arrow-in-right"></i> 立即登录
+        </a>
+    </div>
+</section>
 
-    <!-- 功能特色 -->
-    <section id="features" class="container py-5">
-        <div class="text-center mb-5">
-            <h2 class="display-5 fw-bold">系统功能</h2>
-            <p class="text-muted">为学术研究提供全方位的论文管理服务</p>
-        </div>
-        
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card feature-card h-100 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <i class="bi bi-file-earmark-text feature-icon"></i>
-                        <h4 class="card-title">稿件管理</h4>
-                        <p class="card-text text-muted">
-                            作者可以轻松提交、编辑和跟踪论文稿件，实时查看审稿进度和状态。
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card feature-card h-100 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <i class="bi bi-clipboard-check feature-icon"></i>
-                        <h4 class="card-title">审稿流程</h4>
-                        <p class="card-text text-muted">
-                            完善的审稿流程管理，支持主编、编辑和审稿人协同工作，确保审稿质量。
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card feature-card h-100 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <i class="bi bi-people feature-icon"></i>
-                        <h4 class="card-title">用户管理</h4>
-                        <p class="card-text text-muted">
-                            多角色权限管理，支持作者、审稿人、编辑、主编等不同角色的权限控制。
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card feature-card h-100 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <i class="bi bi-graph-up feature-icon"></i>
-                        <h4 class="card-title">进度跟踪</h4>
-                        <p class="card-text text-muted">
-                            实时跟踪论文从投稿到发表的完整流程，随时了解稿件处理状态。
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card feature-card h-100 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <i class="bi bi-shield-check feature-icon"></i>
-                        <h4 class="card-title">安全可靠</h4>
-                        <p class="card-text text-muted">
-                            采用先进的安全机制，保护您的学术成果和隐私信息。
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card feature-card h-100 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <i class="bi bi-bell feature-icon"></i>
-                        <h4 class="card-title">消息通知</h4>
-                        <p class="card-text text-muted">
-                            及时的消息通知系统，确保您不会错过任何重要的审稿信息。
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+<!-- 功能特色 -->
+<section id="features" class="container py-5">
+    <div class="text-center mb-5">
+        <h2 class="display-5 fw-bold">系统功能</h2>
+        <p class="text-muted">为学术研究提供全方位的论文管理服务</p>
+    </div>
 
-    <!-- 关于系统 -->
-    <section id="about" class="container py-5">
-        <div class="row align-items-center">
-            <div class="col-md-6">
-                <h2 class="display-5 fw-bold mb-4">关于系统</h2>
-                <p class="lead mb-4">
-                    学术论文管理系统是一个专业的在线平台，旨在简化学术论文的投稿、审稿和管理流程。
-                </p>
-                <p class="text-muted mb-4">
-                    系统支持多种用户角色，包括作者、审稿人、编辑、主编、系统管理员等，
-                    为每个角色提供专门的功能界面和权限管理。无论是提交新稿件、审阅论文、
-                    还是管理系统设置，都能在这里高效完成。
-                </p>
-                <ul class="list-unstyled">
-                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> 支持多种文件格式上传</li>
-                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> 完整的审稿流程管理</li>
-                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> 灵活的权限控制系统</li>
-                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> 友好的用户界面</li>
-                </ul>
-            </div>
-            <div class="col-md-6 text-center">
-                <div class="p-5">
-                    <i class="bi bi-journal-text" style="font-size: 10rem; color: #667eea; opacity: 0.3;"></i>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card feature-card h-100 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <i class="bi bi-file-earmark-text feature-icon"></i>
+                    <h4 class="card-title">稿件管理</h4>
+                    <p class="card-text text-muted">
+                        作者可以轻松提交、编辑和跟踪论文稿件，实时查看审稿进度和状态。
+                    </p>
                 </div>
             </div>
         </div>
-    </section>
 
-    <!-- 登录区域 -->
-    <section id="login" class="login-section">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-md-6 col-lg-5">
-                    <div class="card shadow-lg border-0">
-                        <div class="card-body p-5">
-                            <!-- 登录/注册选项卡 -->
-                            <ul class="nav nav-pills mb-4 justify-content-center" id="authTabs" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-tab-pane" type="button" role="tab" aria-controls="login-tab-pane" aria-selected="true">
-                                        <i class="bi bi-box-arrow-in-right"></i> 用户登录
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register-tab-pane" type="button" role="tab" aria-controls="register-tab-pane" aria-selected="false">
-                                        <i class="bi bi-person-plus"></i> 账号注册
-                                    </button>
-                                </li>
-                            </ul>
-                            
-                            <!-- 错误提示框 -->
-                            <div id="errorAlert" class="alert alert-danger alert-dismissible fade show d-none" role="alert">
-                                <i class="bi bi-exclamation-triangle-fill"></i>
-                                <span id="errorMessage"></span>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                            
-                            <!-- 成功提示框 -->
-                            <div id="successAlert" class="alert alert-success alert-dismissible fade show d-none" role="alert">
-                                <i class="bi bi-check-circle-fill"></i>
-                                <span id="successMessage"></span>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                            
-                            <!-- 选项卡内容 -->
-                            <div class="tab-content" id="authTabsContent">
-                                <!-- 登录表单 -->
-                                <div class="tab-pane fade show active" id="login-tab-pane" role="tabpanel" aria-labelledby="login-tab" tabindex="0">
-                                    <form action="/login" method="post" id="loginForm">
-                                        <div class="mb-3">
-                                            <label for="loginUserName" class="form-label">
-                                                <i class="bi bi-person"></i> 用户账号
-                                            </label>
-                                            <input type="text" class="form-control form-control-lg" 
-                                                   id="loginUserName" name="userName" 
-                                                   placeholder="请输入您的账号" required>
-                                        </div>
-                                        <div class="mb-4">
-                                            <label for="loginPassword" class="form-label">
-                                                <i class="bi bi-lock"></i> 账号密码
-                                            </label>
-                                            <input type="password" class="form-control form-control-lg" 
-                                                   id="loginPassword" name="password" 
-                                                   placeholder="请输入您的密码" required>
-                                        </div>
-                                        <div class="d-grid">
-                                            <button type="submit" class="btn btn-primary btn-lg">
-                                                <i class="bi bi-box-arrow-in-right"></i> 登录
-                                            </button>
-                                        </div>
-                                    </form>
-                                    <div class="text-center mt-4">
-                                        <small class="text-muted">
-                                            支持角色：作者、审稿人、编辑、主编、系统管理员
-                                        </small>
+        <div class="col-md-4">
+            <div class="card feature-card h-100 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <i class="bi bi-clipboard-check feature-icon"></i>
+                    <h4 class="card-title">审稿流程</h4>
+                    <p class="card-text text-muted">
+                        完善的审稿流程管理，支持主编、编辑和审稿人协同工作，确保审稿质量。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card feature-card h-100 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <i class="bi bi-people feature-icon"></i>
+                    <h4 class="card-title">用户管理</h4>
+                    <p class="card-text text-muted">
+                        多角色权限管理，支持作者、审稿人、编辑、主编等不同角色的权限控制。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card feature-card h-100 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <i class="bi bi-graph-up feature-icon"></i>
+                    <h4 class="card-title">进度跟踪</h4>
+                    <p class="card-text text-muted">
+                        实时跟踪论文从投稿到发表的完整流程，随时了解稿件处理状态。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card feature-card h-100 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <i class="bi bi-shield-check feature-icon"></i>
+                    <h4 class="card-title">安全可靠</h4>
+                    <p class="card-text text-muted">
+                        采用先进的安全机制，保护您的学术成果和隐私信息。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card feature-card h-100 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <i class="bi bi-bell feature-icon"></i>
+                    <h4 class="card-title">消息通知</h4>
+                    <p class="card-text text-muted">
+                        及时的消息通知系统，确保您不会错过任何重要的审稿信息。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 最新新闻 -->
+<section id="news" class="container py-5">
+    <div class="text-center mb-5">
+        <h2 class="display-5 fw-bold">最新动态</h2>
+        <p class="text-muted">了解系统最新资讯和公告</p>
+    </div>
+
+    <div class="row g-4" th:if="${newsList != null and !newsList.isEmpty()}">
+        <div class="col-md-6 col-lg-4" th:each="news : ${newsList}">
+            <div class="card h-100 shadow-sm news-card" style="transition: transform 0.3s ease, box-shadow 0.3s ease; border: none; border-radius: 15px; overflow: hidden;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-primary" th:text="${news.status == 'published' ? '已发布' : news.status}"></span>
+                        <small class="text-muted" th:if="${news.publishTime != null}" th:text="${#temporals.format(news.publishTime, 'yyyy-MM-dd')}"></small>
+                        <small class="text-muted" th:unless="${news.publishTime != null}">未设置</small>
+                    </div>
+                    <h5 class="card-title mb-3" style="font-weight: 600; color: #333;">
+                        <a href="#" th:href="@{'/news/' + ${news.newsId}}"
+                           style="text-decoration: none; color: inherit;"
+                           th:text="${news.title}"></a>
+                    </h5>
+                    <p class="card-text text-muted" style="font-size: 0.9rem; line-height: 1.6;
+                            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+                            overflow: hidden; text-overflow: ellipsis;"
+                       th:text="${#strings.abbreviate(news.content, 100)}"></p>
+                    <div class="mt-auto">
+                        <a href="#" th:href="@{'/news/' + ${news.newsId}}"
+                           class="btn btn-sm btn-outline-primary">
+                            阅读更多 <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center" th:if="${newsList == null or newsList.isEmpty()}">
+        <p class="text-muted">暂无新闻动态</p>
+    </div>
+</section>
+
+<!-- 关于系统 -->
+<section id="about" class="container py-5">
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <h2 class="display-5 fw-bold mb-4">关于系统</h2>
+            <p class="lead mb-4">
+                学术论文管理系统是一个专业的在线平台，旨在简化学术论文的投稿、审稿和管理流程。
+            </p>
+            <p class="text-muted mb-4">
+                系统支持多种用户角色，包括作者、审稿人、编辑、主编、系统管理员等，
+                为每个角色提供专门的功能界面和权限管理。无论是提交新稿件、审阅论文、
+                还是管理系统设置，都能在这里高效完成。
+            </p>
+            <ul class="list-unstyled">
+                <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> 支持多种文件格式上传</li>
+                <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> 完整的审稿流程管理</li>
+                <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> 灵活的权限控制系统</li>
+                <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> 友好的用户界面</li>
+            </ul>
+        </div>
+        <div class="col-md-6 text-center">
+            <div class="p-5">
+                <i class="bi bi-journal-text" style="font-size: 10rem; color: #667eea; opacity: 0.3;"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 登录区域 -->
+<section id="login" class="login-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card shadow-lg border-0">
+                    <div class="card-body p-5">
+                        <!-- 登录/注册选项卡 -->
+                        <ul class="nav nav-pills mb-4 justify-content-center" id="authTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-tab-pane" type="button" role="tab" aria-controls="login-tab-pane" aria-selected="true">
+                                    <i class="bi bi-box-arrow-in-right"></i> 用户登录
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register-tab-pane" type="button" role="tab" aria-controls="register-tab-pane" aria-selected="false">
+                                    <i class="bi bi-person-plus"></i> 账号注册
+                                </button>
+                            </li>
+                        </ul>
+
+                        <!-- 错误提示框 -->
+                        <div id="errorAlert" class="alert alert-danger alert-dismissible fade show d-none" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <span id="errorMessage"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+
+                        <!-- 成功提示框 -->
+                        <div id="successAlert" class="alert alert-success alert-dismissible fade show d-none" role="alert">
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span id="successMessage"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+
+                        <!-- 选项卡内容 -->
+                        <div class="tab-content" id="authTabsContent">
+                            <!-- 登录表单 -->
+                            <div class="tab-pane fade show active" id="login-tab-pane" role="tabpanel" aria-labelledby="login-tab" tabindex="0">
+                                <form action="/login" method="post" id="loginForm">
+                                    <div class="mb-3">
+                                        <label for="loginUserName" class="form-label">
+                                            <i class="bi bi-person"></i> 用户账号
+                                        </label>
+                                        <input type="text" class="form-control form-control-lg"
+                                               id="loginUserName" name="userName"
+                                               placeholder="请输入您的账号" required>
                                     </div>
+                                    <div class="mb-4">
+                                        <label for="loginPassword" class="form-label">
+                                            <i class="bi bi-lock"></i> 账号密码
+                                        </label>
+                                        <input type="password" class="form-control form-control-lg"
+                                               id="loginPassword" name="password"
+                                               placeholder="请输入您的密码" required>
+                                    </div>
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-primary btn-lg">
+                                            <i class="bi bi-box-arrow-in-right"></i> 登录
+                                        </button>
+                                    </div>
+                                </form>
+                                <div class="text-center mt-4">
+                                    <small class="text-muted">
+                                        支持角色：作者、审稿人、编辑、主编、系统管理员
+                                    </small>
                                 </div>
-                                
-                                <!-- 注册表单 -->
-                                <div class="tab-pane fade" id="register-tab-pane" role="tabpanel" aria-labelledby="register-tab" tabindex="0">
-                                    <form action="/register" method="post" id="registerForm">
-                                        <div class="mb-3">
-                                            <label for="registerUserName" class="form-label">
-                                                <i class="bi bi-person"></i> 用户账号
-                                            </label>
-                                            <input type="text" class="form-control form-control-lg" 
-                                                   id="registerUserName" name="userName" 
-                                                   placeholder="请输入您的账号" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="registerFullName" class="form-label">
-                                                <i class="bi bi-person"></i> 全名
-                                            </label>
-                                            <input type="text" class="form-control form-control-lg" 
-                                                   id="registerFullName" name="fullName" 
-                                                   placeholder="请输入您的全名" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="registerEmail" class="form-label">
-                                                <i class="bi bi-envelope"></i> 邮箱
-                                            </label>
-                                            <input type="email" class="form-control form-control-lg" 
-                                                   id="registerEmail" name="email" 
-                                                   placeholder="请输入您的邮箱" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="registerCompany" class="form-label">
-                                                <i class="bi bi-building"></i> 单位
-                                            </label>
-                                            <input type="text" class="form-control form-control-lg" 
-                                                   id="registerCompany" name="company" 
-                                                   placeholder="请输入您的单位" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="registerPassword" class="form-label">
-                                                <i class="bi bi-lock"></i> 账号密码
-                                            </label>
-                                            <input type="password" class="form-control form-control-lg" 
-                                                   id="registerPassword" name="password" 
-                                                   placeholder="请输入您的密码" required>
-                                        </div>
-                                        <div class="mb-4">
-                                            <label for="registerRole" class="form-label">
-                                                <i class="bi bi-person-badge"></i> 用户角色
-                                            </label>
-                                            <select class="form-select form-select-lg" 
-                                                    id="registerRole" name="userType" required>
-                                                <option value="author">作者</option>
-                                                <option value="reviewer">审稿人</option>
-                                            </select>
-                                        </div>
-                                        <div class="d-grid">
-                                            <button type="submit" class="btn btn-primary btn-lg">
-                                                <i class="bi bi-person-plus"></i> 注册
-                                            </button>
-                                        </div>
-                                    </form>
-                                    <div class="text-center mt-4">
-                                        <small class="text-muted">
-                                            注册成功后将自动登录系统
-                                        </small>
+                            </div>
+
+                            <!-- 注册表单 -->
+                            <div class="tab-pane fade" id="register-tab-pane" role="tabpanel" aria-labelledby="register-tab" tabindex="0">
+                                <form action="/register" method="post" id="registerForm">
+                                    <div class="mb-3">
+                                        <label for="registerUserName" class="form-label">
+                                            <i class="bi bi-person"></i> 用户账号
+                                        </label>
+                                        <input type="text" class="form-control form-control-lg"
+                                               id="registerUserName" name="userName"
+                                               placeholder="请输入您的账号" required>
                                     </div>
+                                    <div class="mb-3">
+                                        <label for="registerFullName" class="form-label">
+                                            <i class="bi bi-person"></i> 全名
+                                        </label>
+                                        <input type="text" class="form-control form-control-lg"
+                                               id="registerFullName" name="fullName"
+                                               placeholder="请输入您的全名" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="registerEmail" class="form-label">
+                                            <i class="bi bi-envelope"></i> 邮箱
+                                        </label>
+                                        <input type="email" class="form-control form-control-lg"
+                                               id="registerEmail" name="email"
+                                               placeholder="请输入您的邮箱" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="registerCompany" class="form-label">
+                                            <i class="bi bi-building"></i> 单位
+                                        </label>
+                                        <input type="text" class="form-control form-control-lg"
+                                               id="registerCompany" name="company"
+                                               placeholder="请输入您的单位" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="registerPassword" class="form-label">
+                                            <i class="bi bi-lock"></i> 账号密码
+                                        </label>
+                                        <input type="password" class="form-control form-control-lg"
+                                               id="registerPassword" name="password"
+                                               placeholder="请输入您的密码" required>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="registerRole" class="form-label">
+                                            <i class="bi bi-person-badge"></i> 用户角色
+                                        </label>
+                                        <select class="form-select form-select-lg"
+                                                id="registerRole" name="userType" required>
+                                            <option value="author">作者</option>
+                                            <option value="reviewer">审稿人</option>
+                                        </select>
+                                    </div>
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-primary btn-lg">
+                                            <i class="bi bi-person-plus"></i> 注册
+                                        </button>
+                                    </div>
+                                </form>
+                                <div class="text-center mt-4">
+                                    <small class="text-muted">
+                                        注册成功后将自动登录系统
+                                    </small>
                                 </div>
                             </div>
                         </div>
@@ -350,137 +406,138 @@
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- 页脚 -->
-    <footer class="footer">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <h5><i class="bi bi-journal-text"></i> 学术论文管理系统</h5>
-                    <p class="text-muted">专业的学术论文投稿、审稿和管理平台</p>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <p class="text-muted mb-0">
-                        © 2025 学术论文管理系统. 保留所有权利.
-                    </p>
-                    <p class="text-muted">
-                        <i class="bi bi-envelope"></i> 联系我们: support@papersystem.edu
-                    </p>
-                </div>
+<!-- 页脚 -->
+<footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <h5><i class="bi bi-journal-text"></i> 学术论文管理系统</h5>
+                <p class="text-muted">专业的学术论文投稿、审稿和管理平台</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <p class="text-muted mb-0">
+                    © 2025 学术论文管理系统. 保留所有权利.
+                </p>
+                <p class="text-muted">
+                    <i class="bi bi-envelope"></i> 联系我们: support@papersystem.edu
+                </p>
             </div>
         </div>
-    </footer>
+    </div>
+</footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // 平滑滚动
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // 平滑滚动
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    // 检查URL参数并显示消息
+    (function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        const success = urlParams.get('success');
+
+        // 处理错误消息
+        if (error) {
+            const errorAlert = document.getElementById('errorAlert');
+            const errorMessage = document.getElementById('errorMessage');
+            let message = '';
+
+            switch(error) {
+                // 登录错误
+                case 'username':
+                    message = '用户名不存在，请检查后重试。';
+                    break;
+                case 'password':
+                    message = '密码错误，请检查后重试。';
+                    break;
+                case 'account_disabled':
+                    message = '您的账户已被禁用，请联系系统管理员。';
+                    break;
+                case 'invalid_role':
+                    message = '用户角色异常，请联系系统管理员。';
+                    break;
+                // 注册错误
+                case 'username_exists':
+                    message = '用户名已存在，请选择其他用户名。';
+                    // 切换到注册标签
+                    const registerTab = document.getElementById('register-tab');
+                    if (registerTab) {
+                        registerTab.click();
+                    }
+                    break;
+                case 'register_error':
+                    message = '注册失败，请重试。';
+                    // 切换到注册标签
+                    const regTab = document.getElementById('register-tab');
+                    if (regTab) {
+                        regTab.click();
+                    }
+                    break;
+                default:
+                    message = '操作失败，请重试。';
+            }
+
+            if (errorAlert && errorMessage) {
+                errorMessage.textContent = message;
+                errorAlert.classList.remove('d-none');
+
+                // 滚动到登录区域
+                setTimeout(() => {
+                    document.getElementById('login').scrollIntoView({
                         behavior: 'smooth',
                         block: 'start'
                     });
-                }
-            });
-        });
-        
-        // 检查URL参数并显示消息
-        (function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const error = urlParams.get('error');
-            const success = urlParams.get('success');
-            
-            // 处理错误消息
-            if (error) {
-                const errorAlert = document.getElementById('errorAlert');
-                const errorMessage = document.getElementById('errorMessage');
-                let message = '';
-                
-                switch(error) {
-                    // 登录错误
-                    case 'username':
-                        message = '用户名不存在，请检查后重试。';
-                        break;
-                    case 'password':
-                        message = '密码错误，请检查后重试。';
-                        break;
-                    case 'account_disabled':
-                        message = '您的账户已被禁用，请联系系统管理员。';
-                        break;
-                    case 'invalid_role':
-                        message = '用户角色异常，请联系系统管理员。';
-                        break;
-                    // 注册错误
-                    case 'username_exists':
-                        message = '用户名已存在，请选择其他用户名。';
-                        // 切换到注册标签
-                        const registerTab = document.getElementById('register-tab');
-                        if (registerTab) {
-                            registerTab.click();
-                        }
-                        break;
-                    case 'register_error':
-                        message = '注册失败，请重试。';
-                        // 切换到注册标签
-                        const regTab = document.getElementById('register-tab');
-                        if (regTab) {
-                            regTab.click();
-                        }
-                        break;
-                    default:
-                        message = '操作失败，请重试。';
-                }
-                
-                if (errorAlert && errorMessage) {
-                    errorMessage.textContent = message;
-                    errorAlert.classList.remove('d-none');
-                    
-                    // 滚动到登录区域
-                    setTimeout(() => {
-                        document.getElementById('login').scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }, 100);
-                }
+                }, 100);
             }
-            
-            // 处理成功消息
-            if (success) {
-                const successAlert = document.getElementById('successAlert');
-                const successMessage = document.getElementById('successMessage');
-                let message = '';
-                
-                switch(success) {
-                    case 'registered':
-                        message = '注册成功！正在跳转...';
-                        break;
-                    default:
-                        message = '操作成功！';
-                }
-                
-                if (successAlert && successMessage) {
-                    successMessage.textContent = message;
-                    successAlert.classList.remove('d-none');
-                    
-                    // 滚动到登录区域
-                    setTimeout(() => {
-                        document.getElementById('login').scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }, 100);
-                }
+        }
+
+        // 处理成功消息
+        if (success) {
+            const successAlert = document.getElementById('successAlert');
+            const successMessage = document.getElementById('successMessage');
+            let message = '';
+
+            switch(success) {
+                case 'registered':
+                    message = '注册成功！正在跳转...';
+                    break;
+                default:
+                    message = '操作成功！';
             }
-            
-            // 清除URL参数
-            window.history.replaceState({}, document.title, window.location.pathname);
-        })();
-    </script>
+
+            if (successAlert && successMessage) {
+                successMessage.textContent = message;
+                successAlert.classList.remove('d-none');
+
+                // 滚动到登录区域
+                setTimeout(() => {
+                    document.getElementById('login').scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }, 100);
+            }
+        }
+
+        // 清除URL参数
+        window.history.replaceState({}, document.title, window.location.pathname);
+    })();
+</script>
 </body>
 </html>
 

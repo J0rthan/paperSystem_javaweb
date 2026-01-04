@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${news.title} + ' - 新闻详情'">新闻详情</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .news-detail-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .news-header {
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .news-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 15px;
+            line-height: 1.3;
+        }
+        .news-meta {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        .news-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #495057;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .news-attachment {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        .back-button {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+<div class="news-detail-container">
+    <div class="back-button">
+        <a href="/" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> 返回主页
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <div class="news-header" th:if="${news}">
+                <h1 class="news-title" th:text="${news.title}">新闻标题</h1>
+                <div class="news-meta">
+                        <span class="me-3" th:if="${news.publishTime != null}">
+                            <i class="bi bi-calendar3"></i>
+                            发布时间：<span th:text="${#temporals.format(news.publishTime, 'yyyy年MM月dd日 HH:mm')}">2025-01-01 12:00</span>
+                        </span>
+                    <span class="me-3" th:unless="${news.publishTime != null}">
+                            <i class="bi bi-calendar3"></i>
+                            发布时间：未设置
+                        </span>
+                    <span class="badge bg-primary" th:if="${news.status == 'published'}">已发布</span>
+                </div>
+            </div>
+
+            <div class="news-content mt-4" th:text="${news.content}">
+                新闻内容
+            </div>
+
+            <div class="news-attachment" th:if="${news.attachmentPath != null and news.attachmentPath != ''}">
+                <h6 class="mb-2"><i class="bi bi-paperclip"></i> 附件</h6>
+                <a th:href="@{'/' + ${news.attachmentPath}}"
+                   th:text="${news.attachmentName != null ? news.attachmentName : '下载附件'}"
+                   class="btn btn-sm btn-outline-primary"
+                   target="_blank">
+                    <i class="bi bi-download"></i> 下载附件
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

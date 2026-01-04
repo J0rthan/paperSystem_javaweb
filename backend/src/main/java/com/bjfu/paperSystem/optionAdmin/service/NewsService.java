@@ -1,3 +1,6 @@
+//新增接口方法，用与获取已经发布的新闻列表
+
+
 package com.bjfu.paperSystem.optionAdmin.service;
 
 import com.bjfu.paperSystem.javabeans.News;
@@ -38,4 +41,7 @@ public interface NewsService {
 
     // 保存为草稿
     void saveDraft(News news);
+
+    // 获取已发布的新闻（用于首页显示）
+    List<News> getPublishedNews(int limit);
 }

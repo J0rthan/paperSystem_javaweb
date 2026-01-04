@@ -14,5 +14,5 @@ public interface clientMessageService {
     List<ClientMessage> findMessageByReceiver(Integer uid);
 
     // 插入消息，当有消息发送的时候
-    String insertMessage(Integer clientMesId, Integer senderId, Integer receiverId, String messageBody, LocalDateTime sendingTime, Integer manuId);
+    String insertMessage(Integer senderId, Integer receiverId, String messageBody, LocalDateTime sendingTime, Integer manuId);
 }

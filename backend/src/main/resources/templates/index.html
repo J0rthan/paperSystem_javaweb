@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>学术论文管理系统 - 主页</title>
+    <title>学术期刊 - 首页</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
@@ -81,7 +81,7 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
     <div class="container">
         <a class="navbar-brand" href="/">
-            <i class="bi bi-journal-text"></i> 学术论文管理系统
+            <i class="bi bi-journal-text"></i> 学术期刊
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
@@ -89,13 +89,19 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="#features">功能特色</a>
+                    <a class="nav-link" href="/">首页</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#news">最新动态</a>
+                    <a class="nav-link" href="/about-journal">关于期刊</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#about">关于系统</a>
+                    <a class="nav-link" href="/submit">论文发表</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/articles">文章与专刊</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/guide">用户指南</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#login">登录</a>
@@ -108,93 +114,82 @@
 <!-- 英雄区域 -->
 <section class="hero-section text-center">
     <div class="container">
-        <h1 class="display-3 fw-bold mb-4">欢迎使用学术论文管理系统</h1>
-        <p class="lead mb-5">专业的学术论文投稿、审稿和管理平台</p>
-        <a href="#login" class="btn btn-light btn-lg btn-login">
-            <i class="bi bi-box-arrow-in-right"></i> 立即登录
-        </a>
+        <h1 class="display-3 fw-bold mb-4">欢迎访问学术期刊</h1>
+        <p class="lead mb-5">专业的学术期刊投稿、审稿和管理平台</p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="/guide" class="btn btn-outline-light btn-lg btn-login">
+                <i class="bi bi-book"></i> Guide for authors
+            </a>
+            <a href="#call-for-papers" class="btn btn-outline-light btn-lg btn-login">
+                <i class="bi bi-megaphone"></i> Call for papers
+            </a>
+        </div>
     </div>
 </section>
 
-<!-- 功能特色 -->
-<section id="features" class="container py-5">
+<!-- 期刊介绍 -->
+<section id="journal-intro" class="container py-5">
     <div class="text-center mb-5">
-        <h2 class="display-5 fw-bold">系统功能</h2>
-        <p class="text-muted">为学术研究提供全方位的论文管理服务</p>
+        <h2 class="display-5 fw-bold">期刊介绍</h2>
+        <p class="text-muted">了解我们的学术期刊</p>
     </div>
+    <div class="row align-items-center" th:if="${journal != null}">
+        <div class="col-md-8">
+            <h3 class="fw-bold mb-4" th:text="${journal.name}">期刊名称</h3>
+            <p class="lead text-muted mb-4" th:text="${journal.introduction}">期刊介绍内容</p>
+            <a href="/about-journal" class="btn btn-primary">了解更多 <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="col-md-4 text-center">
+            <div class="p-4">
+                <div class="mb-3">
+                    <i class="bi bi-graph-up" style="font-size: 3rem; color: var(--primary-color);"></i>
+                </div>
+                <h4 th:if="${journal.impactFactor > 0}">影响因子</h4>
+                <h2 class="text-primary" th:if="${journal.impactFactor > 0}" th:text="${journal.impactFactor}">0.0</h2>
+            </div>
+        </div>
+    </div>
+    <div class="text-center" th:unless="${journal != null}">
+        <p class="text-muted">暂无期刊信息</p>
+    </div>
+</section>
 
-    <div class="row g-4">
-        <div class="col-md-4">
-            <div class="card feature-card h-100 shadow-sm">
-                <div class="card-body text-center p-4">
-                    <i class="bi bi-file-earmark-text feature-icon"></i>
-                    <h4 class="card-title">稿件管理</h4>
-                    <p class="card-text text-muted">
-                        作者可以轻松提交、编辑和跟踪论文稿件，实时查看审稿进度和状态。
+<!-- 编委介绍 -->
+<section id="editorial-board" class="container py-5">
+    <div class="text-center mb-5">
+        <h2 class="display-5 fw-bold">编委介绍</h2>
+        <p class="text-muted">认识我们的编辑委员会成员</p>
+    </div>
+    <div class="row g-4" th:if="${editorialBoard != null and !editorialBoard.isEmpty()}">
+        <div class="col-md-6 col-lg-4" th:each="member : ${editorialBoard}">
+            <div class="card h-100 shadow-sm feature-card">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${member.user != null ? member.user.fullName : '未知'}">姓名</h5>
+                    <p class="text-muted mb-2">
+                        <span class="badge bg-primary" th:text="${member.position == 'chief_editor' ? '主编' : (member.position == 'editor' ? '编辑' : member.position)}">职位</span>
                     </p>
+                    <p class="text-muted small mb-2" th:if="${member.user != null and member.user.company != null}" th:text="${member.user.company}">单位</p>
+                    <p class="card-text small" th:if="${member.profile != null}" th:text="${#strings.abbreviate(member.profile, 100)}">简介</p>
                 </div>
             </div>
         </div>
+    </div>
+    <div class="text-center" th:if="${editorialBoard == null or editorialBoard.isEmpty()}">
+        <p class="text-muted">暂无编委信息</p>
+    </div>
+    <div class="text-center mt-4" th:if="${editorialBoard != null and !editorialBoard.isEmpty()}">
+        <a href="/about-journal#editorial-board" class="btn btn-outline-primary">查看完整编委列表</a>
+    </div>
+</section>
 
-        <div class="col-md-4">
-            <div class="card feature-card h-100 shadow-sm">
-                <div class="card-body text-center p-4">
-                    <i class="bi bi-clipboard-check feature-icon"></i>
-                    <h4 class="card-title">审稿流程</h4>
-                    <p class="card-text text-muted">
-                        完善的审稿流程管理，支持主编、编辑和审稿人协同工作，确保审稿质量。
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card feature-card h-100 shadow-sm">
-                <div class="card-body text-center p-4">
-                    <i class="bi bi-people feature-icon"></i>
-                    <h4 class="card-title">用户管理</h4>
-                    <p class="card-text text-muted">
-                        多角色权限管理，支持作者、审稿人、编辑、主编等不同角色的权限控制。
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card feature-card h-100 shadow-sm">
-                <div class="card-body text-center p-4">
-                    <i class="bi bi-graph-up feature-icon"></i>
-                    <h4 class="card-title">进度跟踪</h4>
-                    <p class="card-text text-muted">
-                        实时跟踪论文从投稿到发表的完整流程，随时了解稿件处理状态。
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card feature-card h-100 shadow-sm">
-                <div class="card-body text-center p-4">
-                    <i class="bi bi-shield-check feature-icon"></i>
-                    <h4 class="card-title">安全可靠</h4>
-                    <p class="card-text text-muted">
-                        采用先进的安全机制，保护您的学术成果和隐私信息。
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card feature-card h-100 shadow-sm">
-                <div class="card-body text-center p-4">
-                    <i class="bi bi-bell feature-icon"></i>
-                    <h4 class="card-title">消息通知</h4>
-                    <p class="card-text text-muted">
-                        及时的消息通知系统，确保您不会错过任何重要的审稿信息。
-                    </p>
-                </div>
-            </div>
-        </div>
+<!-- 论文列表 -->
+<section id="papers" class="container py-5">
+    <div class="text-center mb-5">
+        <h2 class="display-5 fw-bold">论文列表</h2>
+        <p class="text-muted">浏览已发表的学术论文</p>
+    </div>
+    <div class="text-center mt-4">
+        <a href="/articles" class="btn btn-outline-primary">查看所有文章</a>
     </div>
 </section>
 
@@ -239,31 +234,25 @@
     </div>
 </section>
 
-<!-- 关于系统 -->
-<section id="about" class="container py-5">
-    <div class="row align-items-center">
-        <div class="col-md-6">
-            <h2 class="display-5 fw-bold mb-4">关于系统</h2>
-            <p class="lead mb-4">
-                学术论文管理系统是一个专业的在线平台，旨在简化学术论文的投稿、审稿和管理流程。
-            </p>
-            <p class="text-muted mb-4">
-                系统支持多种用户角色，包括作者、审稿人、编辑、主编、系统管理员等，
-                为每个角色提供专门的功能界面和权限管理。无论是提交新稿件、审阅论文、
-                还是管理系统设置，都能在这里高效完成。
-            </p>
-            <ul class="list-unstyled">
-                <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> 支持多种文件格式上传</li>
-                <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> 完整的审稿流程管理</li>
-                <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> 灵活的权限控制系统</li>
-                <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> 友好的用户界面</li>
-            </ul>
-        </div>
-        <div class="col-md-6 text-center">
-            <div class="p-5">
-                <i class="bi bi-journal-text" style="font-size: 10rem; color: #667eea; opacity: 0.3;"></i>
+<!-- 征稿通知 -->
+<section id="call-for-papers" class="container py-5">
+    <div class="text-center mb-5">
+        <h2 class="display-5 fw-bold">征稿通知 (Call for Papers)</h2>
+        <p class="text-muted">了解最新的投稿机会</p>
+    </div>
+    <div class="row g-4" th:if="${callForPapers != null and !callForPapers.isEmpty()}">
+        <div class="col-md-6" th:each="cfp : ${callForPapers}">
+            <div class="card shadow-sm feature-card">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${cfp.title}">征稿标题</h5>
+                    <p class="card-text text-muted" th:text="${#strings.abbreviate(cfp.content, 150)}">内容</p>
+                    <a th:href="@{'/news/' + ${cfp.newsId}}" class="btn btn-sm btn-outline-primary">阅读更多</a>
+                </div>
             </div>
         </div>
+    </div>
+    <div class="text-center" th:if="${callForPapers == null or callForPapers.isEmpty()}">
+        <p class="text-muted">暂无征稿通知</p>
     </div>
 </section>
 
@@ -414,12 +403,12 @@
     <div class="container">
         <div class="row">
             <div class="col-md-6">
-                <h5><i class="bi bi-journal-text"></i> 学术论文管理系统</h5>
-                <p class="text-muted">专业的学术论文投稿、审稿和管理平台</p>
+                <h5><i class="bi bi-journal-text"></i> 学术期刊</h5>
+                <p class="text-muted">专业的学术期刊投稿、审稿和管理平台</p>
             </div>
             <div class="col-md-6 text-md-end">
                 <p class="text-muted mb-0">
-                    © 2025 学术论文管理系统. 保留所有权利.
+                    © 2025 学术期刊. 保留所有权利.
                 </p>
                 <p class="text-muted">
                     <i class="bi bi-envelope"></i> 联系我们: support@papersystem.edu

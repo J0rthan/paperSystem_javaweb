@@ -1,5 +1,7 @@
 package com.bjfu.paperSystem.sysAdmin.service;
 
+import com.bjfu.paperSystem.chiefEditor.dao.ChiefEditorEditorial_BoardDao;
+import com.bjfu.paperSystem.javabeans.Editorial_Board;
 import com.bjfu.paperSystem.javabeans.Logs;
 import com.bjfu.paperSystem.javabeans.User;
 import com.bjfu.paperSystem.superAdmin.dao.systemManageDao;
@@ -20,10 +22,21 @@ public class sysAdminServiceImpl implements sysAdminService {
     @Autowired
     private systemManageDao sysManageDao;
 
+    @Autowired
+    private ChiefEditorEditorial_BoardDao chBoardDao;
+
     @Override
     public void createAccount(User user) {
         // 设置状态为exist
         user.setStatus("exist");
+
+        // 如果为编辑或主编，需要加入编委表
+        if (user.getUserType().equals("editor") || user.getUserType().equals("chief_editor")) {
+            Editorial_Board temp = new Editorial_Board();
+            temp.setUser(user);
+            temp.setPosition(user.getUserType());
+            chBoardDao.save(temp);
+        }
 
         // 执行插入
         sysDao.save(user);

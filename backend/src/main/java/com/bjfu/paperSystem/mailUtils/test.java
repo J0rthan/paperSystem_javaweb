@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class test {
-    private final mailUtil mailUtil;
+    private final MailUtil mailUtil;
 
-    public test(mailUtil mailUtil) {
+    public test(MailUtil mailUtil) {
         this.mailUtil = mailUtil;
     }
 

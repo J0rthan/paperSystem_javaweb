@@ -5,7 +5,7 @@ import com.bjfu.paperSystem.author.service.authorService;
 import com.bjfu.paperSystem.javabeans.Review;
 import com.bjfu.paperSystem.javabeans.User;
 import com.bjfu.paperSystem.mailUtils.Service.mailService;
-import com.bjfu.paperSystem.mailUtils.mailUtil;
+import com.bjfu.paperSystem.mailUtils.MailUtil;
 import com.bjfu.paperSystem.reviewer.service.reviewerService;
 import com.bjfu.paperSystem.superAdmin.service.superAdminService;
 import jakarta.servlet.http.HttpSession;
@@ -34,9 +34,9 @@ public class reviewerController {
     @Autowired
     private mailService mSerivice;
 
-    private final mailUtil mailUtil1;
+    private final MailUtil mailUtil1;
 
-    public reviewerController(mailUtil mailUtil) {
+    public reviewerController(MailUtil mailUtil) {
         this.mailUtil1 = mailUtil;
     }
 

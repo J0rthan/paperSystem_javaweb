@@ -1,19 +1,18 @@
 package com.bjfu.paperSystem.mailUtils;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 
 @Component
-public class mailUtil {
+public class MailUtil {
     private final JavaMailSender mailSender;
 
     @Value("${spring.mail.username}")
     private String from;
 
-    public mailUtil(JavaMailSender mailSender) {  // 构造注入（推荐）
+    public MailUtil(JavaMailSender mailSender) {  // 构造注入（推荐）
         this.mailSender = mailSender;
     }
 

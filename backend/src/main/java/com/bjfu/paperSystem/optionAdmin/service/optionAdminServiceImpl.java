@@ -97,4 +97,35 @@ public class optionAdminServiceImpl implements optionAdminService {
     public List<User> findUsersByStatus(String status) {
         return optionAdminDao.findByStatus(status);
     }
+    
+    // 个人信息管理方法实现
+    @Override
+    public User getUserById(Integer userId) {
+        return optionAdminDao.findById(userId).orElse(null);
+    }
+    
+    @Override
+    public String updateProfile(User user, Integer loginUserId) {
+        // 检查用户名是否被占用（除了当前用户自己）
+        User existingUser = optionAdminDao.findById(user.getUserId()).orElse(null);
+        if (existingUser == null) {
+            return "用户不存在";
+        }
+        
+        // 更新用户信息
+        existingUser.setUserName(user.getUserName());
+        existingUser.setFullName(user.getFullName());
+        existingUser.setEmail(user.getEmail());
+        existingUser.setCompany(user.getCompany());
+        existingUser.setInvestigationDirection(user.getInvestigationDirection());
+        
+        // 如果密码不为空，则更新密码
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            existingUser.setPassword(user.getPassword());
+        }
+        
+        // 保存更新后的用户信息
+        optionAdminDao.save(existingUser);
+        return null;
+    }
 }

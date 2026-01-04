@@ -21,4 +21,8 @@ public interface optionAdminService {
     
     // 状态管理方法
     List<User> findUsersByStatus(String status);
+    
+    // 个人信息管理方法
+    User getUserById(Integer userId);
+    String updateProfile(User user, Integer loginUserId);
 }

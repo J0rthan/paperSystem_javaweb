@@ -245,4 +245,32 @@ public class EditorProcessController {
         return "redirect:/editor/process/" + manuscriptId + "?tab=reviewers";
     }
 
+    @PostMapping("/submitRecommendation")
+    public String submitRecommendation(
+            @RequestParam("manuscriptId") int manuscriptId,
+            @RequestParam("recommendation") String recommendation,
+            @RequestParam("comment") String comment,
+            HttpSession session,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+
+        // 1. 获取当前登录用户
+        User user = (User) session.getAttribute("loginUser"); // 你的项目中 Session key 好像是 loginUser
+        if (user == null) {
+            return "redirect:/Login.html";
+        }
+
+        try {
+            // 2. 调用 Service 处理业务
+            processService.submitRecommendation(manuscriptId, recommendation, comment, user.getUserId());
+
+            // 3. 反馈成功信息
+            redirectAttributes.addFlashAttribute("message", "建议已成功提交，稿件已转交主编！");
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("error", "提交失败：" + e.getMessage());
+        }
+
+        // 4. 跳回该稿件的处理页面，并停留在 decision 标签页
+        return "redirect:/editor/process/" + manuscriptId + "?tab=decision";
+    }
 }

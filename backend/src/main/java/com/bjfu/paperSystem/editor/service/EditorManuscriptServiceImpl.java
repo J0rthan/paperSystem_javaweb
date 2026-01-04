@@ -8,7 +8,6 @@ import com.bjfu.paperSystem.editor.dao.ManuscriptAuthorsDao;
 import com.bjfu.paperSystem.javabeans.Manuscript;
 import com.bjfu.paperSystem.javabeans.Review;
 import com.bjfu.paperSystem.javabeans.Record_Allocation;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -7,7 +7,9 @@ import com.bjfu.paperSystem.mailUtils.MailUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.bjfu.paperSystem.editor.dao.DecisionHistoryDao; // 确保引用路径正确
+import com.bjfu.paperSystem.javabeans.DecisionHistory;
+import java.util.Date;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -22,6 +24,7 @@ public class EditorProcessServiceImpl implements EditorProcessService {
     @Autowired private EditorReviewDao reviewDao;
     @Autowired private logService logService;
     @Autowired private MailUtil mailUtil;
+    @Autowired private DecisionHistoryDao decisionHistoryRepository;
 
     @Override
     public Manuscript getManuscriptDetail(int id, int editorId) {
@@ -50,17 +53,6 @@ public class EditorProcessServiceImpl implements EditorProcessService {
     public List<Review> getCurrentReviews(int manuscriptId) {
         // 获取该稿件所有的审稿记录
         return reviewDao.findByManuId(manuscriptId);
-    }
-
-    @Override
-    public void submitRecommendation(int manuscriptId, String recommendation, String comment, int editorId) {
-        Manuscript m = manuscriptDao.findById(manuscriptId).orElse(null);
-        if (m != null) {
-            m.setDecision(recommendation); // 这里存的是编辑建议，最终决议可能在别处
-            // 如果是最终决议，可以改状态： m.setStatus("Decision Made");
-            manuscriptDao.save(m);
-            logService.record(editorId, "EDITOR_DECISION: " + recommendation, manuscriptId);
-        }
     }
 
     @Override
@@ -208,5 +200,40 @@ public class EditorProcessServiceImpl implements EditorProcessService {
                 System.err.println("催审邮件发送失败: " + e.getMessage());
             }
         }
+    }
+
+    // 【实现该方法】
+    @Override
+    @Transactional // 务必加上事务注解
+    public void submitRecommendation(int manuscriptId, String recommendation, String comment, int editorId) {
+        // 1. 获取稿件
+        Manuscript manu = manuscriptDao.findById(manuscriptId).orElse(null);
+        if (manu == null) return;
+
+        // 2. 获取编辑用户
+        User editor = userDao.findById(editorId).orElse(null);
+
+        // 3. 【核心逻辑】创建并保存历史记录 (DecisionHistory)
+        DecisionHistory history = new DecisionHistory();
+        history.setManuscript(manu);
+        // 如果 manuscript 表里有 round 字段，用 manu.getRound()，没有则默认 1
+        history.setRound(manu.getRound() == null ? 1 : manu.getRound());
+        history.setEditorRecommendation(recommendation);
+        history.setEditorComment(comment);
+        history.setDecider(editor);
+        history.setDecisionDate(new Date());
+
+        // 保存历史存档
+        decisionHistoryRepository.save(history);
+
+        // 4. 【核心逻辑】更新 Manuscript 快照信息
+        manu.setEditorRecommendation(recommendation);
+        manu.setEditorComment(comment);
+
+        // 关键：状态流转！
+        // 建议提交后，稿件应该进入 "PENDING_DECISION" (待主编终审) 状态
+        manu.setStatus("With Editor II");
+
+        manuscriptDao.save(manu);
     }
 }

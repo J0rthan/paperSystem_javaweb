@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户指南 - 学术期刊</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --success-color: #198754;
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 80px 0;
+            margin-bottom: 40px;
+        }
+
+        .feature-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .footer {
+            background-color: #212529;
+            color: white;
+            padding: 40px 0;
+            margin-top: 60px;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            color: #333;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .guide-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+<!-- 导航栏 -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <i class="bi bi-journal-text"></i> 学术期刊
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">首页</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/about-journal">关于期刊</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/submit">论文发表</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/articles">文章与专刊</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/guide">用户指南</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/#login">登录</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- 页面标题 -->
+<section class="page-header text-center">
+    <div class="container">
+        <h1 class="display-3 fw-bold mb-3">用户指南</h1>
+        <p class="lead">了解投稿流程和规范要求</p>
+    </div>
+</section>
+
+<div class="container py-5">
+    <!-- 期刊介绍 -->
+    <section id="journal-intro" class="mb-5">
+        <h2 class="section-title">
+            <i class="bi bi-info-circle"></i> 期刊介绍
+        </h2>
+        <div class="info-box" th:if="${journal != null}">
+            <h4 class="mb-3" th:text="${journal.name}">期刊名称</h4>
+            <p class="lead" th:text="${journal.introduction}">期刊介绍内容</p>
+        </div>
+        <div class="info-box" th:unless="${journal != null}">
+            <p class="text-muted">暂无期刊信息</p>
+        </div>
+    </section>
+
+    <!-- Ethics and policies -->
+    <section id="ethics" class="mb-5">
+        <h2 class="section-title">
+            <i class="bi bi-shield-check"></i> 伦理与政策 (Ethics and Policies)
+        </h2>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card h-100 shadow-sm feature-card">
+                    <div class="card-body">
+                        <i class="bi bi-shield-check guide-icon"></i>
+                        <h5 class="card-title">学术诚信</h5>
+                        <p class="card-text text-muted">
+                            本期刊严格遵循学术诚信原则，禁止任何形式的学术不端行为，包括但不限于：
+                        </p>
+                        <ul class="text-muted">
+                            <li>抄袭和剽窃</li>
+                            <li>数据造假</li>
+                            <li>重复发表</li>
+                            <li>不当署名</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100 shadow-sm feature-card">
+                    <div class="card-body">
+                        <i class="bi bi-people guide-icon"></i>
+                        <h5 class="card-title">作者责任</h5>
+                        <p class="card-text text-muted">
+                            所有作者必须确保：
+                        </p>
+                        <ul class="text-muted">
+                            <li>论文内容的原创性</li>
+                            <li>数据的真实性和准确性</li>
+                            <li>所有作者的知情同意</li>
+                            <li>利益冲突的披露</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100 shadow-sm feature-card">
+                    <div class="card-body">
+                        <i class="bi bi-eye guide-icon"></i>
+                        <h5 class="card-title">同行评议</h5>
+                        <p class="card-text text-muted">
+                            本期刊采用双盲同行评议制度，确保评审过程的公正性和客观性。
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100 shadow-sm feature-card">
+                    <div class="card-body">
+                        <i class="bi bi-file-earmark-text guide-icon"></i>
+                        <h5 class="card-title">版权政策</h5>
+                        <p class="card-text text-muted">
+                            论文发表后，作者保留版权，但需授予期刊发表和传播的权利。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Writing and formatting -->
+    <section id="writing" class="mb-5">
+        <h2 class="section-title">
+            <i class="bi bi-pencil-square"></i> 写作与格式 (Writing and Formatting)
+        </h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm feature-card">
+                    <div class="card-body">
+                        <i class="bi bi-file-text guide-icon"></i>
+                        <h5 class="card-title">论文结构</h5>
+                        <p class="card-text text-muted">
+                            论文应包含以下部分：
+                        </p>
+                        <ul class="text-muted small">
+                            <li>标题和摘要</li>
+                            <li>引言</li>
+                            <li>方法</li>
+                            <li>结果</li>
+                            <li>讨论</li>
+                            <li>结论</li>
+                            <li>参考文献</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm feature-card">
+                    <div class="card-body">
+                        <i class="bi bi-type guide-icon"></i>
+                        <h5 class="card-title">格式要求</h5>
+                        <p class="card-text text-muted">
+                            格式规范：
+                        </p>
+                        <ul class="text-muted small">
+                            <li>字体：Times New Roman, 12pt</li>
+                            <li>行距：1.5倍</li>
+                            <li>页边距：2.5cm</li>
+                            <li>页数限制：根据文章类型</li>
+                            <li>文件格式：PDF或Word</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm feature-card">
+                    <div class="card-body">
+                        <i class="bi bi-quote guide-icon"></i>
+                        <h5 class="card-title">引用规范</h5>
+                        <p class="card-text text-muted">
+                            请使用以下引用格式：
+                        </p>
+                        <ul class="text-muted small">
+                            <li>APA格式（推荐）</li>
+                            <li>或期刊指定的格式</li>
+                            <li>确保所有引用准确</li>
+                            <li>避免过度引用</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 投稿流程 -->
+    <section id="submission" class="mb-5">
+        <h2 class="section-title">
+            <i class="bi bi-upload"></i> 投稿流程
+        </h2>
+        <div class="info-box">
+            <ol class="lead">
+                <li class="mb-3">
+                    <strong>准备论文</strong>：确保论文符合格式要求和内容标准
+                </li>
+                <li class="mb-3">
+                    <strong>登录系统</strong>：使用您的账号登录投稿系统
+                </li>
+                <li class="mb-3">
+                    <strong>填写信息</strong>：填写论文标题、摘要、关键词等信息
+                </li>
+                <li class="mb-3">
+                    <strong>上传文件</strong>：上传论文文件和相关附件
+                </li>
+                <li class="mb-3">
+                    <strong>提交审核</strong>：提交论文等待编辑审核
+                </li>
+                <li>
+                    <strong>跟踪状态</strong>：登录系统查看论文审核状态
+                </li>
+            </ol>
+        </div>
+    </section>
+
+    <!-- 常见问题 -->
+    <section id="faq" class="mb-5">
+        <h2 class="section-title">
+            <i class="bi bi-question-circle"></i> 常见问题
+        </h2>
+        <div class="accordion" id="faqAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                        论文审核需要多长时间？
+                    </button>
+                </h2>
+                <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        通常初审需要1-2周，同行评议需要4-8周，具体时间取决于审稿人的反馈速度。
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                        可以同时投稿到多个期刊吗？
+                    </button>
+                </h2>
+                <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        不可以。一篇论文只能同时投稿到一个期刊。只有在被拒绝后，才能投稿到其他期刊。
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                        如何修改已提交的论文？
+                    </button>
+                </h2>
+                <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        在论文审核过程中，如果编辑要求修改，您可以通过系统上传修改后的版本。请按照编辑的要求进行修改。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- 页脚 -->
+<footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <h5><i class="bi bi-journal-text"></i> 学术期刊</h5>
+                <p class="text-muted">专业的学术期刊投稿、审稿和管理平台</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <p class="text-muted mb-0">
+                    © 2025 学术期刊. 保留所有权利.
+                </p>
+                <p class="text-muted">
+                    <i class="bi bi-envelope"></i> 联系我们: support@papersystem.edu
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

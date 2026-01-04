@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>论文发表 - 学术期刊</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --success-color: #198754;
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 80px 0;
+            margin-bottom: 40px;
+        }
+
+        .feature-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .footer {
+            background-color: #212529;
+            color: white;
+            padding: 40px 0;
+            margin-top: 60px;
+        }
+
+        .menu-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+<!-- 导航栏 -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <i class="bi bi-journal-text"></i> 学术期刊
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">首页</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/about-journal">关于期刊</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/submit">论文发表</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/articles">文章与专刊</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/guide">用户指南</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/#login">登录</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- 页面标题 -->
+<section class="page-header text-center">
+    <div class="container">
+        <h1 class="display-3 fw-bold mb-3">论文发表</h1>
+        <p class="lead">提交您的学术论文</p>
+    </div>
+</section>
+
+<div class="container py-5">
+    <div class="row g-4">
+        <!-- Submit your article -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm feature-card text-center">
+                <div class="card-body p-5">
+                    <i class="bi bi-file-earmark-plus menu-icon"></i>
+                    <h3 class="card-title mb-4">Submit your article</h3>
+                    <p class="card-text text-muted mb-4">
+                        提交您的学术论文到我们的期刊。请确保您已经仔细阅读了投稿指南和格式要求。
+                    </p>
+                    <a href="/#login" class="btn btn-primary btn-lg">
+                        <i class="bi bi-box-arrow-in-right"></i> 登录提交
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Guide for authors -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm feature-card text-center">
+                <div class="card-body p-5">
+                    <i class="bi bi-book menu-icon"></i>
+                    <h3 class="card-title mb-4">Guide for authors</h3>
+                    <p class="card-text text-muted mb-4">
+                        查看详细的作者指南，了解论文格式要求、引用规范、图表要求等投稿相关信息。
+                    </p>
+                    <a href="/guide" class="btn btn-outline-primary btn-lg">
+                        <i class="bi bi-arrow-right"></i> 查看指南
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call for papers -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm feature-card text-center">
+                <div class="card-body p-5">
+                    <i class="bi bi-megaphone menu-icon"></i>
+                    <h3 class="card-title mb-4">Call for papers</h3>
+                    <p class="card-text text-muted mb-4">
+                        查看最新的征稿通知，了解期刊当前关注的研究领域和特刊征稿信息。
+                    </p>
+                    <a href="/#call-for-papers" class="btn btn-outline-primary btn-lg">
+                        <i class="bi bi-arrow-right"></i> 查看征稿
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 投稿流程说明 -->
+    <section class="mt-5">
+        <h2 class="text-center mb-5">投稿流程</h2>
+        <div class="row g-4">
+            <div class="col-md-3 text-center">
+                <div class="mb-3">
+                    <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px; font-size: 1.5rem; font-weight: bold;">1</div>
+                </div>
+                <h5>准备论文</h5>
+                <p class="text-muted small">按照指南要求准备您的论文</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <div class="mb-3">
+                    <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px; font-size: 1.5rem; font-weight: bold;">2</div>
+                </div>
+                <h5>登录系统</h5>
+                <p class="text-muted small">使用您的账号登录系统</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <div class="mb-3">
+                    <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px; font-size: 1.5rem; font-weight: bold;">3</div>
+                </div>
+                <h5>提交论文</h5>
+                <p class="text-muted small">上传论文文件并填写相关信息</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <div class="mb-3">
+                    <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px; font-size: 1.5rem; font-weight: bold;">4</div>
+                </div>
+                <h5>等待审核</h5>
+                <p class="text-muted small">编辑和审稿人将审核您的论文</p>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- 页脚 -->
+<footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <h5><i class="bi bi-journal-text"></i> 学术期刊</h5>
+                <p class="text-muted">专业的学术期刊投稿、审稿和管理平台</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <p class="text-muted mb-0">
+                    © 2025 学术期刊. 保留所有权利.
+                </p>
+                <p class="text-muted">
+                    <i class="bi bi-envelope"></i> 联系我们: support@papersystem.edu
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

@@ -87,6 +87,13 @@
                         <a th:href="@{'/reviewer/getManuSummary/' + ${r.getManuId()}}">查看详情</a>
                     | 已拒绝
                 </span>
+
+                <!-- 已完成 -->
+                <span th:if="${r.getStatus().equals('finished')}"
+                      style="color: red;">
+                        <a th:href="@{'/reviewer/getManuSummary/' + ${r.getManuId()}}">查看详情</a>
+                    | 已完成
+                </span>
             </td>
         </tr>
         </tbody>

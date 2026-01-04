@@ -1,10 +1,8 @@
 package com.bjfu.paperSystem.reviewer.controller;
 
 import com.bjfu.paperSystem.clientMessageUtils.Service.clientMessageService;
-import com.bjfu.paperSystem.javabeans.ClientMessage;
-import com.bjfu.paperSystem.javabeans.Manuscript;
+import com.bjfu.paperSystem.javabeans.*;
 import com.bjfu.paperSystem.author.service.authorService;
-import com.bjfu.paperSystem.javabeans.Review;
 import com.bjfu.paperSystem.mailUtils.Service.mailService;
 import com.bjfu.paperSystem.mailUtils.MailUtil;
 import com.bjfu.paperSystem.reviewer.service.reviewerService;
@@ -145,6 +143,9 @@ public class reviewerController {
     ) {
         // 先查到编辑和作者id
         Review review = revService.findByRevId(reviewId);
+        Integer reviewerId = review.getReviewerId();
+        User reviewer = suService.findUserById(reviewerId);
+        String reviewerEmail = reviewer.getEmail();
         Manuscript manu = review.getManuScript();
         int editor_id = manu.getEditorId();
         int author_id = manu.getAuthorId();
@@ -170,7 +171,8 @@ public class reviewerController {
         mailUtil1.sendTextMail(editor_email, "给编辑的意见", toEditorMessage);
         mailUtil1.sendTextMail(author_email, "给作者的建议", toAuthorMessage);
         // 发送邮件的同时写入邮件信息表
-        mSerivice.insertRecord(editor_email, author_email, toEditorMessage, manu.getManuscriptId(), manu);
+        mSerivice.insertRecord(reviewerEmail, author_email, toAuthorMessage, manu.getManuscriptId(), manu);
+        mSerivice.insertRecord(reviewerEmail, editor_email, toEditorMessage, manu.getManuscriptId(), manu);
 
         String exitCode = revService.updateFinish(reviewId);
 
@@ -225,6 +227,20 @@ public class reviewerController {
         model.addAttribute("receivedMessage", receivedMessages);
 
         return "/reviewer/MessageList";
+    }
+
+    // 查看自己的邮件箱
+    @GetMapping("EmailMessagesPage")
+    public String toEmailMessagesPage(Model model, HttpSession session) {
+        int reviewer_id = (int) session.getAttribute("user_id");
+        User reviewer = suService.findUserById(reviewer_id);
+        String reviewer_email = reviewer.getEmail();
+        List<EmailMessage> sentMessages = mSerivice.findMessagesBySenderMail(reviewer_email);
+        List<EmailMessage> receivedMessages = mSerivice.findMessagesByReceiverMail(reviewer_email);
+        model.addAttribute("sentMessages", sentMessages);
+        model.addAttribute("receivedMessage", receivedMessages);
+
+        return "/reviewer/EmailMessageList";
     }
 
     // 退出登录

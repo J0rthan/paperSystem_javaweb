@@ -8,11 +8,12 @@ import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class mailServiceImpl implements mailService{
     @Autowired
-    mailDao mailDao1;
+    private mailDao mailDao1;
 
     public String insertRecord(String senderEmail, String receiverEmail, String messageBody, int manuId, Manuscript manu) {
         try {
@@ -31,5 +32,19 @@ public class mailServiceImpl implements mailService{
             e.printStackTrace();
             return "error";
         }
+    }
+
+    @Override
+    public List<EmailMessage> findMessagesBySenderMail(String sender_mail) {
+        List<EmailMessage> result = mailDao1.findBySenderEmailOrderBySendingTimeDesc(sender_mail);
+
+        return result;
+    }
+
+    @Override
+    public List<EmailMessage> findMessagesByReceiverMail(String receiver_mail) {
+        List<EmailMessage> result = mailDao1.findByReceiverEmailOrderBySendingTimeDesc(receiver_mail);
+
+        return result;
     }
 }

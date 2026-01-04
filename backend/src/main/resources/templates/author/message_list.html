@@ -9,11 +9,15 @@
     body { background-color: #f8f9fa; }
     .msg-card { border-radius: 12px; transition: all 0.2s; border: 1px solid #eee; }
     .msg-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .msg-sent { border-left: 5px solid #0d6efd !important; }
+    .msg-received { border-left: 5px solid #198754 !important; }
     .nav-pills .nav-link { color: #6c757d; font-weight: 500; }
     .nav-pills .nav-link.active { background-color: #0d6efd; box-shadow: 0 2px 6px rgba(13, 110, 253, 0.3); }
     .sender-avatar { width: 40px; height: 40px; background: #e9ecef; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
     .sort-header { cursor: pointer; transition: background 0.2s; }
     .sort-header:hover { background-color: #f1f1f1 !important; }
+    .bg-blue-light { background-color: #f0f7ff; }
+    .bg-green-light { background-color: #f0fff4; }
   </style>
 </head>
 <body>
@@ -44,33 +48,64 @@
 
   <div class="tab-content" id="pills-tabContent">
     <div class="tab-pane fade show active" id="tab-client" role="tabpanel">
+
+      <div class="d-flex justify-content-end mb-3" th:unless="${#lists.isEmpty(clientMsgs)}">
+        <div class="btn-group shadow-sm">
+          <button class="btn btn-light btn-sm border active" onclick="sortClientMessages('desc', this)" id="btn-sort-desc">
+            <i class="bi bi-sort-numeric-down-alt"></i> 最新在前
+          </button>
+          <button class="btn btn-light btn-sm border" onclick="sortClientMessages('asc', this)" id="btn-sort-asc">
+            <i class="bi bi-sort-numeric-up"></i> 最旧在前
+          </button>
+        </div>
+      </div>
+
       <div th:if="${#lists.isEmpty(clientMsgs)}" class="text-center py-5 bg-white rounded-4 shadow-sm">
         <i class="bi bi-chat-square-dots text-light" style="font-size: 4rem;"></i>
         <p class="text-muted mt-3">暂时没有站内沟通记录</p>
       </div>
 
-      <div class="row g-3" th:unless="${#lists.isEmpty(clientMsgs)}">
-        <div class="col-12" th:each="msg : ${clientMsgs}">
-          <div class="card msg-card shadow-sm">
+      <div class="row g-3" id="clientMsgContainer" th:unless="${#lists.isEmpty(clientMsgs)}">
+        <div class="col-12 msg-item" th:each="msg : ${clientMsgs}"
+             th:attr="data-time=${#temporals.format(msg.sendingTime, 'yyyyMMddHHmmss')}">
+
+          <div class="card msg-card shadow-sm"
+               th:classappend="${msg.senderId == session.loginUser.userId} ? 'msg-sent' : 'msg-received'">
             <div class="card-body">
               <div class="d-flex justify-content-between align-items-start mb-3">
                 <div class="d-flex align-items-center">
                   <div class="sender-avatar me-3">
-                    <i class="bi bi-person text-primary"></i>
+                    <i class="bi" th:classappend="${msg.senderId == session.loginUser.userId} ? 'bi-arrow-up-right text-primary' : 'bi-person text-success'"></i>
                   </div>
                   <div>
-                    <h6 class="mb-0 fw-bold" th:text="${msg.sender != null ? msg.sender.fullName : '系统'}">发送者</h6>
+                    <h6 class="mb-0 fw-bold">
+  <span th:if="${msg.senderId == session.loginUser.userId}">
+    <span class="text-primary">我</span>
+    <i class="bi bi-arrow-right text-muted mx-1" style="font-size: 0.8rem;"></i>
+    <span class="text-dark" th:text="${msg.receiver != null ? msg.receiver.fullName + ' (编辑)' : '负责编辑'}">某编辑</span>
+  </span>
+
+                      <span th:unless="${msg.senderId == session.loginUser.userId}">
+    <span class="text-success" th:text="${msg.sender != null ? msg.sender.fullName + ' (编辑)' : '编辑'}">某编辑</span>
+    <i class="bi bi-arrow-right text-muted mx-1" style="font-size: 0.8rem;"></i>
+    <span class="text-dark">我</span>
+  </span>
+                    </h6>
                     <small class="text-muted" th:text="${#temporals.format(msg.sendingTime, 'yyyy-MM-dd HH:mm')}">2026-01-01</small>
                   </div>
                 </div>
                 <span class="badge bg-light text-primary border border-primary-subtle rounded-pill">
-                                    稿件 #<span th:text="${msg.manuId}">101</span>
-                                </span>
+                  稿件 #<span th:text="${msg.manuId}">101</span>
+                </span>
               </div>
-              <div class="p-3 bg-light rounded-3 text-secondary" style="font-size: 0.95rem;">
-                <i class="bi bi-quote me-1"></i>
-                <span th:text="${msg.messageBody}">内容...</span>
+
+              <div class="p-3 rounded-3"
+                   th:classappend="${msg.senderId == session.loginUser.userId} ? 'bg-blue-light' : 'bg-green-light'"
+                   style="font-size: 0.95rem;">
+                <i class="bi bi-quote me-1 text-muted"></i>
+                <span class="text-dark" th:text="${msg.messageBody}">内容...</span>
               </div>
+
               <div class="mt-3 d-flex justify-content-end">
                 <a th:href="@{/author/manuscript/track(id=${msg.manuId})}" class="btn btn-sm btn-link text-decoration-none text-primary fw-bold">
                   <i class="bi bi-eye"></i> 追踪稿件
@@ -143,17 +178,32 @@
   function showEmailDetail(content) {
     alert("完整邮件内容：\n\n" + content);
   }
-  let sortOrder = -1;
+  function sortClientMessages(order, btn) {
+    const container = document.getElementById('clientMsgContainer');
+    const items = Array.from(container.getElementsByClassName('msg-item'));
+
+    items.sort((a, b) => {
+      const timeA = a.getAttribute('data-time');
+      const timeB = b.getAttribute('data-time');
+      return order === 'asc' ? timeA.localeCompare(timeB) : timeB.localeCompare(timeA);
+    });
+    container.innerHTML = '';
+    items.forEach(item => container.appendChild(item));
+    document.getElementById('btn-sort-asc').classList.remove('active', 'btn-primary');
+    document.getElementById('btn-sort-desc').classList.remove('active', 'btn-primary');
+    btn.classList.add('active', 'btn-primary');
+  }
+  let emailSortOrder = -1;
   function sortTable(colIndex) {
     const table = document.getElementById("emailTable");
     const tbody = table.tBodies[0];
     const rows = Array.from(tbody.rows);
-    if (rows.length <= 1 && rows[0].cells.length < colIndex) return;
-    sortOrder *= -1;
+    if (rows.length <= 1) return;
+    emailSortOrder *= -1;
     rows.sort((a, b) => {
       const valA = a.cells[colIndex].innerText.trim();
       const valB = b.cells[colIndex].innerText.trim();
-      return sortOrder * valA.localeCompare(valB);
+      return emailSortOrder * valA.localeCompare(valB);
     });
     rows.forEach(row => tbody.appendChild(row));
   }

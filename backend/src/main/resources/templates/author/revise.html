@@ -142,7 +142,7 @@
     params.append('receiverId', receiverId);
     params.append('manuId', manuId);
     params.append('body', title ? `【${title}】${body}` : body);
-    fetch('/author/manuscript/sendMessage', {
+    fetch('/author/message/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: params

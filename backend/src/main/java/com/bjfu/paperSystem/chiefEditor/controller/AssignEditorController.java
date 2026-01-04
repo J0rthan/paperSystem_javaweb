@@ -35,9 +35,9 @@ public class AssignEditorController {
     // 提交指派
     @PostMapping("/assign-editor/do")
     public String doAssign(@RequestParam int manuscriptId,
-                           @RequestParam int editorId,
+                           @RequestParam int UserId,
                            @RequestParam String reason) {
-        assignEditorService.assignEditor(manuscriptId, editorId, reason);
+        assignEditorService.assignEditor(manuscriptId, UserId, reason);
         return "redirect:/chiefeditor/assign-editor";
     }
 }

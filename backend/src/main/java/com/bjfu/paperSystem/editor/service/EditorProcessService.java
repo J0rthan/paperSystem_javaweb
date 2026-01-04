@@ -29,4 +29,6 @@ public interface EditorProcessService {
     void revokeInvitation(int reviewId, int currentEditorId);
 
     void checkAndUpdateManuscriptStatus(int manuscriptId);
+
+    void sendManualReminder(int reviewId, int editorId);
 }

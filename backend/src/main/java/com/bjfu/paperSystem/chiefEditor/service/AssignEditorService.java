@@ -16,5 +16,5 @@ public interface AssignEditorService {
     List<Editorial_Board> getAvailableBoardEditors();
 
     // 执行指派
-    void assignEditor(int manuscriptId, int editorId, String reason);
+    void assignEditor(int manuscriptId, int UserId, String reason);
 }

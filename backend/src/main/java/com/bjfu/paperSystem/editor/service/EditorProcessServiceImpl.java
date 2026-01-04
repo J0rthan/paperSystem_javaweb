@@ -81,10 +81,10 @@ public class EditorProcessServiceImpl implements EditorProcessService {
     @Override
     @Transactional
     public void inviteReviewer(int manuscriptId, int reviewerId, LocalDateTime deadline, int currentEditorId) {
-        // 1. 检查是否已经邀请过 (排除已撤销 CANCELLED 的记录)
+        // 1. 检查是否已经邀请过 (排除已撤销 undo 的记录)
         List<Review> existing = reviewDao.findByManuId(manuscriptId);
         boolean isAlreadyInvited = existing.stream()
-                .anyMatch(r -> r.getReviewerId() == reviewerId && !"CANCELLED".equals(r.getStatus()));
+                .anyMatch(r -> r.getReviewerId() == reviewerId && !"undo".equals(r.getStatus()));
 
         if (isAlreadyInvited) {
             return; // 已经邀请且有效，直接返回
@@ -162,19 +162,51 @@ public class EditorProcessServiceImpl implements EditorProcessService {
         Review review = reviewDao.findById(reviewId).orElse(null);
         if (review == null) return;
 
-        // 只能撤销 PENDING 或 ACCEPTED
+        // 只能撤销 pending
         if ("pending".equals(review.getStatus())) {
 
             String oldStatus = review.getStatus();
             review.setStatus("undo"); // 软删除状态
             reviewDao.save(review);
-
-            // === 修复点：日志内容缩短，防止数据库报错 ===
-            // 原来的写法太长了，超过了 op_type 的数据库限制
-            // logService.record(currentEditorId, "REVOKE_INVITE: Revoked invitation...", review.getManuId());
-
             // 现在的写法：只传操作简码
             logService.record(currentEditorId, "REVOKE_INVITE", review.getManuId());
+        }
+    }
+
+    @Override
+    @Transactional
+    public void sendManualReminder(int reviewId, int editorId) {
+        // 1. 获取 Review 信息
+        Review review = reviewDao.findById(reviewId).orElse(null);
+        if (review == null) return;
+
+        // 2. 获取审稿人和稿件信息
+        User reviewer = userDao.findById(review.getReviewerId()).orElse(null);
+        Manuscript manuscript = manuscriptDao.findById(review.getManuId()).orElse(null);
+
+        if (reviewer != null && manuscript != null) {
+            // 3. 构建纯文本邮件内容 (使用 \n 换行)
+            String deadlineStr = (review.getDeadline() != null) ?
+                    review.getDeadline().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "近期";
+
+            String subject = "[催审提醒] 请尽快完成稿件审阅 - " + manuscript.getTitle();
+
+            String content = "尊敬的 " + reviewer.getFullName() + " 老师：\n\n"
+                    + "您好！\n"
+                    + "您接受审阅的稿件 《" + manuscript.getTitle() + "》 (ID: " + manuscript.getManuscriptId() + ") \n"
+                    + "截止日期为： " + deadlineStr + "。\n"
+                    + "编辑部注意到尚未收到您的审稿意见，请您在百忙之中抽出时间尽快登录系统完成审阅。\n\n"
+                    + "感谢您的支持！\n"
+                    + "此致\n"
+                    + "编辑部";
+
+            // 4. 发送邮件 (使用现有的 sendTextMail)
+            try {
+                mailUtil.sendTextMail(reviewer.getEmail(), subject, content);
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.err.println("催审邮件发送失败: " + e.getMessage());
+            }
         }
     }
 }

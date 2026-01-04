@@ -13,8 +13,8 @@ public class Record_Allocation {
     @Column(name = "record_id")
     private int recordId;
 
-    @Column(name = "editor_id")
-    private Integer editorId;
+    @Column(name = "user_id")
+    private Integer userId;
 
     @Column(name = "manuscript_id")
     private int manuscriptId;
@@ -33,6 +33,6 @@ public class Record_Allocation {
     public void setAssignTime(LocalDateTime assignTime) {this.assignTime = assignTime;}
     public String getAssignReason() { return assignReason; }
     public void setAssignReason(String assignReason) { this.assignReason = assignReason; }
-    public Integer getEditorId() { return editorId; }
-    public void setEditorId(Integer editorId) { this.editorId = editorId; }
+    public Integer getUserId() { return userId; }
+    public void setUserId(Integer editorId) { this.userId = editorId; }
 }

@@ -226,4 +226,23 @@ public class EditorProcessController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+    @PostMapping("/process/remind")
+    public String remindReviewer(@RequestParam int reviewId,
+                                 @RequestParam int manuscriptId,
+                                 HttpSession session,
+                                 org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        User user = (User) session.getAttribute("loginUser");
+        if (user == null) return "redirect:/Login.html";
+
+        // 调用 Service 发送邮件
+        processService.sendManualReminder(reviewId, user.getUserId());
+
+        // 添加成功提示消息
+        redirectAttributes.addFlashAttribute("message", "已向审稿人发送催审邮件！");
+
+        // 重定向回当前页面
+        return "redirect:/editor/process/" + manuscriptId + "?tab=reviewers";
+    }
+
 }

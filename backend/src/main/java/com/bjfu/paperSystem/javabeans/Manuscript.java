@@ -53,6 +53,17 @@ public class Manuscript {
     @Column(name = "editor_id")
     private Integer editorId;
 
+    // 当前审稿轮次（默认为1）
+    @Column(columnDefinition = "integer default 1")
+    private Integer round = 1;
+
+    // 编辑给主编的建议 (Accept/Reject/Revise) - 临时存放
+    private String editorRecommendation;
+
+    // 编辑给主编的备注 - 临时存放
+    @Column(columnDefinition = "TEXT")
+    private String editorComment;
+
     @Transient
     private List<ManuscriptAuthor> authors = new ArrayList<>();
 
@@ -110,4 +121,13 @@ public class Manuscript {
 
     public Integer getEditorId() { return editorId; }
     public void setEditorId(Integer editorId) { this.editorId = editorId; }
+
+    public Integer getRound() { return round; }
+    public void setRound(Integer round) { this.round = round; }
+
+    public String getEditorRecommendation() { return editorRecommendation; }
+    public void setEditorRecommendation(String editorRecommendation) { this.editorRecommendation = editorRecommendation; }
+
+    public String getEditorComment() { return editorComment; }
+    public void setEditorComment(String editorComment) { this.editorComment = editorComment; }
 }

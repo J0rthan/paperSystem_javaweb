@@ -83,35 +83,48 @@
                         <h5 class="mb-3"><i class="bi bi-list-check"></i> 已邀请名单</h5>
 
                         <div th:if="${existingReviews != null && !existingReviews.isEmpty()}">
-                            <table class="table table-sm table-borderless">
-                                <thead>
-                                <tr class="text-muted small border-bottom">
-                                    <th>ID/姓名</th>
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                <tr>
+                                    <th>审稿人ID/姓名</th>
+                                    <th>邮箱</th>
                                     <th>状态</th>
+                                    <th>截止时间</th>
                                     <th>操作</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr th:each="rev : ${existingReviews}">
+                                <tr th:each="review : ${existingReviews}">
+                                    <td th:text="${review.opinion != null ? review.opinion : 'Reviewer-' + review.reviewerId}">Reviewer</td>
+
+                                    <td th:text="${'User' + review.reviewerId + '@example.com'}">Email</td>
+
                                     <td>
-                                        <span class="fw-bold">[[${rev.reviewerId}]]</span>
-                                        <small class="text-muted d-block">[[${rev.opinion}]]</small>
+                                        <span class="badge"
+                                              th:classappend="${review.status == 'accepted' ? 'bg-primary' : (review.status == 'finished' ? 'bg-success' : 'bg-secondary')}"
+                                              th:text="${review.status}">
+                                        </span>
                                     </td>
-                                    <td>
-                                        <span th:if="${rev.status == 'pending'}" class="badge bg-warning text-dark">等待回复</span>
-                                        <span th:if="${rev.status == 'accepted'}" class="badge bg-primary">审稿中</span>
-                                        <span th:if="${rev.status == 'rejected'}" class="badge bg-danger">已拒绝</span>
-                                        <span th:if="${rev.status == 'finished'}" class="badge bg-success">已完成</span>
-                                        <span th:if="${rev.status == 'undo'}" class="badge bg-secondary">已撤销</span>
+
+                                    <td th:text="${review.deadline != null ? #temporals.format(review.deadline, 'yyyy-MM-dd') : '-'}">
                                     </td>
+
                                     <td>
-                                        <form th:if="${rev.status == 'pending'}"
-                                              th:action="@{/editor/process/revoke}" method="post"
-                                              onsubmit="return confirm('确定要撤销此邀请吗？');">
-                                            <input type="hidden" name="reviewId" th:value="${rev.reviewId}">
+                                        <form th:action="@{/editor/process/revoke}" method="post" class="d-inline"
+                                              th:if="${review.status == 'pending'}"
+                                              onsubmit="return confirm('确定撤销邀请吗？');">
+                                            <input type="hidden" name="reviewId" th:value="${review.reviewId}">
                                             <input type="hidden" name="manuscriptId" th:value="${manuscript.manuscriptId}">
-                                            <button type="submit" class="btn btn-link text-danger btn-sm p-0" title="Revoke">
-                                                <i class="bi bi-x-circle-fill"></i> 撤销
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">撤销</button>
+                                        </form>
+
+                                        <form th:action="@{/editor/process/remind}" method="post" class="d-inline ms-1"
+                                              th:if="${review.status == 'accepted'}"
+                                              onsubmit="return confirm('确定向该审稿人发送催审邮件吗？');">
+                                            <input type="hidden" name="reviewId" th:value="${review.reviewId}">
+                                            <input type="hidden" name="manuscriptId" th:value="${manuscript.manuscriptId}">
+                                            <button type="submit" class="btn btn-sm btn-warning">
+                                                催审
                                             </button>
                                         </form>
                                     </td>

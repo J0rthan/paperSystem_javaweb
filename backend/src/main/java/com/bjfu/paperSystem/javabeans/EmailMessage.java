@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "email_message")
-public class EmailMessage {
+public class  EmailMessage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

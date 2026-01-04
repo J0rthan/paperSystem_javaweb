@@ -2,47 +2,99 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>终审决策 · 主编</title>
+  <title>终审决策 · 主编工作台</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 </head>
 <body class="bg-light">
-<div class="container py-4">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h4 mb-0">待终审稿件</h1>
-    <a href="/chiefeditor" class="btn btn-outline-secondary btn-sm">返回工作台</a>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+  <div class="container">
+    <a class="navbar-brand" href="/chiefeditor">主编工作台</a>
+    <span class="navbar-text text-white">终审决策中心</span>
+  </div>
+</nav>
+
+<div class="container bg-white p-4 rounded shadow-sm">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0"><i class="bi bi-gavel"></i> 待终审稿件列表</h4>
+    <span class="badge bg-primary" th:text="${#lists.size(manuscripts)} + ' 篇待处理'">0 篇待处理</span>
   </div>
 
-  <table class="table table-hover table-sm bg-white align-middle">
-    <thead class="table-light">
-    <tr>
-      <th>ID</th>
-      <th>标题</th>
-      <th>作者</th>
-      <th>当前状态</th>
-      <th>终审决策</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="m : ${manuscripts}">
-      <td th:text="${m.manuscriptId}">1</td>
-      <td th:text="${m.title}">标题</td>
-      <td th:text="${m.authorList}">作者</td>
-      <td th:text="${m.status}">REVIEW_COMPLETED</td>
-      <td>
-        <form th:action="@{/chiefeditor/decisions/do}" method="post" class="d-flex gap-1">
-          <input type="hidden" name="manuscriptId" th:value="${m.manuscriptId}">
-          <select class="form-select form-select-sm" name="decision" required>
-            <option value="ACCEPT">接受</option>
-            <option value="REJECT">拒稿</option>
-            <option value="NEED_REVISION">退修</option>
-          </select>
-          <input class="form-control form-control-sm" name="comment" placeholder="终审意见(可选)">
-          <button class="btn btn-primary btn-sm" type="submit">提交</button>
-        </form>
-      </td>
-    </tr>
-    </tbody>
-  </table>
+  <div th:if="${#lists.isEmpty(manuscripts)}" class="text-center py-5 text-muted">
+    <i class="bi bi-check2-circle fs-1"></i>
+    <p class="mt-2">当前没有需要终审的稿件。</p>
+  </div>
+
+  <div th:unless="${#lists.isEmpty(manuscripts)}" class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+      <tr>
+        <th style="width: 5%">ID</th>
+        <th style="width: 25%">稿件信息</th>
+        <th style="width: 15%">编辑建议</th>
+        <th style="width: 15%">编辑评语</th>
+        <th style="width: 40%">终审操作</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="m : ${manuscripts}">
+        <td class="fw-bold text-secondary" th:text="${'#' + m.manuscriptId}">#101</td>
+
+        <td>
+          <div class="fw-bold" th:text="${m.title}">稿件标题</div>
+          <small class="text-muted">提交时间: <span th:text="${#temporals.format(m.submitTime, 'yyyy-MM-dd')}">2023-01-01</span></small>
+        </td>
+
+        <td>
+          <span th:switch="${m.editorRecommendation}">
+            <span th:case="'ACCEPT'" class="badge bg-success">建议录用</span>
+            <span th:case="'REJECT'" class="badge bg-danger">建议拒稿</span>
+            <span th:case="'MINOR_REVISION'" class="badge bg-warning text-dark">建议小修</span>
+            <span th:case="'MAJOR_REVISION'" class="badge bg-warning text-dark">建议大修</span>
+            <span th:case="*" class="badge bg-secondary" th:text="${m.editorRecommendation ?: '无建议'}">未知</span>
+          </span>
+        </td>
+
+        <td>
+          <button type="button" class="btn btn-sm btn-outline-info"
+                  data-bs-toggle="popover" title="编辑评语"
+                  th:data-bs-content="${m.editorComment ?: '无详细评语'}">
+            查看评语
+          </button>
+        </td>
+
+        <td>
+          <form th:action="@{/chiefeditor/decisions/do}" method="post" onsubmit="return confirm('确定提交此终审决定吗？');">
+            <input type="hidden" name="manuscriptId" th:value="${m.manuscriptId}">
+
+            <div class="input-group input-group-sm">
+              <select class="form-select" name="decision" required style="max-width: 120px;">
+                <option value="" disabled selected>选择决定...</option>
+                <option value="ACCEPT" class="text-success fw-bold">✅ 录用</option>
+                <option value="NEED_REVISION" class="text-warning fw-bold">🔄 退修</option>
+                <option value="REJECT" class="text-danger fw-bold">❌ 拒稿</option>
+              </select>
+
+              <input type="text" class="form-control" name="comment" placeholder="给作者的终审意见 (必填)" required>
+
+              <button class="btn btn-primary" type="submit">提交</button>
+            </div>
+          </form>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // 初始化 Bootstrap Popover (用于显示编辑评语)
+  var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+  var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+    return new bootstrap.Popover(popoverTriggerEl)
+  })
+</script>
 </body>
 </html>

@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface editorDao extends JpaRepository<User, Integer> {
+public interface EditorDao extends JpaRepository<User, Integer> {
     List<User> findByStatus(String status);
 }

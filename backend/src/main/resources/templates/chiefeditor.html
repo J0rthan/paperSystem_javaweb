@@ -112,15 +112,21 @@
             <div class="card h-100 shadow-sm border-info">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h2 class="h5 mb-0">👥 审稿人与编辑管理</h2>
-                        <span class="badge bg-info text-dark">管理权限</span>
+                        <h2 class="h5 mb-0">👥 团队管理</h2> <span class="badge bg-info text-dark">核心权限</span>
                     </div>
                     <p class="text-muted mb-3">
-                        查看并维护审稿人库和编辑团队，为稿件选择或更换审稿人，查看工作负载和领域匹配度。
+                        查看现有编委团队，分配审稿任务，或录入新的责编、审稿人和管理员账号。
                     </p>
-                    <a th:href="@{/chiefeditor/reviewers}" class="btn btn-info btn-sm text-dark">
-                        管理审稿人 / 编辑
-                    </a>
+
+                    <div class="d-flex gap-2">
+                        <a th:href="@{/chiefeditor/reviewers}" class="btn btn-outline-info btn-sm text-dark">
+                            管理现有成员
+                        </a>
+
+                        <a th:href="@{/chief_editor/create_user}" class="btn btn-primary btn-sm">
+                            + 新建成员
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

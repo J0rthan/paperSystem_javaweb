@@ -42,7 +42,7 @@ public class EditorProcessController {
         User author = userDao.findById(manuscript.getAuthorId()).orElse(new User());
         model.addAttribute("authorName", author.getFullName());
 
-        // 3. 【新增】获取当前已存在的审稿记录 (用于右侧列表展示)
+        // 3. 获取当前已存在的审稿记录 (用于右侧列表展示)
         List<Review> existingReviews = processService.getCurrentReviews(manuscriptId);
         // 手动补充审稿人名字 (如果Review实体没有关联User对象的话)
         for (Review r : existingReviews) {
@@ -63,7 +63,33 @@ public class EditorProcessController {
         model.addAttribute("manuscript", manuscript);
         model.addAttribute("activeTab", tab);
 
+        if ("Under Review".equalsIgnoreCase(manuscript.getStatus())) {
+            List<Review> reviews = processService.getCurrentReviews(manuscriptId);
+            StringBuilder alertMsg = new StringBuilder();
+            LocalDateTime now = LocalDateTime.now();
+
+            for (Review r : reviews) {
+                if (r.getDeadline() != null && !"FINISHED".equalsIgnoreCase(r.getStatus())) {
+                    long hoursLeft = java.time.temporal.ChronoUnit.HOURS.between(now, r.getDeadline());
+
+                    if (hoursLeft < 0) {
+                        alertMsg.append("⚠️ Reviewer ID ").append(r.getReviewerId()).append(" 已逾期! \n");
+                    } else if (hoursLeft < 72) { // 3天 = 72小时
+                        alertMsg.append("⚠️ Reviewer ID ").append(r.getReviewerId()).append(" 截止日期不足 3 天! \n");
+                    }
+                }
+            }
+            if (alertMsg.length() > 0) {
+                model.addAttribute("alertMessage", alertMsg.toString());
+            }
+        }
+
+        // 设定默认 Tab
+        if (tab == null) tab = "info";
+        model.addAttribute("activeTab", tab);
+
         return "editor/process";
+
     }
 
     @PostMapping("/process/invite")

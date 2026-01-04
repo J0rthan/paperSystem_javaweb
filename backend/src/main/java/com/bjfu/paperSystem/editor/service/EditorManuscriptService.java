@@ -1,7 +1,7 @@
 package com.bjfu.paperSystem.editor.service;
-import com.bjfu.paperSystem.javabeans.Manuscript;
+import com.bjfu.paperSystem.dto.EditorManuscriptDTO;
 import java.util.List;
 
 public interface EditorManuscriptService {
-    List<Manuscript> getMyManuscripts(int editorId);
+    List<EditorManuscriptDTO> getMyManuscripts(int editorId);
 }

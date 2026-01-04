@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>新建团队成员 - 学术投稿系统</title>
+    <style>
+        /* 页面基础样式 - 保持简洁清爽 */
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        h2 {
+            margin-top: 0;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 10px;
+            color: #0056b3;
+        }
+
+        /* 提示消息样式 */
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+        .alert-success { color: #155724; background-color: #d4edda; border-color: #c3e6cb; }
+        .alert-danger { color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="email"],
+        select,
+        textarea {
+            width: 100%; /* 宽度占满 */
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            box-sizing: border-box; /* 确保padding不撑大宽度 */
+            transition: border-color .15s ease-in-out;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: #80bdff;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        /* 按钮样式 */
+        .btn-submit {
+            background-color: #0056b3;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        .btn-submit:hover {
+            background-color: #004494;
+        }
+
+        .btn-back {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #666;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="#" class="btn-back" onclick="history.back()">&larr; 返回主编控制台</a>
+
+    <h2>新建团队成员</h2>
+    <p style="color:#666; margin-bottom: 20px;">请填写下方信息以创建新的责编、审稿人或管理员账号。</p>
+
+    <div th:if="${msg}" class="alert"
+         th:classappend="${msg.contains('失败') ? 'alert-danger' : 'alert-success'}"
+         th:text="${msg}">
+    </div>
+
+    <form th:action="@{/chief_editor/create_user}" method="post">
+
+        <div class="form-group">
+            <label for="roleSelect">分配角色 <span style="color:red">*</span></label>
+            <select id="roleSelect" name="role" onchange="toggleFields()" required>
+                <option value="">-- 请选择角色类型 --</option>
+                <option value="EDITOR">责任编辑 (Editor)</option>
+                <option value="REVIEWER">审稿专家 (Reviewer)</option>
+                <option value="EDITORIAL_ADMIN">编辑部管理员 (Admin)</option>
+            </select>
+            <div class="help-text">不同角色所需的填写信息不同。</div>
+        </div>
+
+        <div class="form-group">
+            <label>登录用户名 <span style="color:red">*</span></label>
+            <input type="text" name="username" placeholder="请输入登录账号（英文）" required>
+        </div>
+
+        <div class="form-group">
+            <label>真实姓名 <span style="color:red">*</span></label>
+            <input type="text" name="fullName" placeholder="例如：王教授" required>
+        </div>
+
+        <div class="form-group">
+            <label>电子邮箱</label>
+            <input type="email" name="email" placeholder="例如：wang@bjfu.edu.cn">
+        </div>
+
+        <div class="form-group">
+            <label>初始密码</label>
+            <input type="text" name="password" value="123456">
+            <div class="help-text">默认为 123456，用户登录后可修改。</div>
+        </div>
+
+        <div class="form-group" id="specialtyGroup" style="display: none;">
+            <label id="specialtyLabel">研究方向 / 负责栏目</label>
+            <input type="text" name="specialty" placeholder="例如：人工智能, 图像处理">
+            <div class="help-text" id="specialtyHelp">该字段用于系统自动匹配稿件。</div>
+        </div>
+
+        <div class="form-group" id="profileGroup" style="display: none;">
+            <label>个人简介 (Profile)</label>
+            <textarea name="profile" rows="4" placeholder="请输入简短的个人学术背景介绍..."></textarea>
+        </div>
+
+        <button type="submit" class="btn-submit">立即创建账户</button>
+    </form>
+</div>
+
+<script>
+    function toggleFields() {
+        var role = document.getElementById("roleSelect").value;
+        var specialtyGroup = document.getElementById("specialtyGroup");
+        var profileGroup = document.getElementById("profileGroup");
+        var specialtyLabel = document.getElementById("specialtyLabel");
+        var specialtyHelp = document.getElementById("specialtyHelp");
+
+        // 1. 先全部隐藏
+        specialtyGroup.style.display = 'none';
+        profileGroup.style.display = 'none';
+
+        // 2. 根据选择显示对应内容
+        if (role === 'EDITOR') {
+            // 责编：需要专长 + 简介
+            specialtyGroup.style.display = 'block';
+            profileGroup.style.display = 'block';
+            specialtyLabel.innerText = "负责专栏 (Specialty)";
+            specialtyHelp.innerText = "该编辑将负责此领域的稿件初审。";
+        }
+        else if (role === 'REVIEWER') {
+            // 审稿人：只需要研究方向
+            specialtyGroup.style.display = 'block';
+            specialtyLabel.innerText = "研究方向 (Investigation Direction)";
+            specialtyHelp.innerText = "用于根据稿件关键字推荐审稿人。";
+        }
+        // 管理员：什么都不用额外填
+    }
+</script>
+
+</body>
+</html>

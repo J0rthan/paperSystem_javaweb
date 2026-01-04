@@ -81,14 +81,22 @@ backend/src/main/java/com/bjfu/paperSystem/chiefEditor/service/ReviewerManageSer
 backend/src/main/java/com/bjfu/paperSystem/chiefEditor/service/ReviewerManageServiceImpl.java
 backend/src/main/java/com/bjfu/paperSystem/chiefEditor/service/WithdrawalService.java
 backend/src/main/java/com/bjfu/paperSystem/chiefEditor/service/WithdrawalServiceImpl.java
+backend/src/main/java/com/bjfu/paperSystem/clientMessageUtils/clientMessageUtil.java
+backend/src/main/java/com/bjfu/paperSystem/clientMessageUtils/Dao/clientMessageDao.java
+backend/src/main/java/com/bjfu/paperSystem/clientMessageUtils/Service/clientMessageService.java
+backend/src/main/java/com/bjfu/paperSystem/clientMessageUtils/Service/clientMessageServiceImpl.java
 backend/src/main/java/com/bjfu/paperSystem/config/WebMvcConfig.java
-backend/src/main/java/com/bjfu/paperSystem/editor/controller/editorController.java
+backend/src/main/java/com/bjfu/paperSystem/dto/EditorManuscriptDTO.java
+backend/src/main/java/com/bjfu/paperSystem/editor/controller/EditorController.java
 backend/src/main/java/com/bjfu/paperSystem/editor/controller/EditorManuscriptController.java
 backend/src/main/java/com/bjfu/paperSystem/editor/controller/EditorProcessController.java
 backend/src/main/java/com/bjfu/paperSystem/editor/controller/RemindController.java
+backend/src/main/java/com/bjfu/paperSystem/editor/dao/editorDao.java
 backend/src/main/java/com/bjfu/paperSystem/editor/dao/EditorManuscriptDao.java
+backend/src/main/java/com/bjfu/paperSystem/editor/dao/EditorRecordAllocationDao.java
 backend/src/main/java/com/bjfu/paperSystem/editor/dao/EditorReviewDao.java
 backend/src/main/java/com/bjfu/paperSystem/editor/dao/EditorUserDao.java
+backend/src/main/java/com/bjfu/paperSystem/editor/dao/ManuscriptAuthorsDao.java
 backend/src/main/java/com/bjfu/paperSystem/editor/service/EditorManuscriptService.java
 backend/src/main/java/com/bjfu/paperSystem/editor/service/EditorManuscriptServiceImpl.java
 backend/src/main/java/com/bjfu/paperSystem/editor/service/EditorProcessService.java
@@ -96,7 +104,9 @@ backend/src/main/java/com/bjfu/paperSystem/editor/service/EditorProcessServiceIm
 backend/src/main/java/com/bjfu/paperSystem/editor/service/RemindService.java
 backend/src/main/java/com/bjfu/paperSystem/editor/service/RemindServiceImpl.java
 backend/src/main/java/com/bjfu/paperSystem/HomeController.java
+backend/src/main/java/com/bjfu/paperSystem/javabeans/ClientMessage.java
 backend/src/main/java/com/bjfu/paperSystem/javabeans/Editorial_Board.java
+backend/src/main/java/com/bjfu/paperSystem/javabeans/EmailMessage.java
 backend/src/main/java/com/bjfu/paperSystem/javabeans/Files.java
 backend/src/main/java/com/bjfu/paperSystem/javabeans/Logs.java
 backend/src/main/java/com/bjfu/paperSystem/javabeans/Manuscript.java
@@ -111,7 +121,10 @@ backend/src/main/java/com/bjfu/paperSystem/Login/controller/UserController.java
 backend/src/main/java/com/bjfu/paperSystem/Login/dao/UserDao.java
 backend/src/main/java/com/bjfu/paperSystem/Login/service/UserService.java
 backend/src/main/java/com/bjfu/paperSystem/Login/service/UserServiceImpl.java
+backend/src/main/java/com/bjfu/paperSystem/mailUtils/Dao/mailDao.java
 backend/src/main/java/com/bjfu/paperSystem/mailUtils/MailUtil.java
+backend/src/main/java/com/bjfu/paperSystem/mailUtils/Service/mailService.java
+backend/src/main/java/com/bjfu/paperSystem/mailUtils/Service/mailServiceImpl.java
 backend/src/main/java/com/bjfu/paperSystem/mailUtils/test.java
 backend/src/main/java/com/bjfu/paperSystem/optionAdmin/controller/ManuscriptManagementController.java
 backend/src/main/java/com/bjfu/paperSystem/optionAdmin/controller/NewsController.java
@@ -174,6 +187,7 @@ backend/src/main/resources/templates/optionadmin/manuscript-details.html
 backend/src/main/resources/templates/optionadmin/manuscripts.html
 backend/src/main/resources/templates/optionadmin/news/addNews.html
 backend/src/main/resources/templates/optionadmin/news/editNews.html
+backend/src/main/resources/templates/optionadmin/news/newsDetail.html
 backend/src/main/resources/templates/optionadmin/news/newsList.html
 backend/src/main/resources/templates/reviewer.html
 backend/src/main/resources/templates/reviewer/jobPage.html
@@ -214,6 +228,91 @@ README.md
 
 <files>
 This section contains the contents of the repository's files.
+
+<file path="backend/src/main/java/com/bjfu/paperSystem/dto/EditorManuscriptDTO.java">
+package com.bjfu.paperSystem.dto;
+
+import java.time.LocalDateTime;
+
+/**
+ * 专门用于编辑端列表展示的传输对象
+ * 包含：稿件基本信息、分配时间、匿名作者信息、是否紧急
+ */
+public class EditorManuscriptDTO {
+    private int manuscriptId;
+    private String title;
+    private String status;       // 显示状态 (With Editor / Under Review)
+    private LocalDateTime assignTime; // 指派时间
+    private String authorInfo;   // 处理后的作者信息 (如 "Affiliation: BJP U")
+    private boolean isUrgent;    // 是否有即将逾期/已逾期的审稿
+
+    public EditorManuscriptDTO(int manuscriptId, String title, String status,
+                               LocalDateTime assignTime, String authorInfo, boolean isUrgent) {
+        this.manuscriptId = manuscriptId;
+        this.title = title;
+        this.status = status;
+        this.assignTime = assignTime;
+        this.authorInfo = authorInfo;
+        this.isUrgent = isUrgent;
+    }
+
+    // Getters
+    public int getManuscriptId() { return manuscriptId; }
+    public String getTitle() { return title; }
+    public String getStatus() { return status; }
+    public LocalDateTime getAssignTime() { return assignTime; }
+    public String getAuthorInfo() { return authorInfo; }
+    public boolean isUrgent() { return isUrgent; }
+}
+</file>
+
+<file path="backend/src/main/java/com/bjfu/paperSystem/editor/dao/EditorRecordAllocationDao.java">
+package com.bjfu.paperSystem.editor.dao;
+
+import com.bjfu.paperSystem.javabeans.Record_Allocation;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface EditorRecordAllocationDao extends JpaRepository<Record_Allocation, Integer> {
+    // 获取某稿件最新的分配记录
+    @Query(value = "SELECT * FROM record_allocation WHERE manuscript_id = ?1 ORDER BY assign_time DESC LIMIT 1", nativeQuery = true)
+    Record_Allocation findLatestByManuscriptId(int manuscriptId);
+}
+</file>
+
+<file path="backend/src/main/java/com/bjfu/paperSystem/editor/dao/ManuscriptAuthorsDao.java">
+package com.bjfu.paperSystem.editor.dao;
+
+import com.bjfu.paperSystem.javabeans.ManuscriptAuthor;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface ManuscriptAuthorsDao extends JpaRepository<ManuscriptAuthor, Integer> {
+
+    /**
+     * 方法 1: 根据稿件 ID 获取所有作者列表 (标准 JPA 写法)
+     * 如果以后需要显示所有作者详情，可以用这个
+     */
+    List<ManuscriptAuthor> findByManuscriptId(int manuscriptId);
+
+    /**
+     * 方法 2: 专门为编辑列表页优化的查询 (自定义 SQL)
+     * 作用：只获取该稿件 第一位作者 的 单位(institution)
+     * * 修改点：
+     * 1. 表名改为 manuscript_authors
+     * 2. 字段改为 institution (对应实体类中的字段)
+     * 3. 加了 LIMIT 1，因为列表页只需要显示一个单位即可，不用把所有作者都查出来
+     */
+    @Query(value = "SELECT institution FROM manuscript_authors WHERE manuscript_id = ?1 LIMIT 1", nativeQuery = true)
+    String findAuthorAffiliationByManuscriptId(int manuscriptId);
+}
+</file>
 
 <file path=".gitattributes">
 /mvnw text eol=lf
@@ -721,6 +820,40 @@ public class WithdrawalServiceImpl implements WithdrawalService {
 }
 </file>
 
+<file path="backend/src/main/java/com/bjfu/paperSystem/clientMessageUtils/clientMessageUtil.java">
+package com.bjfu.paperSystem.clientMessageUtils;
+
+public class clientMessageUtil {
+}
+</file>
+
+<file path="backend/src/main/java/com/bjfu/paperSystem/clientMessageUtils/Dao/clientMessageDao.java">
+package com.bjfu.paperSystem.clientMessageUtils.Dao;
+
+import com.bjfu.paperSystem.javabeans.EmailMessage;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface clientMessageDao extends JpaRepository<EmailMessage, Integer> {
+
+}
+</file>
+
+<file path="backend/src/main/java/com/bjfu/paperSystem/clientMessageUtils/Service/clientMessageService.java">
+package com.bjfu.paperSystem.clientMessageUtils.Service;
+
+public interface clientMessageService {
+}
+</file>
+
+<file path="backend/src/main/java/com/bjfu/paperSystem/clientMessageUtils/Service/clientMessageServiceImpl.java">
+package com.bjfu.paperSystem.clientMessageUtils.Service;
+
+public class clientMessageServiceImpl implements clientMessageService {
+}
+</file>
+
 <file path="backend/src/main/java/com/bjfu/paperSystem/config/WebMvcConfig.java">
 package com.bjfu.paperSystem.config;
 
@@ -814,7 +947,7 @@ public class EditorProcessController {
         User author = userDao.findById(manuscript.getAuthorId()).orElse(new User());
         model.addAttribute("authorName", author.getFullName());
 
-        // 3. 【新增】获取当前已存在的审稿记录 (用于右侧列表展示)
+        // 3. 获取当前已存在的审稿记录 (用于右侧列表展示)
         List<Review> existingReviews = processService.getCurrentReviews(manuscriptId);
         // 手动补充审稿人名字 (如果Review实体没有关联User对象的话)
         for (Review r : existingReviews) {
@@ -835,7 +968,33 @@ public class EditorProcessController {
         model.addAttribute("manuscript", manuscript);
         model.addAttribute("activeTab", tab);
 
+        if ("Under Review".equalsIgnoreCase(manuscript.getStatus())) {
+            List<Review> reviews = processService.getCurrentReviews(manuscriptId);
+            StringBuilder alertMsg = new StringBuilder();
+            LocalDateTime now = LocalDateTime.now();
+
+            for (Review r : reviews) {
+                if (r.getDeadline() != null && !"FINISHED".equalsIgnoreCase(r.getStatus())) {
+                    long hoursLeft = java.time.temporal.ChronoUnit.HOURS.between(now, r.getDeadline());
+
+                    if (hoursLeft < 0) {
+                        alertMsg.append("⚠️ Reviewer ID ").append(r.getReviewerId()).append(" 已逾期! \n");
+                    } else if (hoursLeft < 72) { // 3天 = 72小时
+                        alertMsg.append("⚠️ Reviewer ID ").append(r.getReviewerId()).append(" 截止日期不足 3 天! \n");
+                    }
+                }
+            }
+            if (alertMsg.length() > 0) {
+                model.addAttribute("alertMessage", alertMsg.toString());
+            }
+        }
+
+        // 设定默认 Tab
+        if (tab == null) tab = "info";
+        model.addAttribute("activeTab", tab);
+
         return "editor/process";
+
     }
 
     @PostMapping("/process/invite")
@@ -976,29 +1135,100 @@ public interface EditorUserDao extends JpaRepository<User, Integer> {
 
 <file path="backend/src/main/java/com/bjfu/paperSystem/editor/service/EditorManuscriptService.java">
 package com.bjfu.paperSystem.editor.service;
-import com.bjfu.paperSystem.javabeans.Manuscript;
+import com.bjfu.paperSystem.dto.EditorManuscriptDTO;
 import java.util.List;
 
 public interface EditorManuscriptService {
-    List<Manuscript> getMyManuscripts(int editorId);
+    List<EditorManuscriptDTO> getMyManuscripts(int editorId);
 }
 </file>
 
 <file path="backend/src/main/java/com/bjfu/paperSystem/editor/service/EditorManuscriptServiceImpl.java">
 package com.bjfu.paperSystem.editor.service;
+
+import com.bjfu.paperSystem.dto.EditorManuscriptDTO;
 import com.bjfu.paperSystem.editor.dao.EditorManuscriptDao;
+import com.bjfu.paperSystem.editor.dao.EditorReviewDao;
+import com.bjfu.paperSystem.editor.dao.EditorRecordAllocationDao;
+import com.bjfu.paperSystem.editor.dao.ManuscriptAuthorsDao;
 import com.bjfu.paperSystem.javabeans.Manuscript;
+import com.bjfu.paperSystem.javabeans.Review;
+import com.bjfu.paperSystem.javabeans.Record_Allocation;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class EditorManuscriptServiceImpl implements EditorManuscriptService {
+
     @Autowired private EditorManuscriptDao manuscriptDao;
+    @Autowired private EditorReviewDao reviewDao;
+    @Autowired private EditorRecordAllocationDao recordAllocationDao; // 新注入
+    @Autowired private ManuscriptAuthorsDao manuscriptAuthorsDao; // 新注入
 
     @Override
-    public List<Manuscript> getMyManuscripts(int editorId) {
-        return manuscriptDao.findByEditorId(editorId);
+    public List<EditorManuscriptDTO> getMyManuscripts(int editorId) {
+        // 1. 查找所有指派给该编辑的稿件
+        List<Manuscript> rawList = manuscriptDao.findByEditorId(editorId);
+        List<EditorManuscriptDTO> dtoList = new ArrayList<>();
+
+        for (Manuscript m : rawList) {
+            String status = m.getStatus();
+
+            // 2. 状态过滤：只保留 "With Editor" 和 "Under Review"
+            // (注意：数据库中存储的状态字符串需要和这里匹配，比如 "With Editor" 或 "WITH_EDITOR")
+            if (status == null || (!status.equalsIgnoreCase("With Editor") && !status.equalsIgnoreCase("Under Review"))) {
+                continue;
+            }
+
+            // 3. 获取分配时间
+            LocalDateTime assignTime = null;
+            Record_Allocation allocation = recordAllocationDao.findLatestByManuscriptId(m.getManuscriptId());
+            if (allocation != null) {
+                assignTime = allocation.getAssignTime();
+            } else {
+                assignTime = m.getSubmitTime(); // 兜底：如果没查到分配记录，暂时用提交时间
+            }
+
+            // 4. 获取匿名作者信息 (只获取单位)
+            String affiliation = manuscriptAuthorsDao.findAuthorAffiliationByManuscriptId(m.getManuscriptId());
+            String authorInfo = (affiliation != null) ? "Affiliation: " + affiliation : "Hidden Author";
+
+            // 5. 计算是否紧急 (针对 Under Review)
+            boolean isUrgent = false;
+            if ("Under Review".equalsIgnoreCase(status)) {
+                List<Review> reviews = reviewDao.findByManuId(m.getManuscriptId());
+                LocalDateTime now = LocalDateTime.now();
+
+                for (Review r : reviews) {
+                    // 只检查未完成的审稿 (PENDING 或 ACCEPTED)
+                    if (r.getDeadline() != null && !"FINISHED".equalsIgnoreCase(r.getStatus())) {
+                        long daysLeft = ChronoUnit.DAYS.between(now, r.getDeadline());
+                        // 如果逾期 或者 剩余时间不足3天
+                        if (daysLeft < 3) {
+                            isUrgent = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // 6. 存入 DTO
+            dtoList.add(new EditorManuscriptDTO(
+                    m.getManuscriptId(),
+                    m.getTitle(),
+                    status, // 保持原样或格式化
+                    assignTime,
+                    authorInfo,
+                    isUrgent
+            ));
+        }
+        return dtoList;
     }
 }
 </file>
@@ -1287,23 +1517,95 @@ public class RemindServiceImpl implements RemindService {
 }
 </file>
 
-<file path="backend/src/main/java/com/bjfu/paperSystem/HomeController.java">
-package com.bjfu.paperSystem;
+<file path="backend/src/main/java/com/bjfu/paperSystem/javabeans/EmailMessage.java">
+package com.bjfu.paperSystem.javabeans;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
+import jakarta.persistence.*;
 
-@Controller
-public class HomeController {
-    
-    @GetMapping("/")
-    public String index() {
-        return "index";
+@Entity
+@Table(name = "EmailMessage")
+public class EmailMessage {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "emailMes_id")
+    private Integer emailMesId;
+
+    @Column(name = "sender_email", nullable = false, length = 50)
+    private String senderEmail;
+
+    @Column(name = "receiver_email", nullable = false, length = 50)
+    private String receiverEmail;
+
+    @Column(name = "message_body", nullable = false, length = 200)
+    private String messageBody;
+
+    /**
+     * 外键字段（数据库真实存在的列）
+     */
+    @Column(name = "manu_id", nullable = false)
+    private Integer manuId;
+
+    /**
+     * JPA 关联对象（不直接写入列）
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "manu_id",
+            referencedColumnName = "manuscript_id",
+            insertable = false,
+            updatable = false
+    )
+    private Manuscript manuscript;
+
+    /* ========= getter / setter ========= */
+
+    public Integer getEmailMesId() {
+        return emailMesId;
     }
-    
-    @GetMapping("/index")
-    public String indexPage() {
-        return "index";
+
+    public void setEmailMesId(Integer emailMesId) {
+        this.emailMesId = emailMesId;
+    }
+
+    public String getSenderEmail() {
+        return senderEmail;
+    }
+
+    public void setSenderEmail(String senderEmail) {
+        this.senderEmail = senderEmail;
+    }
+
+    public String getReceiverEmail() {
+        return receiverEmail;
+    }
+
+    public void setReceiverEmail(String receiverEmail) {
+        this.receiverEmail = receiverEmail;
+    }
+
+    public String getMessageBody() {
+        return messageBody;
+    }
+
+    public void setMessageBody(String messageBody) {
+        this.messageBody = messageBody;
+    }
+
+    public Integer getManuId() {
+        return manuId;
+    }
+
+    public void setManuId(Integer manuId) {
+        this.manuId = manuId;
+    }
+
+    public Manuscript getManuscript() {
+        return manuscript;
+    }
+
+    public void setManuscript(Manuscript manuscript) {
+        this.manuscript = manuscript;
     }
 }
 </file>
@@ -1661,57 +1963,54 @@ public class Record_Allocation {
 }
 </file>
 
-<file path="backend/src/main/java/com/bjfu/paperSystem/mailUtils/MailUtil.java">
-package com.bjfu.paperSystem.mailUtils;
+<file path="backend/src/main/java/com/bjfu/paperSystem/mailUtils/Dao/mailDao.java">
+package com.bjfu.paperSystem.mailUtils.Dao;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.stereotype.Component;
+import com.bjfu.paperSystem.javabeans.EmailMessage;
+import com.bjfu.paperSystem.javabeans.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-@Component
-public class MailUtil {
-    private final JavaMailSender mailSender;
-    private final String from;
-
-    public MailUtil(JavaMailSender mailSender,
-                    @Value("${spring.mail.username}") String from) {
-        this.mailSender = mailSender;
-        this.from = from;
-    }
-
-    public void sendTextMail(String to, String subject, String content) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(from);
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(content);
-        mailSender.send(message);
-    }
+@Repository
+public interface mailDao extends JpaRepository<EmailMessage, Integer> {
 }
 </file>
 
-<file path="backend/src/main/java/com/bjfu/paperSystem/mailUtils/test.java">
-package com.bjfu.paperSystem.mailUtils;
+<file path="backend/src/main/java/com/bjfu/paperSystem/mailUtils/Service/mailService.java">
+package com.bjfu.paperSystem.mailUtils.Service;
 
+import com.bjfu.paperSystem.javabeans.Manuscript;
+
+public interface mailService {
+    public String insertRecord(String senderEmail, String receiverEmail, String messageBody, int manuId, Manuscript manu);
+}
+</file>
+
+<file path="backend/src/main/java/com/bjfu/paperSystem/mailUtils/Service/mailServiceImpl.java">
+package com.bjfu.paperSystem.mailUtils.Service;
+
+import com.bjfu.paperSystem.javabeans.EmailMessage;
+import com.bjfu.paperSystem.javabeans.Manuscript;
+import com.bjfu.paperSystem.mailUtils.Dao.mailDao;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
-@Controller
-public class test {
-    private final MailUtil mailUtil;
+@Service
+public class mailServiceImpl implements mailService{
+    @Autowired
+    mailDao mailDao1;
 
-    public test(MailUtil mailUtil) {
-        this.mailUtil = mailUtil;
-    }
+    public String insertRecord(String senderEmail, String receiverEmail, String messageBody, int manuId, Manuscript manu) {
+        EmailMessage emailMes = new EmailMessage();
+        emailMes.setSenderEmail(senderEmail);
+        emailMes.setReceiverEmail(receiverEmail);
+        emailMes.setMessageBody(messageBody);
+        emailMes.setManuId(manuId);
+        emailMes.setManuscript(manu);
 
-    @GetMapping("/testMail")
-    @ResponseBody
-    public String testMail() {
-        mailUtil.sendTextMail("1211083651@qq.com", "测试邮件", "MailUtil 注入成功");
+        mailDao1.save(emailMes);
+
         return "ok";
     }
 }
@@ -1887,176 +2186,6 @@ public class NewsController {
             e.printStackTrace();
             return null;
         }
-    }
-}
-</file>
-
-<file path="backend/src/main/java/com/bjfu/paperSystem/optionAdmin/dao/NewsDao.java">
-package com.bjfu.paperSystem.optionAdmin.dao;
-
-import com.bjfu.paperSystem.javabeans.News;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-
-import java.time.LocalDateTime;
-import java.util.List;
-
-public interface NewsDao extends JpaRepository<News, Integer>, JpaSpecificationExecutor<News> {
-
-    // 根据状态查询新闻
-    List<News> findByStatusOrderByPublishTimeDesc(String status);
-
-    // 根据标题或内容模糊查询
-    @Query("SELECT n FROM News n WHERE n.title LIKE %:keyword% OR n.content LIKE %:keyword%")
-    List<News> findByKeyword(@Param("keyword") String keyword);
-
-    // 根据发布时间范围查询
-    List<News> findByPublishTimeBetweenOrderByPublishTimeDesc(LocalDateTime start, LocalDateTime end);
-
-    // 查询已发布或定时发布的新闻
-    List<News> findByStatusInOrderByPublishTimeDesc(List<String> statuses);
-
-    // 分页查询所有新闻（按创建时间倒序）
-    List<News> findAllByOrderByCreateTimeDesc();
-}
-</file>
-
-<file path="backend/src/main/java/com/bjfu/paperSystem/optionAdmin/service/NewsService.java">
-package com.bjfu.paperSystem.optionAdmin.service;
-
-import com.bjfu.paperSystem.javabeans.News;
-
-import java.time.LocalDateTime;
-import java.util.List;
-
-public interface NewsService {
-    // 新增新闻
-    void saveNews(News news);
-
-    // 更新新闻
-    void updateNews(News news);
-
-    // 删除新闻
-    void deleteNews(Integer newsId);
-
-    // 根据ID获取新闻
-    News getNewsById(Integer newsId);
-
-    // 获取所有新闻
-    List<News> getAllNews();
-
-    // 根据状态获取新闻
-    List<News> getNewsByStatus(String status);
-
-    // 搜索新闻（根据标题或内容）
-    List<News> searchNews(String keyword);
-
-    // 根据时间范围获取新闻
-    List<News> getNewsByTimeRange(LocalDateTime start, LocalDateTime end);
-
-    // 发布新闻
-    void publishNews(Integer newsId);
-
-    // 定时发布新闻
-    void scheduleNews(Integer newsId, LocalDateTime publishTime);
-
-    // 保存为草稿
-    void saveDraft(News news);
-}
-</file>
-
-<file path="backend/src/main/java/com/bjfu/paperSystem/optionAdmin/service/NewsServiceImpl.java">
-package com.bjfu.paperSystem.optionAdmin.service;
-
-import com.bjfu.paperSystem.javabeans.News;
-import com.bjfu.paperSystem.optionAdmin.dao.NewsDao;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
-@Service
-public class NewsServiceImpl implements NewsService {
-
-    @Autowired
-    private NewsDao newsDao;
-
-    @Override
-    public void saveNews(News news) {
-        news.setCreateTime(LocalDateTime.now());
-        news.setUpdateTime(LocalDateTime.now());
-        news.setStatus("published");
-        newsDao.save(news);
-    }
-
-    @Override
-    public void updateNews(News news) {
-        news.setUpdateTime(LocalDateTime.now());
-        newsDao.save(news);
-    }
-
-    @Override
-    public void deleteNews(Integer newsId) {
-        newsDao.deleteById(newsId);
-    }
-
-    @Override
-    public News getNewsById(Integer newsId) {
-        return newsDao.findById(newsId).orElse(null);
-    }
-
-    @Override
-    public List<News> getAllNews() {
-        return newsDao.findAllByOrderByCreateTimeDesc();
-    }
-
-    @Override
-    public List<News> getNewsByStatus(String status) {
-        return newsDao.findByStatusOrderByPublishTimeDesc(status);
-    }
-
-    @Override
-    public List<News> searchNews(String keyword) {
-        return newsDao.findByKeyword(keyword);
-    }
-
-    @Override
-    public List<News> getNewsByTimeRange(LocalDateTime start, LocalDateTime end) {
-        return newsDao.findByPublishTimeBetweenOrderByPublishTimeDesc(start, end);
-    }
-
-    @Override
-    public void publishNews(Integer newsId) {
-        News news = newsDao.findById(newsId).orElse(null);
-        if (news != null) {
-            news.setStatus("published");
-            news.setPublishTime(LocalDateTime.now());
-            news.setUpdateTime(LocalDateTime.now());
-            newsDao.save(news);
-        }
-    }
-
-    @Override
-    public void scheduleNews(Integer newsId, LocalDateTime publishTime) {
-        News news = newsDao.findById(newsId).orElse(null);
-        if (news != null) {
-            news.setStatus("scheduled");
-            news.setPublishTime(publishTime);
-            news.setUpdateTime(LocalDateTime.now());
-            newsDao.save(news);
-        }
-    }
-
-    @Override
-    public void saveDraft(News news) {
-        news.setCreateTime(LocalDateTime.now());
-        news.setUpdateTime(LocalDateTime.now());
-        news.setStatus("draft");
-        newsDao.save(news);
     }
 }
 </file>
@@ -2686,159 +2815,78 @@ public interface sysAdminDao extends JpaRepository<User, Integer> {
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>Editor Dashboard | Scientific Journal System</title>
+  <title>Assigned Manuscripts | Editor</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-  <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,700;0,900;1,300&family=Lato:wght@400;700&display=swap" rel="stylesheet">
-
   <style>
-    :root {
-      --primary-navy: #2c3e50;
-      --accent-red: #c0392b;
-      --bg-light: #f8f9fa;
-      --font-serif: 'Merriweather', serif;
-      --font-sans: 'Lato', sans-serif;
-    }
-
-    body { background-color: var(--bg-light); font-family: var(--font-sans); color: #333; }
-
-    /* 顶部导航 */
-    .journal-header {
-      background: #fff;
-      border-bottom: 3px solid var(--primary-navy);
-      padding: 1.2rem 0;
-      margin-bottom: 2rem;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.03);
-    }
-    .journal-title { font-family: var(--font-serif); font-weight: 900; font-size: 1.5rem; color: var(--primary-navy); }
-    .user-profile { font-size: 0.9rem; color: #666; }
-
-    /* 统计卡片 */
-    .stat-card {
-      background: #fff; border: none; border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-      transition: transform 0.2s;
-    }
-    .stat-card:hover { transform: translateY(-2px); }
-    .stat-number { font-size: 2rem; font-weight: 700; color: var(--primary-navy); }
-    .stat-label { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: #888; }
-
-    /* 稿件列表 */
-    .paper-card {
-      background: #fff; border: 1px solid #e1e4e8; border-radius: 6px;
-      margin-bottom: 1rem; padding: 1.5rem;
-      border-left: 4px solid transparent;
-      transition: all 0.2s;
-    }
-    .paper-card:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.05); border-color: #d1d5db; }
-
-    /* 状态颜色 */
-    .status-action { border-left-color: var(--accent-red); } /* 需要操作：With Editor */
-    .status-wait { border-left-color: #3498db; }   /* 等待中：Under Review */
-    .status-done { border-left-color: #27ae60; }   /* 已完成 */
-
-    .paper-title { font-family: var(--font-serif); font-weight: 700; font-size: 1.2rem; color: #2c3e50; text-decoration: none; }
-    .paper-meta { font-size: 0.85rem; color: #7f8c8d; margin-top: 0.5rem; }
-
-    .action-btn { font-size: 0.85rem; font-weight: 600; }
+    body { background-color: #f8f9fa; }
+    .table-container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top: 20px;}
+    .status-badge { font-size: 0.9em; padding: 6px 12px; }
+    .urgent-row { border-left: 4px solid #dc3545; background-color: #fff5f5; }
   </style>
 </head>
 <body>
 
-<header class="journal-header">
-  <div class="container d-flex justify-content-between align-items-center">
-    <div class="journal-title">International AI Research</div>
-    <div class="user-profile">
-      <span class="me-2">Editor Workspace</span>
-      <span class="text-muted">|</span>
-      <span class="ms-2 fw-bold" th:text="${session.loginUser.fullName}">Dr. Editor</span>
-      <a href="/author/logout" class="ms-3 text-danger text-decoration-none small">Logout</a>
-    </div>
+<nav class="navbar navbar-dark bg-dark mb-4">
+  <div class="container">
+    <a class="navbar-brand" href="#">Scientific Journal System - Editor</a>
+    <a href="/logout" class="btn btn-outline-light btn-sm">Logout</a>
   </div>
-</header>
+</nav>
 
 <div class="container">
-  <div class="row mb-4 g-3">
-    <div class="col-md-4">
-      <div class="stat-card p-3 d-flex align-items-center justify-content-between">
-        <div>
-          <div class="stat-number" th:text="${#lists.size(manuscripts.?[status == 'With Editor'])}">3</div>
-          <div class="stat-label">Tasks Required</div>
-        </div>
-        <i class="bi bi-exclamation-circle text-danger fs-3"></i>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="stat-card p-3 d-flex align-items-center justify-content-between">
-        <div>
-          <div class="stat-number" th:text="${#lists.size(manuscripts.?[status == 'Under Review'])}">12</div>
-          <div class="stat-label">Under Review</div>
-        </div>
-        <i class="bi bi-people text-primary fs-3"></i>
-      </div>
-    </div>
+  <h2 class="mb-4"><i class="bi bi-file-earmark-text"></i> My Assigned Manuscripts</h2>
+
+  <div class="table-container">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+      <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Status</th>
+        <th>Assigned Date</th>
+        <th>Author Info (Blind)</th>
+        <th>Action</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="m : ${manuscripts}" th:classappend="${m.isUrgent} ? 'urgent-row' : ''">
+        <td th:text="${m.manuscriptId}">101</td>
+        <td>
+          <span th:text="${m.title}" class="fw-bold">Paper Title</span>
+          <span th:if="${m.isUrgent}" class="text-danger ms-2" title="Review Deadline Approaching!">
+                <i class="bi bi-exclamation-circle-fill"></i>
+            </span>
+        </td>
+
+        <td>
+            <span th:text="${m.status}"
+                  th:class="${m.status == 'Under Review' ? 'badge bg-warning text-dark status-badge' : 'badge bg-info status-badge'}">
+              With Editor
+            </span>
+        </td>
+
+        <td th:text="${m.assignTime != null ? #temporals.format(m.assignTime, 'yyyy-MM-dd HH:mm') : 'N/A'}">
+          2025-01-01
+        </td>
+
+        <td class="text-secondary">
+          <i class="bi bi-incognito"></i> <span th:text="${m.authorInfo}">Affiliation Hidden</span>
+        </td>
+
+        <td>
+          <a th:href="@{/editor/process/{id}(id=${m.manuscriptId})}" class="btn btn-primary btn-sm">
+            Manage <i class="bi bi-arrow-right"></i>
+          </a>
+        </td>
+      </tr>
+
+      <tr th:if="${#lists.isEmpty(manuscripts)}">
+        <td colspan="6" class="text-center py-4 text-muted">No manuscripts assigned to you currently.</td>
+      </tr>
+      </tbody>
+    </table>
   </div>
-
-  <div class="d-flex justify-content-between align-items-end mb-3 border-bottom pb-2">
-    <h4 class="mb-0 fw-bold" style="font-family: var(--font-serif);">Manuscripts</h4>
-
-    <div class="btn-group btn-group-sm">
-      <a href="#" class="btn btn-outline-dark active">All</a>
-      <a href="#" class="btn btn-outline-dark">Action Required</a>
-    </div>
-  </div>
-
-  <div th:each="m : ${manuscripts}"
-       class="paper-card"
-       th:classappend="${m.status == 'With Editor' ? 'status-action' : (m.status == 'Under Review' ? 'status-wait' : 'status-done')}">
-
-    <div class="row align-items-center">
-      <div class="col-md-8">
-        <div class="d-flex align-items-center mb-1">
-          <span class="badge bg-light text-dark border me-2" th:text="${'#MS-' + m.manuscriptId}">ID</span>
-          <span class="badge"
-                th:classappend="${m.status == 'With Editor' ? 'bg-danger' : (m.status == 'Under Review' ? 'bg-primary' : 'bg-secondary')}"
-                th:text="${m.status}">With Editor</span>
-        </div>
-
-        <a th:href="@{/editor/process/{id}(id=${m.manuscriptId})}" class="paper-title hover-underline">
-          <span th:text="${m.title}">Paper Title Placeholder</span>
-        </a>
-
-        <div class="paper-meta">
-          <i class="bi bi-calendar3"></i> Submitted: <span th:text="${#temporals.format(m.submitTime, 'MMM dd, yyyy')}">Date</span>
-          <span class="mx-2">•</span>
-          <i class="bi bi-person"></i> Author ID: <span th:text="${m.authorId}">123</span>
-        </div>
-      </div>
-
-      <div class="col-md-4 text-end">
-        <a th:if="${m.status == 'With Editor'}"
-           th:href="@{/editor/process/{id}(id=${m.manuscriptId})}"
-           class="btn btn-danger btn-sm action-btn px-4 shadow-sm">
-          Process Now <i class="bi bi-arrow-right"></i>
-        </a>
-
-        <a th:if="${m.status == 'Under Review'}"
-           th:href="@{/editor/process/{id}(id=${m.manuscriptId})}"
-           class="btn btn-outline-primary btn-sm action-btn px-3">
-          Monitor <i class="bi bi-eye"></i>
-        </a>
-
-        <a th:if="${m.status != 'With Editor' and m.status != 'Under Review'}"
-           th:href="@{/editor/process/{id}(id=${m.manuscriptId})}"
-           class="btn btn-outline-secondary btn-sm action-btn">
-          View Details
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <div th:if="${#lists.isEmpty(manuscripts)}" class="text-center py-5 text-muted">
-    <i class="bi bi-inbox fs-1"></i>
-    <p class="mt-2">No manuscripts assigned to you yet.</p>
-  </div>
-
 </div>
 
 </body>
@@ -2983,6 +3031,17 @@ public interface sysAdminDao extends JpaRepository<User, Integer> {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        // 获取后端 Model 传来的 alertMessage
+        var msg = /*[[${alertMessage}]]*/ null;
+
+        if (msg && msg.trim() !== "") {
+            // 这里使用了简单的 alert，也可以换成 Bootstrap Modal
+            alert(msg);
+        }
+    });
+</script>
 </body>
 </html>
 </file>
@@ -3051,470 +3110,6 @@ public interface sysAdminDao extends JpaRepository<User, Integer> {
         </div>
     </div>
 </div>
-</body>
-</html>
-</file>
-
-<file path="backend/src/main/resources/templates/index.html">
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>学术论文管理系统 - 主页</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #0d6efd;
-            --secondary-color: #6c757d;
-            --success-color: #198754;
-        }
-        
-        .hero-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 100px 0;
-            margin-bottom: 60px;
-        }
-        
-        .feature-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: none;
-            border-radius: 15px;
-            overflow: hidden;
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        }
-        
-        .feature-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            color: var(--primary-color);
-        }
-        
-        .login-section {
-            background-color: #f8f9fa;
-            padding: 60px 0;
-            margin-top: 60px;
-        }
-        
-        .footer {
-            background-color: #212529;
-            color: white;
-            padding: 40px 0;
-            margin-top: 60px;
-        }
-        
-        .navbar-brand {
-            font-weight: bold;
-            font-size: 1.5rem;
-        }
-        
-        .btn-login {
-            padding: 12px 30px;
-            font-size: 1.1rem;
-            border-radius: 50px;
-        }
-    </style>
-</head>
-<body>
-    <!-- 导航栏 -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-        <div class="container">
-            <a class="navbar-brand" href="/">
-                <i class="bi bi-journal-text"></i> 学术论文管理系统
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#features">功能特色</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#about">关于系统</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#login">登录</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <!-- 英雄区域 -->
-    <section class="hero-section text-center">
-        <div class="container">
-            <h1 class="display-3 fw-bold mb-4">欢迎使用学术论文管理系统</h1>
-            <p class="lead mb-5">专业的学术论文投稿、审稿和管理平台</p>
-            <a href="#login" class="btn btn-light btn-lg btn-login">
-                <i class="bi bi-box-arrow-in-right"></i> 立即登录
-            </a>
-        </div>
-    </section>
-
-    <!-- 功能特色 -->
-    <section id="features" class="container py-5">
-        <div class="text-center mb-5">
-            <h2 class="display-5 fw-bold">系统功能</h2>
-            <p class="text-muted">为学术研究提供全方位的论文管理服务</p>
-        </div>
-        
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card feature-card h-100 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <i class="bi bi-file-earmark-text feature-icon"></i>
-                        <h4 class="card-title">稿件管理</h4>
-                        <p class="card-text text-muted">
-                            作者可以轻松提交、编辑和跟踪论文稿件，实时查看审稿进度和状态。
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card feature-card h-100 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <i class="bi bi-clipboard-check feature-icon"></i>
-                        <h4 class="card-title">审稿流程</h4>
-                        <p class="card-text text-muted">
-                            完善的审稿流程管理，支持主编、编辑和审稿人协同工作，确保审稿质量。
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card feature-card h-100 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <i class="bi bi-people feature-icon"></i>
-                        <h4 class="card-title">用户管理</h4>
-                        <p class="card-text text-muted">
-                            多角色权限管理，支持作者、审稿人、编辑、主编等不同角色的权限控制。
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card feature-card h-100 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <i class="bi bi-graph-up feature-icon"></i>
-                        <h4 class="card-title">进度跟踪</h4>
-                        <p class="card-text text-muted">
-                            实时跟踪论文从投稿到发表的完整流程，随时了解稿件处理状态。
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card feature-card h-100 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <i class="bi bi-shield-check feature-icon"></i>
-                        <h4 class="card-title">安全可靠</h4>
-                        <p class="card-text text-muted">
-                            采用先进的安全机制，保护您的学术成果和隐私信息。
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card feature-card h-100 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <i class="bi bi-bell feature-icon"></i>
-                        <h4 class="card-title">消息通知</h4>
-                        <p class="card-text text-muted">
-                            及时的消息通知系统，确保您不会错过任何重要的审稿信息。
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 关于系统 -->
-    <section id="about" class="container py-5">
-        <div class="row align-items-center">
-            <div class="col-md-6">
-                <h2 class="display-5 fw-bold mb-4">关于系统</h2>
-                <p class="lead mb-4">
-                    学术论文管理系统是一个专业的在线平台，旨在简化学术论文的投稿、审稿和管理流程。
-                </p>
-                <p class="text-muted mb-4">
-                    系统支持多种用户角色，包括作者、审稿人、编辑、主编、系统管理员等，
-                    为每个角色提供专门的功能界面和权限管理。无论是提交新稿件、审阅论文、
-                    还是管理系统设置，都能在这里高效完成。
-                </p>
-                <ul class="list-unstyled">
-                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> 支持多种文件格式上传</li>
-                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> 完整的审稿流程管理</li>
-                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> 灵活的权限控制系统</li>
-                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> 友好的用户界面</li>
-                </ul>
-            </div>
-            <div class="col-md-6 text-center">
-                <div class="p-5">
-                    <i class="bi bi-journal-text" style="font-size: 10rem; color: #667eea; opacity: 0.3;"></i>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 登录区域 -->
-    <section id="login" class="login-section">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-md-6 col-lg-5">
-                    <div class="card shadow-lg border-0">
-                        <div class="card-body p-5">
-                            <!-- 登录/注册选项卡 -->
-                            <ul class="nav nav-pills mb-4 justify-content-center" id="authTabs" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-tab-pane" type="button" role="tab" aria-controls="login-tab-pane" aria-selected="true">
-                                        <i class="bi bi-box-arrow-in-right"></i> 用户登录
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register-tab-pane" type="button" role="tab" aria-controls="register-tab-pane" aria-selected="false">
-                                        <i class="bi bi-person-plus"></i> 账号注册
-                                    </button>
-                                </li>
-                            </ul>
-                            
-                            <!-- 错误提示框 -->
-                            <div id="errorAlert" class="alert alert-danger alert-dismissible fade show d-none" role="alert">
-                                <i class="bi bi-exclamation-triangle-fill"></i>
-                                <span id="errorMessage"></span>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                            
-                            <!-- 成功提示框 -->
-                            <div id="successAlert" class="alert alert-success alert-dismissible fade show d-none" role="alert">
-                                <i class="bi bi-check-circle-fill"></i>
-                                <span id="successMessage"></span>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                            
-                            <!-- 选项卡内容 -->
-                            <div class="tab-content" id="authTabsContent">
-                                <!-- 登录表单 -->
-                                <div class="tab-pane fade show active" id="login-tab-pane" role="tabpanel" aria-labelledby="login-tab" tabindex="0">
-                                    <form action="/login" method="post" id="loginForm">
-                                        <div class="mb-3">
-                                            <label for="loginUserName" class="form-label">
-                                                <i class="bi bi-person"></i> 用户账号
-                                            </label>
-                                            <input type="text" class="form-control form-control-lg" 
-                                                   id="loginUserName" name="userName" 
-                                                   placeholder="请输入您的账号" required>
-                                        </div>
-                                        <div class="mb-4">
-                                            <label for="loginPassword" class="form-label">
-                                                <i class="bi bi-lock"></i> 账号密码
-                                            </label>
-                                            <input type="password" class="form-control form-control-lg" 
-                                                   id="loginPassword" name="password" 
-                                                   placeholder="请输入您的密码" required>
-                                        </div>
-                                        <div class="d-grid">
-                                            <button type="submit" class="btn btn-primary btn-lg">
-                                                <i class="bi bi-box-arrow-in-right"></i> 登录
-                                            </button>
-                                        </div>
-                                    </form>
-                                    <div class="text-center mt-4">
-                                        <small class="text-muted">
-                                            支持角色：作者、审稿人、编辑、主编、系统管理员
-                                        </small>
-                                    </div>
-                                </div>
-                                
-                                <!-- 注册表单 -->
-                                <div class="tab-pane fade" id="register-tab-pane" role="tabpanel" aria-labelledby="register-tab" tabindex="0">
-                                    <form action="/register" method="post" id="registerForm">
-                                        <div class="mb-3">
-                                            <label for="registerUserName" class="form-label">
-                                                <i class="bi bi-person"></i> 用户账号
-                                            </label>
-                                            <input type="text" class="form-control form-control-lg" 
-                                                   id="registerUserName" name="userName" 
-                                                   placeholder="请输入您的账号" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="registerPassword" class="form-label">
-                                                <i class="bi bi-lock"></i> 账号密码
-                                            </label>
-                                            <input type="password" class="form-control form-control-lg" 
-                                                   id="registerPassword" name="password" 
-                                                   placeholder="请输入您的密码" required>
-                                        </div>
-                                        <div class="mb-4">
-                                            <label for="registerRole" class="form-label">
-                                                <i class="bi bi-person-badge"></i> 用户角色
-                                            </label>
-                                            <select class="form-select form-select-lg" 
-                                                    id="registerRole" name="userType" required>
-                                                <option value="author">作者</option>
-                                                <option value="reviewer">审稿人</option>
-                                            </select>
-                                        </div>
-                                        <div class="d-grid">
-                                            <button type="submit" class="btn btn-primary btn-lg">
-                                                <i class="bi bi-person-plus"></i> 注册
-                                            </button>
-                                        </div>
-                                    </form>
-                                    <div class="text-center mt-4">
-                                        <small class="text-muted">
-                                            注册成功后将自动登录系统
-                                        </small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 页脚 -->
-    <footer class="footer">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <h5><i class="bi bi-journal-text"></i> 学术论文管理系统</h5>
-                    <p class="text-muted">专业的学术论文投稿、审稿和管理平台</p>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <p class="text-muted mb-0">
-                        © 2025 学术论文管理系统. 保留所有权利.
-                    </p>
-                    <p class="text-muted">
-                        <i class="bi bi-envelope"></i> 联系我们: support@papersystem.edu
-                    </p>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // 平滑滚动
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
-        
-        // 检查URL参数并显示消息
-        (function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const error = urlParams.get('error');
-            const success = urlParams.get('success');
-            
-            // 处理错误消息
-            if (error) {
-                const errorAlert = document.getElementById('errorAlert');
-                const errorMessage = document.getElementById('errorMessage');
-                let message = '';
-                
-                switch(error) {
-                    // 登录错误
-                    case 'username':
-                        message = '用户名不存在，请检查后重试。';
-                        break;
-                    case 'password':
-                        message = '密码错误，请检查后重试。';
-                        break;
-                    case 'account_disabled':
-                        message = '您的账户已被禁用，请联系系统管理员。';
-                        break;
-                    case 'invalid_role':
-                        message = '用户角色异常，请联系系统管理员。';
-                        break;
-                    // 注册错误
-                    case 'username_exists':
-                        message = '用户名已存在，请选择其他用户名。';
-                        // 切换到注册标签
-                        const registerTab = document.getElementById('register-tab');
-                        if (registerTab) {
-                            registerTab.click();
-                        }
-                        break;
-                    case 'register_error':
-                        message = '注册失败，请重试。';
-                        // 切换到注册标签
-                        const regTab = document.getElementById('register-tab');
-                        if (regTab) {
-                            regTab.click();
-                        }
-                        break;
-                    default:
-                        message = '操作失败，请重试。';
-                }
-                
-                if (errorAlert && errorMessage) {
-                    errorMessage.textContent = message;
-                    errorAlert.classList.remove('d-none');
-                    
-                    // 滚动到登录区域
-                    setTimeout(() => {
-                        document.getElementById('login').scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }, 100);
-                }
-            }
-            
-            // 处理成功消息
-            if (success) {
-                const successAlert = document.getElementById('successAlert');
-                const successMessage = document.getElementById('successMessage');
-                let message = '';
-                
-                switch(success) {
-                    case 'registered':
-                        message = '注册成功！正在跳转...';
-                        break;
-                    default:
-                        message = '操作成功！';
-                }
-                
-                if (successAlert && successMessage) {
-                    successMessage.textContent = message;
-                    successAlert.classList.remove('d-none');
-                    
-                    // 滚动到登录区域
-                    setTimeout(() => {
-                        document.getElementById('login').scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }, 100);
-                }
-            }
-            
-            // 清除URL参数
-            window.history.replaceState({}, document.title, window.location.pathname);
-        })();
-    </script>
 </body>
 </html>
 </file>
@@ -4228,6 +3823,102 @@ public interface sysAdminDao extends JpaRepository<User, Integer> {
 </html>
 </file>
 
+<file path="backend/src/main/resources/templates/optionadmin/news/newsDetail.html">
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${news.title} + ' - 新闻详情'">新闻详情</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .news-detail-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .news-header {
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .news-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 15px;
+            line-height: 1.3;
+        }
+        .news-meta {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        .news-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #495057;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .news-attachment {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        .back-button {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+<div class="news-detail-container">
+    <div class="back-button">
+        <a href="/" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> 返回主页
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <div class="news-header" th:if="${news}">
+                <h1 class="news-title" th:text="${news.title}">新闻标题</h1>
+                <div class="news-meta">
+                        <span class="me-3" th:if="${news.publishTime != null}">
+                            <i class="bi bi-calendar3"></i>
+                            发布时间：<span th:text="${#temporals.format(news.publishTime, 'yyyy年MM月dd日 HH:mm')}">2025-01-01 12:00</span>
+                        </span>
+                    <span class="me-3" th:unless="${news.publishTime != null}">
+                            <i class="bi bi-calendar3"></i>
+                            发布时间：未设置
+                        </span>
+                    <span class="badge bg-primary" th:if="${news.status == 'published'}">已发布</span>
+                </div>
+            </div>
+
+            <div class="news-content mt-4" th:text="${news.content}">
+                新闻内容
+            </div>
+
+            <div class="news-attachment" th:if="${news.attachmentPath != null and news.attachmentPath != ''}">
+                <h6 class="mb-2"><i class="bi bi-paperclip"></i> 附件</h6>
+                <a th:href="@{'/' + ${news.attachmentPath}}"
+                   th:text="${news.attachmentName != null ? news.attachmentName : '下载附件'}"
+                   class="btn btn-sm btn-outline-primary"
+                   target="_blank">
+                    <i class="bi bi-download"></i> 下载附件
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+</file>
+
 <file path="backend/src/main/resources/templates/optionadmin/news/newsList.html">
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
@@ -4374,122 +4065,6 @@ public interface sysAdminDao extends JpaRepository<User, Integer> {
         deleteModal.show();
     }
 </script>
-</body>
-</html>
-</file>
-
-<file path="backend/src/main/resources/templates/reviewer/submitOpinionPage.html">
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>提交审稿意见</title>
-    <meta charset="UTF-8">
-</head>
-<body>
-
-<h2>提交审稿意见</h2>
-
-<!-- 基本信息（可选） -->
-<div style="margin-bottom: 12px;">
-    <p>
-        <strong>稿件：</strong>
-        <span th:text="${review.getManuScript().getTitle()}"></span>
-    </p>
-    <p>
-        <strong>审稿任务ID：</strong>
-        <span th:text="${review.getReviewId()}"></span>
-    </p>
-</div>
-
-<form th:action="@{/reviewer/submitOpinion}" method="post">
-    <!-- 必须带回 reviewId，用于后端定位审稿任务 -->
-    <input type="hidden" name="reviewId" th:value="${review.getReviewId()}"/>
-
-    <!-- ① Confidential to Editor -->
-    <fieldset style="margin-bottom: 16px;">
-        <legend><strong>给编辑的保密意见（Confidential to Editor）</strong></legend>
-
-        <p style="margin: 6px 0;"><strong>打分表（1~5 分）</strong></p>
-
-        <div style="margin-bottom: 8px;">
-            <label for="scoreNovelty">创新性：</label>
-            <select id="scoreNovelty" name="scoreNovelty" required>
-                <option value="">请选择</option>
-                <option value="1">1/5</option>
-                <option value="2">2/5</option>
-                <option value="3">3/5</option>
-                <option value="4">4/5</option>
-                <option value="5">5/5</option>
-            </select>
-        </div>
-
-        <div style="margin-bottom: 8px;">
-            <label for="scoreMethod">方法论：</label>
-            <select id="scoreMethod" name="scoreMethod" required>
-                <option value="">请选择</option>
-                <option value="1">1/5</option>
-                <option value="2">2/5</option>
-                <option value="3">3/5</option>
-                <option value="4">4/5</option>
-                <option value="5">5/5</option>
-            </select>
-        </div>
-
-        <div style="margin-bottom: 8px;">
-            <label for="scoreQuality">整体质量：</label>
-            <select id="scoreQuality" name="scoreQuality" required>
-                <option value="">请选择</option>
-                <option value="1">1/5</option>
-                <option value="2">2/5</option>
-                <option value="3">3/5</option>
-                <option value="4">4/5</option>
-                <option value="5">5/5</option>
-            </select>
-        </div>
-
-        <div style="margin: 10px 0;">
-            <label for="keyComments"><strong>关键评价：</strong></label><br/>
-            <textarea id="keyComments"
-                      name="keyComments"
-                      rows="4"
-                      cols="80"
-                      placeholder="例如：研究创新，但实验部分需加强验证"
-                      required></textarea>
-        </div>
-
-        <div style="margin: 10px 0;">
-            <label for="recommendation"><strong>总体建议：</strong></label>
-            <select id="recommendation" name="recommendation" required>
-                <option value="">请选择</option>
-                <option value="REJECT">拒稿</option>
-                <option value="MINOR_REVISION">小修</option>
-                <option value="MAJOR_REVISION">大修</option>
-                <option value="ACCEPT">接受</option>
-            </select>
-        </div>
-    </fieldset>
-
-    <!-- ② Comments to Author -->
-    <fieldset style="margin-bottom: 16px;">
-        <legend><strong>给作者的公开意见（Comments to Author）</strong></legend>
-
-        <div style="margin: 10px 0;">
-            <label for="commentsToAuthor"><strong>具体修改建议：</strong></label><br/>
-            <textarea id="commentsToAuthor"
-                      name="commentsToAuthor"
-                      rows="6"
-                      cols="80"
-                      placeholder="例如：建议在第 4 节添加更多对比实验；图表需清晰标注"
-                      required></textarea>
-        </div>
-    </fieldset>
-
-    <!-- 提交按钮 -->
-    <div>
-        <button type="submit">提交意见</button>
-        <a th:href="@{/reviewer/reviewJobs}" style="margin-left: 10px;">返回我的审稿任务</a>
-    </div>
-</form>
 </body>
 </html>
 </file>
@@ -5851,6 +5426,208 @@ public class ManuscriptOverviewServiceImpl implements ManuscriptOverviewService 
 }
 </file>
 
+<file path="backend/src/main/java/com/bjfu/paperSystem/editor/controller/EditorController.java">
+package com.bjfu.paperSystem.editor.controller;
+
+import com.bjfu.paperSystem.dto.EditorManuscriptDTO;
+import com.bjfu.paperSystem.editor.service.EditorManuscriptService;
+import com.bjfu.paperSystem.javabeans.User;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.List;
+
+@Controller
+@RequestMapping("/editor")
+public class EditorController {
+
+    @Autowired
+    private EditorManuscriptService manuscriptService;
+
+    // 首页
+    @GetMapping
+    public String index(HttpSession session, Model model) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser == null) return "redirect:/Login.html";
+        model.addAttribute("username", loginUser.getFullName());
+        return "editor";
+    }
+
+    // === 修改点：使用 DTO 加载稿件列表 ===
+    @GetMapping("/manuscripts")
+    public String assignedManuscripts(HttpSession session, Model model) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser == null) return "redirect:/Login.html";
+
+        // 调用 Service 获取 DTO 列表
+        List<EditorManuscriptDTO> list = manuscriptService.getMyManuscripts(loginUser.getUserId());
+        model.addAttribute("manuscripts", list);
+
+        return "editor/manuscripts"; // 对应 templates/editor/manuscripts.html
+    }
+}
+</file>
+
+<file path="backend/src/main/java/com/bjfu/paperSystem/HomeController.java">
+package com.bjfu.paperSystem;
+
+import com.bjfu.paperSystem.javabeans.News;
+import com.bjfu.paperSystem.optionAdmin.service.NewsService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Controller
+public class HomeController {
+
+    @Autowired
+    private NewsService newsService;
+
+    @GetMapping("/")
+    public String index(Model model) {
+        try {
+            // 获取最新发布的10条新闻
+            List<News> publishedNews = newsService.getPublishedNews(10);
+            model.addAttribute("newsList", publishedNews != null ? publishedNews : new ArrayList<>());
+        } catch (Exception e) {
+            // 如果查询出错，返回空列表
+            model.addAttribute("newsList", new ArrayList<>());
+        }
+        return "index";
+    }
+
+    @GetMapping("/index")
+    public String indexPage(Model model) {
+        try {
+            // 获取最新发布的10条新闻
+            List<News> publishedNews = newsService.getPublishedNews(10);
+            model.addAttribute("newsList", publishedNews != null ? publishedNews : new ArrayList<>());
+        } catch (Exception e) {
+            // 如果查询出错，返回空列表
+            model.addAttribute("newsList", new ArrayList<>());
+        }
+        return "index";
+    }
+
+    // 公开的新闻详情页面（用于主页显示）
+    @GetMapping("/news/{id}")
+    public String publicNewsDetail(@PathVariable("id") Integer newsId, Model model) {
+        try {
+            News news = newsService.getNewsById(newsId);
+            if (news == null || !"published".equals(news.getStatus())) {
+                return "redirect:/";
+            }
+            model.addAttribute("news", news);
+            return "optionadmin/news/newsDetail";
+        } catch (Exception e) {
+            return "redirect:/";
+        }
+    }
+}
+</file>
+
+<file path="backend/src/main/java/com/bjfu/paperSystem/javabeans/ClientMessage.java">
+package com.bjfu.paperSystem.javabeans;
+
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "ClientMessage")
+public class ClientMessage {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ClientMes_id")
+    private Integer clientMesId;
+
+    @Column(name = "sender_id", nullable = false)
+    private Integer senderId;
+
+    @Column(name = "receiver_id", nullable = false)
+    private Integer receiverId;
+
+    @Column(name = "message_body", nullable = false, length = 200)
+    private String messageBody;
+
+    /**
+     * 外键字段（数据库真实存在的列）
+     */
+    @Column(name = "manu_id", nullable = false)
+    private Integer manuId;
+
+    /**
+     * JPA 关联对象（不直接写入列）
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "manu_id",
+            referencedColumnName = "manuscript_id",
+            insertable = false,
+            updatable = false
+    )
+    private Manuscript manuscript;
+
+    // ===== Getter / Setter =====
+
+    public Integer getClientMesId() {
+        return clientMesId;
+    }
+
+    public void setClientMesId(Integer clientMesId) {
+        this.clientMesId = clientMesId;
+    }
+
+    public Integer getSenderId() {
+        return senderId;
+    }
+
+    public void setSenderId(Integer senderId) {
+        this.senderId = senderId;
+    }
+
+    public Integer getReceiverId() {
+        return receiverId;
+    }
+
+    public void setReceiverId(Integer receiverId) {
+        this.receiverId = receiverId;
+    }
+
+    public String getMessageBody() {
+        return messageBody;
+    }
+
+    public void setMessageBody(String messageBody) {
+        this.messageBody = messageBody;
+    }
+
+    public Integer getManuId() {
+        return manuId;
+    }
+
+    public void setManuId(Integer manuId) {
+        this.manuId = manuId;
+    }
+
+    public Manuscript getManuscript() {
+        return manuscript;
+    }
+
+    public void setManuscript(Manuscript manuscript) {
+        this.manuscript = manuscript;
+    }
+}
+</file>
+
 <file path="backend/src/main/java/com/bjfu/paperSystem/javabeans/Editorial_Board.java">
 package com.bjfu.paperSystem.javabeans;
 
@@ -6060,6 +5837,195 @@ public class ManuscriptManagementController {
         Integer operatorId = loginUser.getUserId();
         service.rejectManuscript(manuscriptId, operatorId);
         return "redirect:/optionadmin/manuscripts";
+    }
+}
+</file>
+
+<file path="backend/src/main/java/com/bjfu/paperSystem/optionAdmin/dao/NewsDao.java">
+package com.bjfu.paperSystem.optionAdmin.dao;
+
+import com.bjfu.paperSystem.javabeans.News;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+public interface NewsDao extends JpaRepository<News, Integer>, JpaSpecificationExecutor<News> {
+
+    // 根据状态查询新闻
+    List<News> findByStatusOrderByPublishTimeDesc(String status);
+
+    // 根据标题或内容模糊查询
+    @Query("SELECT n FROM News n WHERE n.title LIKE %:keyword% OR n.content LIKE %:keyword%")
+    List<News> findByKeyword(@Param("keyword") String keyword);
+
+    // 根据发布时间范围查询
+    List<News> findByPublishTimeBetweenOrderByPublishTimeDesc(LocalDateTime start, LocalDateTime end);
+
+    // 查询已发布或定时发布的新闻
+    List<News> findByStatusInOrderByPublishTimeDesc(List<String> statuses);
+
+    // 分页查询所有新闻（按创建时间倒序）
+    List<News> findAllByOrderByCreateTimeDesc();
+
+    // 查询已发布的新闻（按发布时间倒序，限制数量）
+    @Query("SELECT n FROM News n WHERE n.status = 'published' AND n.publishTime IS NOT NULL ORDER BY n.publishTime DESC")
+    List<News> findPublishedNews(Pageable pageable);
+}
+</file>
+
+<file path="backend/src/main/java/com/bjfu/paperSystem/optionAdmin/service/NewsService.java">
+//新增接口方法，用与获取已经发布的新闻列表
+
+
+package com.bjfu.paperSystem.optionAdmin.service;
+
+import com.bjfu.paperSystem.javabeans.News;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+public interface NewsService {
+    // 新增新闻
+    void saveNews(News news);
+
+    // 更新新闻
+    void updateNews(News news);
+
+    // 删除新闻
+    void deleteNews(Integer newsId);
+
+    // 根据ID获取新闻
+    News getNewsById(Integer newsId);
+
+    // 获取所有新闻
+    List<News> getAllNews();
+
+    // 根据状态获取新闻
+    List<News> getNewsByStatus(String status);
+
+    // 搜索新闻（根据标题或内容）
+    List<News> searchNews(String keyword);
+
+    // 根据时间范围获取新闻
+    List<News> getNewsByTimeRange(LocalDateTime start, LocalDateTime end);
+
+    // 发布新闻
+    void publishNews(Integer newsId);
+
+    // 定时发布新闻
+    void scheduleNews(Integer newsId, LocalDateTime publishTime);
+
+    // 保存为草稿
+    void saveDraft(News news);
+
+    // 获取已发布的新闻（用于首页显示）
+    List<News> getPublishedNews(int limit);
+}
+</file>
+
+<file path="backend/src/main/java/com/bjfu/paperSystem/optionAdmin/service/NewsServiceImpl.java">
+package com.bjfu.paperSystem.optionAdmin.service;
+
+import com.bjfu.paperSystem.javabeans.News;
+import com.bjfu.paperSystem.optionAdmin.dao.NewsDao;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+public class NewsServiceImpl implements NewsService {
+
+    @Autowired
+    private NewsDao newsDao;
+
+    @Override
+    public void saveNews(News news) {
+        news.setCreateTime(LocalDateTime.now());
+        news.setUpdateTime(LocalDateTime.now());
+        news.setStatus("published");
+        newsDao.save(news);
+    }
+
+    @Override
+    public void updateNews(News news) {
+        news.setUpdateTime(LocalDateTime.now());
+        newsDao.save(news);
+    }
+
+    @Override
+    public void deleteNews(Integer newsId) {
+        newsDao.deleteById(newsId);
+    }
+
+    @Override
+    public News getNewsById(Integer newsId) {
+        return newsDao.findById(newsId).orElse(null);
+    }
+
+    @Override
+    public List<News> getAllNews() {
+        return newsDao.findAllByOrderByCreateTimeDesc();
+    }
+
+    @Override
+    public List<News> getNewsByStatus(String status) {
+        return newsDao.findByStatusOrderByPublishTimeDesc(status);
+    }
+
+    @Override
+    public List<News> searchNews(String keyword) {
+        return newsDao.findByKeyword(keyword);
+    }
+
+    @Override
+    public List<News> getNewsByTimeRange(LocalDateTime start, LocalDateTime end) {
+        return newsDao.findByPublishTimeBetweenOrderByPublishTimeDesc(start, end);
+    }
+
+    @Override
+    public void publishNews(Integer newsId) {
+        News news = newsDao.findById(newsId).orElse(null);
+        if (news != null) {
+            news.setStatus("published");
+            news.setPublishTime(LocalDateTime.now());
+            news.setUpdateTime(LocalDateTime.now());
+            newsDao.save(news);
+        }
+    }
+
+    @Override
+    public void scheduleNews(Integer newsId, LocalDateTime publishTime) {
+        News news = newsDao.findById(newsId).orElse(null);
+        if (news != null) {
+            news.setStatus("scheduled");
+            news.setPublishTime(publishTime);
+            news.setUpdateTime(LocalDateTime.now());
+            newsDao.save(news);
+        }
+    }
+
+    @Override
+    public void saveDraft(News news) {
+        news.setCreateTime(LocalDateTime.now());
+        news.setUpdateTime(LocalDateTime.now());
+        news.setStatus("draft");
+        newsDao.save(news);
+    }
+
+    @Override
+    public List<News> getPublishedNews(int limit) {
+        Pageable pageable = PageRequest.of(0, limit);
+        return newsDao.findPublishedNews(pageable);
     }
 }
 </file>
@@ -6689,84 +6655,128 @@ public class sysAdminServiceImpl implements sysAdminService {
 </html>
 </file>
 
-<file path="backend/src/main/resources/templates/reviewer/jobPage.html">
+<file path="backend/src/main/resources/templates/reviewer/submitOpinionPage.html">
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <title>提交审稿意见</title>
     <meta charset="UTF-8">
-    <title>我的审稿任务</title>
 </head>
 <body>
 
-<h2>我的审稿任务</h2>
+<h2>提交审稿意见</h2>
 
-<table border="1" cellpadding="6" cellspacing="0">
-    <thead>
-    <tr>
-        <th>稿件标题</th>
-        <th>摘要</th>
-        <th>邀请时间</th>
-        <th>截止时间</th>
-        <th>当前状态</th>
-        <th>操作</th>
-    </tr>
-    </thead>
+<!-- 基本信息 -->
+<div style="margin-bottom: 12px;">
+    <p>
+        <strong>稿件：</strong>
+        <span th:text="${review.getManuScript().getTitle()}"></span>
+    </p>
+    <p>
+        <strong>审稿任务ID：</strong>
+        <span th:text="${review.getReviewId()}"></span>
+    </p>
+</div>
 
-    <tbody>
-    <!-- 没有任务时 -->
-    <tr th:if="${jobList == null or #lists.isEmpty(jobList)}">
-        <td colspan="6">暂无审稿任务</td>
-    </tr>
+<form th:action="@{/reviewer/submitOpinion}" method="post">
+    <!-- 必须带回 reviewId，用于后端定位审稿任务 -->
+    <input type="hidden" name="reviewId" th:value="${review.getReviewId()}"/>
 
-    <!-- 有任务时 -->
-    <tr th:each="r : ${jobList}">
-        <td th:text="${r.getManuScript().getTitle()}">标题</td>
-        <td th:text="${r.getManuScript().getAbstractText()}">摘要</td>
+    <!-- Confidential to Editor -->
+    <fieldset style="margin-bottom: 16px;">
+        <legend><strong>给编辑的保密意见（Confidential to Editor）</strong></legend>
+        <div style="margin: 10px 0;">
+            <label for="editorId"><strong>指定编辑：</strong></label>
+            <select id="editorId" name="editorId" required>
+                <option value="">请选择编辑</option>
+                <option th:each="editor : ${editors}"
+                        th:value="${editor.getUserId()}"
+                        th:text="${editor.getFullName()} + '（' + ${editor.getUserName()} + '）'">
+                </option>
+            </select>
+        </div>
 
-        <td th:text="${r.invitationTime == null ? '' :
-                #temporals.format(r.getInvitationTime(), 'yyyy-MM-dd HH:mm')}">
-        </td>
+        <p style="margin: 6px 0;"><strong>打分表（1~5 分）</strong></p>
 
-        <td th:text="${r.endTime == null ? '' :
-                #temporals.format(r.getEndTime(), 'yyyy-MM-dd HH:mm')}">
-        </td>
+        <div style="margin-bottom: 8px;">
+            <label for="scoreNovelty">创新性：</label>
+            <select id="scoreNovelty" name="scoreNovelty" required>
+                <option value="">请选择</option>
+                <option value="1">1/5</option>
+                <option value="2">2/5</option>
+                <option value="3">3/5</option>
+                <option value="4">4/5</option>
+                <option value="5">5/5</option>
+            </select>
+        </div>
 
-        <td th:text="${r.getStatus()}">ACCEPTED</td>
+        <div style="margin-bottom: 8px;">
+            <label for="scoreMethod">方法论：</label>
+            <select id="scoreMethod" name="scoreMethod" required>
+                <option value="">请选择</option>
+                <option value="1">1/5</option>
+                <option value="2">2/5</option>
+                <option value="3">3/5</option>
+                <option value="4">4/5</option>
+                <option value="5">5/5</option>
+            </select>
+        </div>
 
-        <td>
-            <a th:href="@{/reviewer/getManuSummary/{id}(id=${r.getManuScript().getManuscriptId()})}">
-                查看稿件
-            </a>
-            |
-            <a th:href="@{/reviewer/submitOpinionPage/{id}(id=${r.getReviewId()})}">
-                提交评审意见
-            </a>
-            |
-            <form th:action="@{/reviewer/download}" method="get" style="display:inline;">
-                <!-- 可选：带上 reviewId 方便你后端做权限校验（不影响下载） -->
-                <input type="hidden" name="reviewId" th:value="${r.reviewId}" />
+        <div style="margin-bottom: 8px;">
+            <label for="scoreQuality">整体质量：</label>
+            <select id="scoreQuality" name="scoreQuality" required>
+                <option value="">请选择</option>
+                <option value="1">1/5</option>
+                <option value="2">2/5</option>
+                <option value="3">3/5</option>
+                <option value="4">4/5</option>
+                <option value="5">5/5</option>
+            </select>
+        </div>
 
-                <select name="path" required>
-                    <option value="" disabled selected>请选择要下载的文件</option>
+        <div style="margin: 10px 0;">
+            <label for="keyComments"><strong>关键评价：</strong></label><br/>
+            <textarea id="keyComments"
+                      name="keyComments"
+                      rows="4"
+                      cols="80"
+                      placeholder="例如：研究创新，但实验部分需加强验证"
+                      required></textarea>
+        </div>
 
-                    <!-- 主稿 -->
-                    <option th:value="${r.manuScript.manuscriptPath}">
-                        主稿（PDF）
-                    </option>
+        <div style="margin: 10px 0;">
+            <label for="recommendation"><strong>总体建议：</strong></label>
+            <select id="recommendation" name="recommendation" required>
+                <option value="">请选择</option>
+                <option value="REJECT">拒稿</option>
+                <option value="MINOR_REVISION">小修</option>
+                <option value="MAJOR_REVISION">大修</option>
+                <option value="ACCEPT">接受</option>
+            </select>
+        </div>
+    </fieldset>
 
-                    <!-- 补充材料列表：需要你在 model 里给每个 Review 对应的附件列表 -->
-                    <option th:value="${r.manuScript.coverLetterPath}">
-                        投稿信(Cover Letter)
-                    </option>
-                </select>
+    <!-- Comments to Author -->
+    <fieldset style="margin-bottom: 16px;">
+        <legend><strong>给作者的公开意见（Comments to Author）</strong></legend>
 
-                <button type="submit">下载</button>
-            </form>
-        </td>
-    </tr>
-    </tbody>
-</table>
+        <div style="margin: 10px 0;">
+            <label for="commentsToAuthor"><strong>具体修改建议：</strong></label><br/>
+            <textarea id="commentsToAuthor"
+                      name="commentsToAuthor"
+                      rows="6"
+                      cols="80"
+                      placeholder="例如：建议在第 4 节添加更多对比实验；图表需清晰标注"
+                      required></textarea>
+        </div>
+    </fieldset>
 
+    <!-- 提交按钮 -->
+    <div>
+        <button type="submit">提交意见</button>
+        <a th:href="@{/reviewer/reviewJobs}" style="margin-left: 10px;">返回我的审稿任务</a>
+    </div>
+</form>
 </body>
 </html>
 </file>
@@ -7222,6 +7232,21 @@ public class ManuscriptOverviewController {
 }
 </file>
 
+<file path="backend/src/main/java/com/bjfu/paperSystem/editor/dao/editorDao.java">
+package com.bjfu.paperSystem.editor.dao;
+
+import com.bjfu.paperSystem.javabeans.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface editorDao extends JpaRepository<User, Integer> {
+    List<User> findByStatus(String status);
+}
+</file>
+
 <file path="backend/src/main/java/com/bjfu/paperSystem/javabeans/Logs.java">
 package com.bjfu.paperSystem.javabeans;
 
@@ -7438,63 +7463,58 @@ public interface UserDao extends JpaRepository<User, Integer> {
 }
 </file>
 
-<file path="backend/src/main/java/com/bjfu/paperSystem/Login/service/UserService.java">
-package com.bjfu.paperSystem.Login.service;
+<file path="backend/src/main/java/com/bjfu/paperSystem/mailUtils/MailUtil.java">
+package com.bjfu.paperSystem.mailUtils;
 
-import com.bjfu.paperSystem.javabeans.User;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.stereotype.Component;
 
-public interface UserService {
-    User login(String userName, String password);
-    User register(String userName, String password, String userType);
-    boolean isUserNameExists(String userName);
+@Component
+public class MailUtil {
+    private final JavaMailSender mailSender;
+
+    @Value("${spring.mail.username}")
+    private String from;
+
+    public MailUtil(JavaMailSender mailSender) {  // 构造注入（推荐）
+        this.mailSender = mailSender;
+    }
+
+    public void sendTextMail(String to, String subject, String content) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(from);
+        message.setTo(to);
+        message.setSubject(subject);
+        message.setText(content);
+
+        mailSender.send(message);
+    }
 }
 </file>
 
-<file path="backend/src/main/java/com/bjfu/paperSystem/Login/service/UserServiceImpl.java">
-package com.bjfu.paperSystem.Login.service;
+<file path="backend/src/main/java/com/bjfu/paperSystem/mailUtils/test.java">
+package com.bjfu.paperSystem.mailUtils;
 
-import com.bjfu.paperSystem.javabeans.User;
-import com.bjfu.paperSystem.Login.dao.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.time.LocalDateTime;
+@Controller
+public class test {
+    private final MailUtil mailUtil;
 
-@Service
-public class UserServiceImpl implements UserService {
-
-    @Autowired
-    private UserDao userDao;
-
-    @Override
-    public User login(String userName, String password) {
-        return userDao.findByUserNameAndPassword(userName, password)
-                .orElse(null);
+    public test(MailUtil mailUtil) {
+        this.mailUtil = mailUtil;
     }
 
-    @Override
-    public User register(String userName, String password, String userType) {
-        // 检查用户名是否存在
-        if (isUserNameExists(userName)) {
-            return null;
-        }
-        // 只允许作者和审稿人注册
-        if (!"author".equals(userType) && !"reviewer".equals(userType)) {
-            return null;
-        }
-        // 创建新用户
-        User user = new User();
-        user.setUserName(userName);
-        user.setPassword(password);
-        user.setUserType(userType);
-        user.setRegisterTime(LocalDateTime.now());
-        user.setStatus("exist"); // 设置状态为活跃
-        return userDao.save(user);
-    }
-
-    @Override
-    public boolean isUserNameExists(String userName) {
-        return userDao.findByUserName(userName).isPresent();
+    @GetMapping("/testMail")
+    @ResponseBody
+    public String testMail() {
+        mailUtil.sendTextMail("1211083651@qq.com", "测试邮件", "MailUtil 注入成功");
+        return "ok";
     }
 }
 </file>
@@ -7718,21 +7738,6 @@ public class systemManageController {
         session.setAttribute("logList", logList);
         return "/superadmin/systemManage";
     }
-}
-</file>
-
-<file path="backend/src/main/java/com/bjfu/paperSystem/superAdmin/dao/superAdminDao.java">
-package com.bjfu.paperSystem.superAdmin.dao;
-
-import com.bjfu.paperSystem.javabeans.User;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
-import java.util.List;
-
-@Repository
-public interface superAdminDao extends JpaRepository<User, Integer> {
-    List<User> findByStatus(String status);
 }
 </file>
 
@@ -8180,6 +8185,551 @@ public class userManageController {
 </html>
 </file>
 
+<file path="backend/src/main/resources/templates/index.html">
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学术论文管理系统 - 主页</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --success-color: #198754;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 100px 0;
+            margin-bottom: 60px;
+        }
+
+        .feature-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .login-section {
+            background-color: #f8f9fa;
+            padding: 60px 0;
+            margin-top: 60px;
+        }
+
+        .footer {
+            background-color: #212529;
+            color: white;
+            padding: 40px 0;
+            margin-top: 60px;
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .btn-login {
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+        }
+
+        .news-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+        }
+
+        .news-card .card-title a:hover {
+            color: var(--primary-color) !important;
+        }
+    </style>
+</head>
+<body>
+<!-- 导航栏 -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <i class="bi bi-journal-text"></i> 学术论文管理系统
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#features">功能特色</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#news">最新动态</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#about">关于系统</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#login">登录</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- 英雄区域 -->
+<section class="hero-section text-center">
+    <div class="container">
+        <h1 class="display-3 fw-bold mb-4">欢迎使用学术论文管理系统</h1>
+        <p class="lead mb-5">专业的学术论文投稿、审稿和管理平台</p>
+        <a href="#login" class="btn btn-light btn-lg btn-login">
+            <i class="bi bi-box-arrow-in-right"></i> 立即登录
+        </a>
+    </div>
+</section>
+
+<!-- 功能特色 -->
+<section id="features" class="container py-5">
+    <div class="text-center mb-5">
+        <h2 class="display-5 fw-bold">系统功能</h2>
+        <p class="text-muted">为学术研究提供全方位的论文管理服务</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card feature-card h-100 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <i class="bi bi-file-earmark-text feature-icon"></i>
+                    <h4 class="card-title">稿件管理</h4>
+                    <p class="card-text text-muted">
+                        作者可以轻松提交、编辑和跟踪论文稿件，实时查看审稿进度和状态。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card feature-card h-100 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <i class="bi bi-clipboard-check feature-icon"></i>
+                    <h4 class="card-title">审稿流程</h4>
+                    <p class="card-text text-muted">
+                        完善的审稿流程管理，支持主编、编辑和审稿人协同工作，确保审稿质量。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card feature-card h-100 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <i class="bi bi-people feature-icon"></i>
+                    <h4 class="card-title">用户管理</h4>
+                    <p class="card-text text-muted">
+                        多角色权限管理，支持作者、审稿人、编辑、主编等不同角色的权限控制。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card feature-card h-100 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <i class="bi bi-graph-up feature-icon"></i>
+                    <h4 class="card-title">进度跟踪</h4>
+                    <p class="card-text text-muted">
+                        实时跟踪论文从投稿到发表的完整流程，随时了解稿件处理状态。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card feature-card h-100 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <i class="bi bi-shield-check feature-icon"></i>
+                    <h4 class="card-title">安全可靠</h4>
+                    <p class="card-text text-muted">
+                        采用先进的安全机制，保护您的学术成果和隐私信息。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card feature-card h-100 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <i class="bi bi-bell feature-icon"></i>
+                    <h4 class="card-title">消息通知</h4>
+                    <p class="card-text text-muted">
+                        及时的消息通知系统，确保您不会错过任何重要的审稿信息。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 最新新闻 -->
+<section id="news" class="container py-5">
+    <div class="text-center mb-5">
+        <h2 class="display-5 fw-bold">最新动态</h2>
+        <p class="text-muted">了解系统最新资讯和公告</p>
+    </div>
+
+    <div class="row g-4" th:if="${newsList != null and !newsList.isEmpty()}">
+        <div class="col-md-6 col-lg-4" th:each="news : ${newsList}">
+            <div class="card h-100 shadow-sm news-card" style="transition: transform 0.3s ease, box-shadow 0.3s ease; border: none; border-radius: 15px; overflow: hidden;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-primary" th:text="${news.status == 'published' ? '已发布' : news.status}"></span>
+                        <small class="text-muted" th:if="${news.publishTime != null}" th:text="${#temporals.format(news.publishTime, 'yyyy-MM-dd')}"></small>
+                        <small class="text-muted" th:unless="${news.publishTime != null}">未设置</small>
+                    </div>
+                    <h5 class="card-title mb-3" style="font-weight: 600; color: #333;">
+                        <a href="#" th:href="@{'/news/' + ${news.newsId}}"
+                           style="text-decoration: none; color: inherit;"
+                           th:text="${news.title}"></a>
+                    </h5>
+                    <p class="card-text text-muted" style="font-size: 0.9rem; line-height: 1.6;
+                            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+                            overflow: hidden; text-overflow: ellipsis;"
+                       th:text="${#strings.abbreviate(news.content, 100)}"></p>
+                    <div class="mt-auto">
+                        <a href="#" th:href="@{'/news/' + ${news.newsId}}"
+                           class="btn btn-sm btn-outline-primary">
+                            阅读更多 <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center" th:if="${newsList == null or newsList.isEmpty()}">
+        <p class="text-muted">暂无新闻动态</p>
+    </div>
+</section>
+
+<!-- 关于系统 -->
+<section id="about" class="container py-5">
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <h2 class="display-5 fw-bold mb-4">关于系统</h2>
+            <p class="lead mb-4">
+                学术论文管理系统是一个专业的在线平台，旨在简化学术论文的投稿、审稿和管理流程。
+            </p>
+            <p class="text-muted mb-4">
+                系统支持多种用户角色，包括作者、审稿人、编辑、主编、系统管理员等，
+                为每个角色提供专门的功能界面和权限管理。无论是提交新稿件、审阅论文、
+                还是管理系统设置，都能在这里高效完成。
+            </p>
+            <ul class="list-unstyled">
+                <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> 支持多种文件格式上传</li>
+                <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> 完整的审稿流程管理</li>
+                <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> 灵活的权限控制系统</li>
+                <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> 友好的用户界面</li>
+            </ul>
+        </div>
+        <div class="col-md-6 text-center">
+            <div class="p-5">
+                <i class="bi bi-journal-text" style="font-size: 10rem; color: #667eea; opacity: 0.3;"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 登录区域 -->
+<section id="login" class="login-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card shadow-lg border-0">
+                    <div class="card-body p-5">
+                        <!-- 登录/注册选项卡 -->
+                        <ul class="nav nav-pills mb-4 justify-content-center" id="authTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-tab-pane" type="button" role="tab" aria-controls="login-tab-pane" aria-selected="true">
+                                    <i class="bi bi-box-arrow-in-right"></i> 用户登录
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register-tab-pane" type="button" role="tab" aria-controls="register-tab-pane" aria-selected="false">
+                                    <i class="bi bi-person-plus"></i> 账号注册
+                                </button>
+                            </li>
+                        </ul>
+
+                        <!-- 错误提示框 -->
+                        <div id="errorAlert" class="alert alert-danger alert-dismissible fade show d-none" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <span id="errorMessage"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+
+                        <!-- 成功提示框 -->
+                        <div id="successAlert" class="alert alert-success alert-dismissible fade show d-none" role="alert">
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span id="successMessage"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+
+                        <!-- 选项卡内容 -->
+                        <div class="tab-content" id="authTabsContent">
+                            <!-- 登录表单 -->
+                            <div class="tab-pane fade show active" id="login-tab-pane" role="tabpanel" aria-labelledby="login-tab" tabindex="0">
+                                <form action="/login" method="post" id="loginForm">
+                                    <div class="mb-3">
+                                        <label for="loginUserName" class="form-label">
+                                            <i class="bi bi-person"></i> 用户账号
+                                        </label>
+                                        <input type="text" class="form-control form-control-lg"
+                                               id="loginUserName" name="userName"
+                                               placeholder="请输入您的账号" required>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="loginPassword" class="form-label">
+                                            <i class="bi bi-lock"></i> 账号密码
+                                        </label>
+                                        <input type="password" class="form-control form-control-lg"
+                                               id="loginPassword" name="password"
+                                               placeholder="请输入您的密码" required>
+                                    </div>
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-primary btn-lg">
+                                            <i class="bi bi-box-arrow-in-right"></i> 登录
+                                        </button>
+                                    </div>
+                                </form>
+                                <div class="text-center mt-4">
+                                    <small class="text-muted">
+                                        支持角色：作者、审稿人、编辑、主编、系统管理员
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- 注册表单 -->
+                            <div class="tab-pane fade" id="register-tab-pane" role="tabpanel" aria-labelledby="register-tab" tabindex="0">
+                                <form action="/register" method="post" id="registerForm">
+                                    <div class="mb-3">
+                                        <label for="registerUserName" class="form-label">
+                                            <i class="bi bi-person"></i> 用户账号
+                                        </label>
+                                        <input type="text" class="form-control form-control-lg"
+                                               id="registerUserName" name="userName"
+                                               placeholder="请输入您的账号" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="registerFullName" class="form-label">
+                                            <i class="bi bi-person"></i> 全名
+                                        </label>
+                                        <input type="text" class="form-control form-control-lg"
+                                               id="registerFullName" name="fullName"
+                                               placeholder="请输入您的全名" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="registerEmail" class="form-label">
+                                            <i class="bi bi-envelope"></i> 邮箱
+                                        </label>
+                                        <input type="email" class="form-control form-control-lg"
+                                               id="registerEmail" name="email"
+                                               placeholder="请输入您的邮箱" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="registerCompany" class="form-label">
+                                            <i class="bi bi-building"></i> 单位
+                                        </label>
+                                        <input type="text" class="form-control form-control-lg"
+                                               id="registerCompany" name="company"
+                                               placeholder="请输入您的单位" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="registerPassword" class="form-label">
+                                            <i class="bi bi-lock"></i> 账号密码
+                                        </label>
+                                        <input type="password" class="form-control form-control-lg"
+                                               id="registerPassword" name="password"
+                                               placeholder="请输入您的密码" required>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="registerRole" class="form-label">
+                                            <i class="bi bi-person-badge"></i> 用户角色
+                                        </label>
+                                        <select class="form-select form-select-lg"
+                                                id="registerRole" name="userType" required>
+                                            <option value="author">作者</option>
+                                            <option value="reviewer">审稿人</option>
+                                        </select>
+                                    </div>
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-primary btn-lg">
+                                            <i class="bi bi-person-plus"></i> 注册
+                                        </button>
+                                    </div>
+                                </form>
+                                <div class="text-center mt-4">
+                                    <small class="text-muted">
+                                        注册成功后将自动登录系统
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 页脚 -->
+<footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <h5><i class="bi bi-journal-text"></i> 学术论文管理系统</h5>
+                <p class="text-muted">专业的学术论文投稿、审稿和管理平台</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <p class="text-muted mb-0">
+                    © 2025 学术论文管理系统. 保留所有权利.
+                </p>
+                <p class="text-muted">
+                    <i class="bi bi-envelope"></i> 联系我们: support@papersystem.edu
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // 平滑滚动
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    // 检查URL参数并显示消息
+    (function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        const success = urlParams.get('success');
+
+        // 处理错误消息
+        if (error) {
+            const errorAlert = document.getElementById('errorAlert');
+            const errorMessage = document.getElementById('errorMessage');
+            let message = '';
+
+            switch(error) {
+                // 登录错误
+                case 'username':
+                    message = '用户名不存在，请检查后重试。';
+                    break;
+                case 'password':
+                    message = '密码错误，请检查后重试。';
+                    break;
+                case 'account_disabled':
+                    message = '您的账户已被禁用，请联系系统管理员。';
+                    break;
+                case 'invalid_role':
+                    message = '用户角色异常，请联系系统管理员。';
+                    break;
+                // 注册错误
+                case 'username_exists':
+                    message = '用户名已存在，请选择其他用户名。';
+                    // 切换到注册标签
+                    const registerTab = document.getElementById('register-tab');
+                    if (registerTab) {
+                        registerTab.click();
+                    }
+                    break;
+                case 'register_error':
+                    message = '注册失败，请重试。';
+                    // 切换到注册标签
+                    const regTab = document.getElementById('register-tab');
+                    if (regTab) {
+                        regTab.click();
+                    }
+                    break;
+                default:
+                    message = '操作失败，请重试。';
+            }
+
+            if (errorAlert && errorMessage) {
+                errorMessage.textContent = message;
+                errorAlert.classList.remove('d-none');
+
+                // 滚动到登录区域
+                setTimeout(() => {
+                    document.getElementById('login').scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }, 100);
+            }
+        }
+
+        // 处理成功消息
+        if (success) {
+            const successAlert = document.getElementById('successAlert');
+            const successMessage = document.getElementById('successMessage');
+            let message = '';
+
+            switch(success) {
+                case 'registered':
+                    message = '注册成功！正在跳转...';
+                    break;
+                default:
+                    message = '操作成功！';
+            }
+
+            if (successAlert && successMessage) {
+                successMessage.textContent = message;
+                successAlert.classList.remove('d-none');
+
+                // 滚动到登录区域
+                setTimeout(() => {
+                    document.getElementById('login').scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }, 100);
+            }
+        }
+
+        // 清除URL参数
+        window.history.replaceState({}, document.title, window.location.pathname);
+    })();
+</script>
+</body>
+</html>
+</file>
+
 <file path="backend/src/main/resources/templates/optionadmin/1.html">
 
 </file>
@@ -8215,105 +8765,83 @@ public class userManageController {
 </html>
 </file>
 
-<file path="backend/src/main/resources/templates/reviewer/pendingView.html">
+<file path="backend/src/main/resources/templates/reviewer/jobPage.html">
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>待审稿件</title>
+    <title>我的审稿任务</title>
 </head>
 <body>
 
-<section aria-label="待处理邀请列表">
-    <h2>待处理邀请列表</h2>
+<h2>我的审稿任务</h2>
 
-    <!-- 1) method 改为 get，匹配 @GetMapping("filter") -->
-    <form th:action="@{/reviewer/filter}" method="get">
-        <fieldset>
-            <legend>筛选</legend>
+<table border="1" cellpadding="6" cellspacing="0">
+    <thead>
+    <tr>
+        <th>稿件标题</th>
+        <th>摘要</th>
+        <th>邀请时间</th>
+        <th>截止时间</th>
+        <th>当前状态</th>
+        <th>操作</th>
+    </tr>
+    </thead>
 
-            <label for="fromDate">邀请时间从：</label>
-            <input id="fromDate"
-                   name="startTime"
-                   type="datetime-local"
-                   th:value="${startTime == null ? '' : #temporals.format(startTime, 'yyyy-MM-dd''T''HH:mm')}" />
+    <tbody>
+    <!-- 没有任务时 -->
+    <tr th:if="${jobList == null or #lists.isEmpty(jobList)}">
+        <td colspan="6">暂无审稿任务</td>
+    </tr>
 
-            <label for="toDate">到：</label>
-            <input id="toDate"
-                   name="endTime"
-                   type="datetime-local"
-                   th:value="${endTime == null ? '' : #temporals.format(endTime, 'yyyy-MM-dd''T''HH:mm')}" />
+    <!-- 有任务时 -->
+    <tr th:each="r : ${jobList}">
+        <td th:text="${r.getManuScript().getTitle()}">标题</td>
+        <td th:text="${r.getManuScript().getAbstractText()}">摘要</td>
 
-            <button type="submit">查询</button>
-            <a th:href="@{/reviewer/pendingView}">重置</a>
-        </fieldset>
-    </form>
+        <td th:text="${r.invitationTime == null ? '' :
+                #temporals.format(r.getInvitationTime(), 'yyyy-MM-dd HH:mm')}">
+        </td>
 
-    <table border="1" cellpadding="6" cellspacing="0">
-        <caption>待处理邀请列表（每条包含：稿件标题、摘要、邀请时间）</caption>
-        <thead>
-        <tr>
-            <th scope="col">稿件标题</th>
-            <th scope="col">摘要</th>
-            <th scope="col">邀请时间</th>
-            <th scope="col">操作</th>
-        </tr>
-        </thead>
+        <td th:text="${r.deadline == null ? '' :
+                #temporals.format(r.deadline, 'yyyy-MM-dd HH:mm')}">
+        </td>
 
-        <tbody>
-        <!-- 2) 用 reviewList 渲染 -->
-        <tr th:if="${reviewList == null or #lists.isEmpty(reviewList)}">
-            <td colspan="4">暂无数据</td>
-        </tr>
+        <td th:text="${r.getStatus()}">ACCEPTED</td>
 
-        <tr th:each="r : ${reviewList}">
-            <!-- 注意：Review 实体里目前没有 title/abstract 字段，下面先给占位写法 -->
-            <td th:text="${r.getManuScript().getTitle()}"></td>
-            <td th:text="${r.getManuScript().getAbstractText()}"></td>
+        <td>
+            <a th:href="@{/reviewer/getManuSummary/{id}(id=${r.getManuScript().getManuscriptId()})}">
+                查看稿件
+            </a>
+            |
+            <a th:href="@{/reviewer/submitOpinionPage/{id}(id=${r.getReviewId()})}">
+                提交评审意见
+            </a>
+            |
+            <form th:action="@{/reviewer/download}" method="get" style="display:inline;">
+                <!-- 可选：带上 reviewId 方便你后端做权限校验（不影响下载） -->
+                <input type="hidden" name="reviewId" th:value="${r.reviewId}" />
 
-            <td th:text="${r.getInvitationTime() == null ? '' : #temporals.format(r.getInvitationTime(), 'yyyy-MM-dd HH:mm')}">
-            </td>
+                <select name="path" required>
+                    <option value="" disabled selected>请选择要下载的文件</option>
 
-            <td>
-                <div th:if="${r.getStatus().equals('pending')}">
-                    <a th:href="@{'/reviewer/getManuSummary/' + ${r.getManuId()}}">查看详情</a>
-                    |
-                    <form th:action="@{'/reviewer/invitations/accept'}"
-                          method="post"
-                          style="display:inline;">
-                        <input type="hidden" name="manuId" th:value="${r.getManuId()}"/>
-                        <input type="hidden" name="reviewId" th:value="${r.getReviewId()}"/>
-                        <button type="submit">接受</button>
-                    </form>
+                    <!-- 主稿 -->
+                    <option th:value="${r.manuScript.manuscriptPath}">
+                        主稿（PDF）
+                    </option>
 
-                    <form th:action="@{'/reviewer/invitations/reject'}"
-                          method="post"
-                          style="display:inline;">
-                        <input type="hidden" name="manuId" th:value="${r.getManuId()}"/>
-                        <input type="hidden" name="reviewId" th:value="${r.getReviewId()}"/>
-                        <button type="submit">拒绝</button>
-                    </form>
-                </div>
+                    <!-- 补充材料列表：需要你在 model 里给每个 Review 对应的附件列表 -->
+                    <option th:value="${r.manuScript.coverLetterPath}">
+                        投稿信(Cover Letter)
+                    </option>
+                </select>
 
-                <!-- 2️⃣ 已接受 -->
-                <span th:if="${r.getStatus().equals('accepted')}"
-                      style="color: green;">
-                        <a th:href="@{'/reviewer/getManuSummary/' + ${r.getManuId()}}">查看详情</a>
-                    | 已接受
-                </span>
-
-                <!-- 3️⃣ 已拒绝 -->
-                <span th:if="${r.getStatus().equals('rejected')}"
-                      style="color: red;">
-                        <a th:href="@{'/reviewer/getManuSummary/' + ${r.getManuId()}}">查看详情</a>
-                    | 已拒绝
-                </span>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-
-</section>
+                <button type="submit">下载</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
 
 </body>
 </html>
@@ -8669,6 +9197,64 @@ public class Review {
 }
 </file>
 
+<file path="backend/src/main/java/com/bjfu/paperSystem/Login/service/UserService.java">
+package com.bjfu.paperSystem.Login.service;
+
+import com.bjfu.paperSystem.javabeans.User;
+
+public interface UserService {
+    User login(String userName, String password);
+    User register(User user);
+    boolean isUserNameExists(String userName);
+}
+</file>
+
+<file path="backend/src/main/java/com/bjfu/paperSystem/Login/service/UserServiceImpl.java">
+package com.bjfu.paperSystem.Login.service;
+
+import com.bjfu.paperSystem.javabeans.User;
+import com.bjfu.paperSystem.Login.dao.UserDao;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+
+@Service
+public class UserServiceImpl implements UserService {
+
+    @Autowired
+    private UserDao userDao;
+
+    @Override
+    public User login(String userName, String password) {
+        return userDao.findByUserNameAndPassword(userName, password)
+                .orElse(null);
+    }
+
+    @Override
+    public User register(User user) {
+        // 检查用户名是否存在
+        if (isUserNameExists(user.getUserName())) {
+            return null;
+        }
+        // 只允许作者和审稿人注册
+        String userType = user.getUserType();
+        if (!"author".equals(userType) && !"reviewer".equals(userType)) {
+            return null;
+        }
+        // 设置默认值
+        user.setRegisterTime(LocalDateTime.now());
+        user.setStatus("exist"); // 设置状态为活跃
+        return userDao.save(user);
+    }
+
+    @Override
+    public boolean isUserNameExists(String userName) {
+        return userDao.findByUserName(userName).isPresent();
+    }
+}
+</file>
+
 <file path="backend/src/main/java/com/bjfu/paperSystem/reviewer/dao/reviewerDao.java">
 package com.bjfu.paperSystem.reviewer.dao;
 
@@ -8712,274 +9298,20 @@ public interface reviewerDao extends JpaRepository<Review, Integer> {
 }
 </file>
 
-<file path="backend/src/main/java/com/bjfu/paperSystem/reviewer/service/reviewerService.java">
-package com.bjfu.paperSystem.reviewer.service;
+<file path="backend/src/main/java/com/bjfu/paperSystem/superAdmin/dao/superAdminDao.java">
+package com.bjfu.paperSystem.superAdmin.dao;
 
-import com.bjfu.paperSystem.javabeans.Manuscript;
-import com.bjfu.paperSystem.javabeans.Review;
-
-import java.time.LocalDateTime;
-import java.util.List;
-
-public interface reviewerService {
-    // 利用时间来筛选邀请列表
-    public List<Review> filterByTime(LocalDateTime startTime, LocalDateTime endTime);
-
-    // 通过manu_id查找稿件
-    public Manuscript findByManuId(int manu_id);
-
-    // 同意审稿
-    public String acceptManu(int review_id, int manu_id);
-
-    // 拒绝审稿
-    public String rejectManu(int review_id, int manu_id);
-
-    // 查找已经接受的稿件
-    public List<Review> filterByStatus(String status);
-
-    // 根据主键查稿件
-    public Review findByRevId(int review_id);
-}
-</file>
-
-<file path="backend/src/main/java/com/bjfu/paperSystem/reviewer/service/reviewerServiceImpl.java">
-package com.bjfu.paperSystem.reviewer.service;
-
-import com.bjfu.paperSystem.Login.dao.UserDao;
-import com.bjfu.paperSystem.author.dao.ManuscriptDao;
-import com.bjfu.paperSystem.javabeans.Manuscript;
-import com.bjfu.paperSystem.javabeans.Review;
-import com.bjfu.paperSystem.reviewer.dao.reviewerDao;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import java.time.LocalDateTime;
-import java.util.List;
-
-@Service
-public class reviewerServiceImpl implements reviewerService{
-    @Autowired
-    private reviewerDao revDao;
-
-    @Autowired
-    private ManuscriptDao manDao;
-
-    // 通过时间范围筛选稿件
-    @Override
-    public List<Review> filterByTime(LocalDateTime startTime, LocalDateTime endTime) {
-        return revDao.findWithManuscript(startTime, endTime);
-    }
-
-    // 通过manu_id查找稿件
-    @Override
-    public Manuscript findByManuId(int manu_id) {
-        return manDao.findById(manu_id).orElse(null);
-    }
-
-    // 同意审稿
-    @Override
-    @Transactional
-    public String acceptManu(int review_id, int manu_id) {
-        Review review = revDao.findByReviewIdAndManuId(review_id, manu_id);
-        review.setStatus("accepted");
-
-        return "审稿任务已接受，截止日期：" + LocalDateTime.now();
-    }
-
-    // 拒绝审稿
-    @Override
-    @Transactional
-    public String rejectManu(int review_id, int manu_id) {
-        Review review = revDao.findByReviewIdAndManuId(review_id, manu_id);
-        review.setStatus("rejected");
-
-        return "时间冲突，无法审稿";
-    }
-
-    @Override
-    @Transactional
-    public List<Review> filterByStatus(String status) {
-        return revDao.findWithStatus(status);
-    }
-
-    @Override
-    @Transactional
-    public Review findByRevId(int review_id) {
-        return revDao.findByIdWithManuscript(review_id);
-    }
-}
-</file>
-
-<file path="backend/src/main/java/com/bjfu/paperSystem/superAdmin/service/superAdminService.java">
-package com.bjfu.paperSystem.superAdmin.service;
-
-import com.bjfu.paperSystem.javabeans.Logs;
 import com.bjfu.paperSystem.javabeans.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
-public interface superAdminService {
-    // 创建一个用户
-    public void createAccount(User user);
+@Repository
+public interface superAdminDao extends JpaRepository<User, Integer> {
+    List<User> findByStatus(String status);
 
-    // 查找所有用户（包括被禁用的）
-    public List<User> findAllUsers();
-
-    // 查找所有未被禁用的用户
-    public List<User> findAllExistUsers();
-
-    // 根据主键查找用户
-    public User findUserById(Integer id);
-
-    // 删除一个用户
-    public void deleteUser(Integer userId);
-
-    // 修改一个用户
-    public void modifyUser(User user);
-
-    // 查找所有的记录
-    public List<Logs> findAllLogs();
-
-    // 根据不同的返回结果动态查询记录
-    public List<Logs> queryLogs(LocalDateTime opTime,
-                                Integer oporId,
-                                String opType,
-                                Integer paperId);
-}
-</file>
-
-<file path="backend/src/main/java/com/bjfu/paperSystem/superAdmin/service/superAdminServiceImpl.java">
-package com.bjfu.paperSystem.superAdmin.service;
-
-import com.bjfu.paperSystem.javabeans.Logs;
-import com.bjfu.paperSystem.javabeans.User;
-import com.bjfu.paperSystem.superAdmin.dao.superAdminDao;
-import com.bjfu.paperSystem.superAdmin.dao.systemManageDao;
-import jakarta.persistence.criteria.Predicate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
-@Service
-public class superAdminServiceImpl implements superAdminService{
-    @Autowired
-    private superAdminDao suAdminDao;
-
-    @Autowired
-    private systemManageDao sysManageDao;
-
-    @Override
-    public void createAccount(User user) {
-        // 设置状态为exist
-        user.setStatus("exist");
-
-        // 执行插入
-        suAdminDao.save(user);
-    }
-
-    @Override
-    public List<User> findAllUsers() {
-        List<User> userList = suAdminDao.findAll();
-
-        return userList;
-    }
-
-    @Override
-    public List<User> findAllExistUsers() {
-        List<User> userList = suAdminDao.findByStatus("exist");
-
-        return userList;
-    }
-
-    @Override
-    public void deleteUser(Integer userId) {
-        User user = suAdminDao.findById(userId).orElse(null);
-        if (user != null) {
-            user.setStatus("not_exist");
-            suAdminDao.save(user);
-        }
-    }
-
-    @Override
-    public User findUserById(Integer userId) {
-        return suAdminDao.findById(userId).orElse(null);
-    }
-
-    @Override
-    public void modifyUser(User user) {
-        User dbUser = suAdminDao.findById(user.getUserId()).orElse(null);
-        dbUser.setUserName(user.getUserName());
-        // 密码留空则不修改
-        if (!user.getPassword().equals("")) {
-            dbUser.setPassword(user.getPassword());
-        }
-        dbUser.setFullName(user.getFullName());
-        dbUser.setEmail(user.getEmail());
-        dbUser.setUserType(user.getUserType());
-        dbUser.setCompany(user.getCompany());
-        dbUser.setInvestigationDirection(user.getInvestigationDirection());
-        dbUser.setRegisterTime(user.getRegisterTime());
-        dbUser.setStatus(user.getStatus());
-
-        suAdminDao.save(dbUser);
-    }
-
-    @Override
-    public List<Logs> findAllLogs() {
-        List<Logs> logList = sysManageDao.findAll();
-
-        return logList;
-    }
-
-    @Override
-    public List<Logs> queryLogs(
-            LocalDateTime opTime,
-            Integer oporId,
-            String opType,
-            Integer paperId) {
-
-        return sysManageDao.findAll((root, query, cb) -> {
-
-            List<Predicate> predicates = new ArrayList<>();
-
-            // 操作时间
-            if (opTime != null) {
-                predicates.add(
-                        cb.equal(root.get("opTime"), opTime)
-                );
-            }
-
-            // 操作人 ID
-            if (oporId != null) {
-                predicates.add(
-                        cb.equal(root.get("oporId"), oporId)
-                );
-            }
-
-            // 操作类型（模糊查询更合理）
-            if (opType != null && !opType.isEmpty()) {
-                predicates.add(
-                        cb.like(root.get("opType"), "%" + opType + "%")
-                );
-            }
-
-            // 稿件 ID
-            if (paperId != null) {
-                predicates.add(
-                        cb.equal(root.get("paperId"), paperId)
-                );
-            }
-
-            // where 条件拼接
-            return cb.and(predicates.toArray(new Predicate[0]));
-        });
-    }
+    List<User> findByUserType(String userType);
 }
 </file>
 
@@ -9062,53 +9394,113 @@ public class superAdminServiceImpl implements superAdminService{
 </html>
 </file>
 
+<file path="backend/src/main/resources/templates/reviewer/pendingView.html">
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>待审稿件</title>
+</head>
+<body>
+
+<section aria-label="待处理邀请列表">
+    <h2>待处理邀请列表</h2>
+
+    <form th:action="@{/reviewer/filter}" method="get">
+        <fieldset>
+            <legend>筛选</legend>
+
+            <label for="fromDate">邀请时间从：</label>
+            <input id="fromDate"
+                   name="startTime"
+                   type="datetime-local"
+                   th:value="${startTime == null ? '' : #temporals.format(startTime, 'yyyy-MM-dd''T''HH:mm')}" />
+
+            <label for="toDate">到：</label>
+            <input id="toDate"
+                   name="endTime"
+                   type="datetime-local"
+                   th:value="${endTime == null ? '' : #temporals.format(endTime, 'yyyy-MM-dd''T''HH:mm')}" />
+
+            <button type="submit">查询</button>
+            <a th:href="@{/reviewer/pendingView}">重置</a>
+        </fieldset>
+    </form>
+
+    <table border="1" cellpadding="6" cellspacing="0">
+        <caption>待处理邀请列表（每条包含：稿件标题、摘要、邀请时间）</caption>
+        <thead>
+        <tr>
+            <th scope="col">稿件标题</th>
+            <th scope="col">摘要</th>
+            <th scope="col">邀请时间</th>
+            <th scope="col">操作</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:if="${reviewList == null or #lists.isEmpty(reviewList)}">
+            <td colspan="4">暂无数据</td>
+        </tr>
+
+        <tr th:each="r : ${reviewList}">
+            <td th:text="${r.getManuScript().getTitle()}"></td>
+            <td th:text="${r.getManuScript().getAbstractText()}"></td>
+
+            <td th:text="${r.getInvitationTime() == null ? '' : #temporals.format(r.getInvitationTime(), 'yyyy-MM-dd HH:mm')}">
+            </td>
+
+            <td>
+                <div th:if="${r.getStatus().equals('pending')}">
+                    <a th:href="@{'/reviewer/getManuSummary/' + ${r.getManuId()}}">查看详情</a>
+                    |
+                    <form th:action="@{'/reviewer/invitations/accept'}"
+                          method="post"
+                          style="display:inline;">
+                        <input type="hidden" name="manuId" th:value="${r.getManuId()}"/>
+                        <input type="hidden" name="reviewId" th:value="${r.getReviewId()}"/>
+                        <button type="submit">接受</button>
+                    </form>
+
+                    <form th:action="@{'/reviewer/invitations/reject'}"
+                          method="post"
+                          style="display:inline;">
+                        <input type="hidden" name="manuId" th:value="${r.getManuId()}"/>
+                        <input type="hidden" name="reviewId" th:value="${r.getReviewId()}"/>
+                        <button type="submit">拒绝</button>
+                    </form>
+                </div>
+
+                <!-- 已接受 -->
+                <span th:if="${r.getStatus().equals('accepted')}"
+                      style="color: green;">
+                        <a th:href="@{'/reviewer/getManuSummary/' + ${r.getManuId()}}">查看详情</a>
+                    | 已接受
+                </span>
+
+                <!-- 已拒绝 -->
+                <span th:if="${r.getStatus().equals('rejected')}"
+                      style="color: red;">
+                        <a th:href="@{'/reviewer/getManuSummary/' + ${r.getManuId()}}">查看详情</a>
+                    | 已拒绝
+                </span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+</section>
+
+</body>
+</html>
+</file>
+
 <file path="README.md">
 # paperSystem_javaweb
 在本地拉取代码的时候，请将项目文件中的application.properties文件屏蔽加入git，具体步骤如下：
 1. 进入项目跟目录.
 2. 在.gitignore文件中加入 'backend/src/main/resources/application.properties'.
 3. 保存文件.
-</file>
-
-<file path="backend/src/main/java/com/bjfu/paperSystem/author/controller/profileSystemController.java">
-package com.bjfu.paperSystem.author.controller;
-import com.bjfu.paperSystem.javabeans.User;
-import com.bjfu.paperSystem.author.dao.authorDao;
-import com.bjfu.paperSystem.author.service.authorService;
-import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import java.util.Objects;
-import com.bjfu.paperSystem.author.service.logService;
-@Controller
-@RequestMapping("/author/profile")
-public class profileSystemController {
-    @Autowired
-    private authorService authorService;
-    @GetMapping
-    public String profile(HttpSession session, Model model) {
-        User loginUser = (User) session.getAttribute("loginUser");
-        if (loginUser == null) return "redirect:/Login.html";
-        model.addAttribute("user", authorService.getUserById(loginUser.getUserId()));
-        return "author/profile";
-    }
-    @PostMapping("/update")
-    public String update(User user, HttpSession session, RedirectAttributes ra) {
-        User loginUser = (User) session.getAttribute("loginUser");
-        if (loginUser == null) return "redirect:/Login.html";
-        String errorMsg = authorService.updateProfile(user, loginUser.getUserId());
-        if (errorMsg != null) {
-            ra.addFlashAttribute("error", errorMsg);
-            return "redirect:/author/profile";
-        }
-        session.setAttribute("loginUser", authorService.getUserById(loginUser.getUserId()));
-        ra.addFlashAttribute("msg", "信息修改成功！");
-        return "redirect:/author/profile";
-    }
-}
 </file>
 
 <file path="backend/src/main/java/com/bjfu/paperSystem/chiefEditor/dao/ChiefEditorUserDao.java">
@@ -9218,320 +9610,120 @@ public class AssignEditorServiceImpl implements AssignEditorService {
 }
 </file>
 
-<file path="backend/src/main/java/com/bjfu/paperSystem/editor/controller/editorController.java">
-package com.bjfu.paperSystem.editor.controller;
-
-import com.bjfu.paperSystem.javabeans.User;
-import jakarta.servlet.http.HttpSession;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-@Controller
-@RequestMapping("/editor")
-public class editorController {
-
-    @GetMapping
-    public String index(HttpSession session, Model model) {
-        User loginUser = (User) session.getAttribute("loginUser");
-        if (loginUser == null) return "redirect:/Login.html";
-
-        model.addAttribute("username", loginUser.getFullName());
-        // 注意：这里返回 "editor" 对应的是 templates/editor.html
-        return "editor";
-    }
-}
-</file>
-
-<file path="backend/src/main/java/com/bjfu/paperSystem/Login/controller/UserController.java">
-package com.bjfu.paperSystem.Login.controller;
-
-import com.bjfu.paperSystem.Login.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import jakarta.servlet.http.HttpSession;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import com.bjfu.paperSystem.javabeans.User;
-import com.bjfu.paperSystem.Login.dao.UserDao;
-
-@Controller
-public class UserController {
-    @Autowired
-    private UserService userService;
-    
-    @Autowired
-    private UserDao userDao;
-
-    // 处理登陆请求
-    @PostMapping("/login")
-    public String login(User user, HttpSession session) {
-        // 先获取用户类型，调用Service层接口
-        User dbUser = userService.login(user.getUserName(), user.getPassword());
-
-        if (dbUser == null) {
-            // 检查用户名是否存在
-            boolean userNameExists = userDao.findByUserName(user.getUserName()).isPresent();
-            if (userNameExists) {
-                // 用户名存在但密码错误
-                return "redirect:/login-error?error=password";
-            } else {
-                // 用户名不存在
-                return "redirect:/login-error?error=username";
-            }
-        }
-
-        session.setAttribute("loginUser", dbUser);
-        String userType = dbUser.getUserType();
-        String status = dbUser.getStatus();
-
-        // 首先要确保是存在的用户，如果用户被封禁则提示无法登陆
-        if ("exist".equalsIgnoreCase(status)) {
-            // 如果是超级管理员(super_admin)
-            if ("super_admin".equalsIgnoreCase(userType)) {
-                return "redirect:/superadmin";
-            }
-            // 如果是系统管理员(sys_admin)
-            else if ("sys_admin".equalsIgnoreCase(userType)) {
-                return "redirect:/sysadmin";
-            }
-            //如果是作者(author)
-            else if ("author".equalsIgnoreCase(userType)) {
-                return "redirect:/author";
-            }
-            //如果是主编(chief_editor)
-            else if ("chief_editor".equalsIgnoreCase(userType)) {
-                return "redirect:/chiefeditor";
-            }
-            //如果是编辑(editor)
-            else if ("editor".equalsIgnoreCase(userType)) {
-                return "redirect:/editor";
-            }
-            //如果是编辑部管理员(option_admin)
-            else if ("option_admin".equalsIgnoreCase(userType)) {
-                return "redirect:/optionadmin";
-            }
-            //如果是审稿人(reviewer)
-            else if ("reviewer".equalsIgnoreCase(userType)) {
-                return "redirect:/reviewer";
-            }
-            else {
-                return "redirect:/login-error?error=invalid_role";
-            }
-        }
-        else {
-            // 账户被封禁或状态异常
-            return "redirect:/login-error?error=account_disabled";
-        }
-    }
-    
-    // 显示登录错误页面
-    @GetMapping("/login-error")
-    public String loginError(@RequestParam(value = "error", defaultValue = "general") String error, Model model) {
-        String errorMessage = "";
-        String errorTitle = "";
-        
-        switch (error) {
-            case "username":
-                errorTitle = "用户名不存在";
-                errorMessage = "您输入的用户名不存在，请检查后重试。";
-                break;
-            case "password":
-                errorTitle = "密码错误";
-                errorMessage = "您输入的密码不正确，请检查后重试。";
-                break;
-            case "account_disabled":
-                errorTitle = "账户已被禁用";
-                errorMessage = "您的账户已被禁用，无法登录。请联系系统管理员。";
-                break;
-            case "invalid_role":
-                errorTitle = "用户角色异常";
-                errorMessage = "您的用户角色异常，无法登录。请联系系统管理员。";
-                break;
-            default:
-                errorTitle = "登录失败";
-                errorMessage = "登录过程中出现错误，请重试。";
-                break;
-        }
-        
-        model.addAttribute("errorTitle", errorTitle);
-        model.addAttribute("errorMessage", errorMessage);
-        return "login-error";
-    }
-    
-    // 处理注册请求
-    @PostMapping("/register")
-    public String register(User user, HttpSession session) {
-        // 检查用户名是否存在
-        if (userService.isUserNameExists(user.getUserName())) {
-            return "redirect:/?error=username_exists";
-        }
-        // 调用服务层注册用户
-        User newUser = userService.register(user.getUserName(), user.getPassword(), user.getUserType());
-        if (newUser == null) {
-            return "redirect:/?error=register_error";
-        }
-        // 注册成功后自动登录
-        session.setAttribute("loginUser", newUser);
-        // 根据角色重定向
-        String userType = newUser.getUserType();
-        if ("author".equalsIgnoreCase(userType)) {
-            return "redirect:/author";
-        } else if ("reviewer".equalsIgnoreCase(userType)) {
-            return "redirect:/reviewer";
-        } else {
-            return "redirect:/?error=register_error";
-        }
-    }
-}
-</file>
-
-<file path="backend/src/main/java/com/bjfu/paperSystem/reviewer/controller/reviewerController.java">
-package com.bjfu.paperSystem.reviewer.controller;
+<file path="backend/src/main/java/com/bjfu/paperSystem/reviewer/service/reviewerService.java">
+package com.bjfu.paperSystem.reviewer.service;
 
 import com.bjfu.paperSystem.javabeans.Manuscript;
-import com.bjfu.paperSystem.author.service.authorService;
 import com.bjfu.paperSystem.javabeans.Review;
-import com.bjfu.paperSystem.reviewer.service.reviewerService;
-import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
 
-import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Controller
-@RequestMapping("/reviewer")
-public class reviewerController {
+public interface reviewerService {
+    // 利用时间来筛选邀请列表
+    public List<Review> filterByTime(LocalDateTime startTime, LocalDateTime endTime);
+
+    // 通过manu_id查找稿件
+    public Manuscript findByManuId(int manu_id);
+
+    // 同意审稿
+    public String acceptManu(int review_id, int manu_id);
+
+    // 拒绝审稿
+    public String rejectManu(int review_id, int manu_id);
+
+    // 查找已经接受的稿件
+    public List<Review> filterByStatus(String status);
+
+    // 根据主键查稿件
+    public Review findByRevId(int review_id);
+
+    // 更新系统状态为“完成审稿”
+    public String updateFinish(Integer review_id);
+}
+</file>
+
+<file path="backend/src/main/java/com/bjfu/paperSystem/reviewer/service/reviewerServiceImpl.java">
+package com.bjfu.paperSystem.reviewer.service;
+
+import com.bjfu.paperSystem.Login.dao.UserDao;
+import com.bjfu.paperSystem.author.dao.ManuscriptDao;
+import com.bjfu.paperSystem.javabeans.Manuscript;
+import com.bjfu.paperSystem.javabeans.Review;
+import com.bjfu.paperSystem.reviewer.dao.reviewerDao;
+import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Service
+public class reviewerServiceImpl implements reviewerService{
     @Autowired
-    private reviewerService revService;
+    private reviewerDao revDao;
 
     @Autowired
-    private authorService autService;
+    private ManuscriptDao manDao;
 
-    @GetMapping
-    public String toReviewerPage() {
-        return "/reviewer";
+    // 通过时间范围筛选稿件
+    @Override
+    public List<Review> filterByTime(LocalDateTime startTime, LocalDateTime endTime) {
+        return revDao.findWithManuscript(startTime, endTime);
     }
 
-    @GetMapping("pendingView")
-    public String toPendingViewPage(Model model) {
-        List<Review> list = revService.filterByTime(null, null);
-        model.addAttribute("reviewList", list);
-        return "/reviewer/pendingView";
+    // 通过manu_id查找稿件
+    @Override
+    public Manuscript findByManuId(int manu_id) {
+        return manDao.findById(manu_id).orElse(null);
     }
 
-    @GetMapping("reviewJobs")
-    public String toReviewJobsPage(Model model) {
-        List<Review> list = revService.filterByStatus("accepted");
-        model.addAttribute("jobList", list);
+    // 同意审稿
+    @Override
+    @Transactional
+    public String acceptManu(int review_id, int manu_id) {
+        Review review = revDao.findByReviewIdAndManuId(review_id, manu_id);
+        review.setStatus("accepted");
 
-        for (Review r : list) {
-            Manuscript m = r.getManuScript();
-            System.out.println("reviewId=" + r.getReviewId()
-                    + ", manuNull=" + (m == null)
-                    + ", manuscriptPath=[" + (m == null ? null : m.getManuscriptPath()) + "]");
+        return "审稿任务已接受，截止日期：" + LocalDateTime.now();
+    }
+
+    // 拒绝审稿
+    @Override
+    @Transactional
+    public String rejectManu(int review_id, int manu_id) {
+        Review review = revDao.findByReviewIdAndManuId(review_id, manu_id);
+        review.setStatus("rejected");
+
+        return "时间冲突，无法审稿";
+    }
+
+    @Override
+    @Transactional
+    public List<Review> filterByStatus(String status) {
+        return revDao.findWithStatus(status);
+    }
+
+    @Override
+    @Transactional
+    public Review findByRevId(int review_id) {
+        return revDao.findByIdWithManuscript(review_id);
+    }
+
+    // 更新系统状态为“完成审稿”
+    @Override
+    @Transactional
+    public String updateFinish(Integer review_id) {
+        Review review = revDao.findById(review_id).orElse(null);
+        if (review != null) {
+            review.setStatus("finished");
+
+            return "ok";
         }
 
-        return "/reviewer/jobPage";
-    }
-
-    @GetMapping("filter")
-    public String filter(@RequestParam(required = false)
-                             @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
-                             LocalDateTime startTime,
-                         @RequestParam(required = false)
-                             @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
-                             LocalDateTime endTime,
-                         Model model) {
-        List<Review> list = revService.filterByTime(startTime, endTime);
-        model.addAttribute("startTime", startTime);
-        model.addAttribute("endTime", endTime);
-        model.addAttribute("reviewList", list);
-        return "/reviewer/pendingView";
-    }
-
-    @GetMapping("getManuSummary/{manuId}")
-    @ResponseBody
-    public String getManuSummary(@PathVariable int manuId) {
-        return revService.findByManuId(manuId).getAbstractText();
-    }
-
-    @PostMapping("invitations/accept")
-    @ResponseBody
-    public String acceptManu(@RequestParam("manuId") int manuId, @RequestParam("reviewId") int reviewId) {
-        return revService.acceptManu(reviewId, manuId);
-    }
-
-    @PostMapping("invitations/reject")
-    @ResponseBody
-    public String rejectManu(@RequestParam("manuId") int manuId, @RequestParam("reviewId") int reviewId) {
-        return revService.rejectManu(reviewId, manuId);
-    }
-
-    @GetMapping("submitOpinionPage/{reviewId}")
-    public String tpSubmitOpinionPage(@PathVariable int reviewId, Model model) {
-        System.out.println(reviewId);
-        Review review = revService.findByRevId(reviewId);
-        if (review == null) {
-            System.out.println("null");
-        }
-        else {
-            System.out.println("not null");
-        }
-
-        System.out.println(review.getManuScript().getTitle());
-        model.addAttribute("review", review);
-        return "/reviewer/submitOpinionPage";
-    }
-
-    @PostMapping("submitOpinion")
-    public String handleSubmitOpinion() {
-        return "";
-    }
-
-    @GetMapping("download")
-    public org.springframework.http.ResponseEntity<org.springframework.core.io.Resource> downloadFile(
-            @RequestParam("path") String filePath,
-            HttpSession session) {
-        if (session.getAttribute("loginUser") == null) {
-            return org.springframework.http.ResponseEntity.status(403).build();
-        }
-        try {
-            String projectPath = System.getProperty("user.dir");
-            File file = new File(projectPath + "/backend/src/main/resources/static" + filePath);
-            if (!file.exists()) {
-                String classPath = java.net.URLDecoder.decode(this.getClass().getClassLoader().getResource("").getPath(), "UTF-8");
-                if (System.getProperty("os.name").toLowerCase().contains("win") && classPath.startsWith("/")) {
-                    classPath = classPath.substring(1);
-                }
-                file = new File(classPath + "static" + filePath);
-            }
-
-            if (!file.exists()) {
-                return org.springframework.http.ResponseEntity.notFound().build();
-            }
-
-            org.springframework.core.io.Resource resource = new org.springframework.core.io.FileSystemResource(file);
-            String fileName = file.getName();
-            String encodedFileName = java.net.URLEncoder.encode(fileName, "UTF-8").replace("+", "%20");
-
-            return org.springframework.http.ResponseEntity.ok()
-                    .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + encodedFileName + "\"")
-                    .contentType(org.springframework.http.MediaType.APPLICATION_OCTET_STREAM)
-                    .body(resource);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return org.springframework.http.ResponseEntity.internalServerError().build();
-        }
+        // 未找到review
+        return "false";
     }
 }
 </file>
@@ -9607,6 +9799,48 @@ public class userManageController {
         model.addAttribute("userList", users);
         return "/superadmin/userManage/modifyAccountPage";
     }
+}
+</file>
+
+<file path="backend/src/main/java/com/bjfu/paperSystem/superAdmin/service/superAdminService.java">
+package com.bjfu.paperSystem.superAdmin.service;
+
+import com.bjfu.paperSystem.javabeans.Logs;
+import com.bjfu.paperSystem.javabeans.User;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+public interface superAdminService {
+    // 创建一个用户
+    public void createAccount(User user);
+
+    // 查找所有用户（包括被禁用的）
+    public List<User> findAllUsers();
+
+    // 查找所有未被禁用的用户
+    public List<User> findAllExistUsers();
+
+    // 根据主键查找用户
+    public User findUserById(Integer id);
+
+    // 删除一个用户
+    public void deleteUser(Integer userId);
+
+    // 修改一个用户
+    public void modifyUser(User user);
+
+    // 查找所有的记录
+    public List<Logs> findAllLogs();
+
+    // 根据不同的返回结果动态查询记录
+    public List<Logs> queryLogs(LocalDateTime opTime,
+                                Integer oporId,
+                                String opType,
+                                Integer paperId);
+
+    // 根据用户类型查找用户
+    public List<User> findUserByType(String userType);
 }
 </file>
 
@@ -10185,51 +10419,332 @@ backend/src/main/resources/application.properties
 backend/src/main/resources/static/uploads
 </file>
 
-<file path="backend/src/main/resources/templates/author.html">
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>作者界面</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
-<div class="container py-5">
-    <div class="row mb-4">
-        <div class="col">
-            <h1>欢迎使用学术论文管理系统</h1>
-            <p class="lead">您好，<span th:text="${session.loginUser.userName}">作者姓名</span></p>
-        </div>
-    </div>
-    <div class="row g-4">
-        <div class="col-md-6">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body text-center">
-                    <h2 class="card-title">👤 个人信息管理模块</h2>
-                    <p class="card-text">修改您的全名、邮箱、所属机构及研究方向。</p>
-                    <a th:href="@{/author/profile}" class="btn btn-outline-primary btn-lg">进入模块</a>
-                </div>
-            </div>
-        </div>
+<file path="backend/src/main/java/com/bjfu/paperSystem/author/controller/profileSystemController.java">
+package com.bjfu.paperSystem.author.controller;
+import com.bjfu.paperSystem.javabeans.User;
+import com.bjfu.paperSystem.author.dao.authorDao;
+import com.bjfu.paperSystem.author.service.authorService;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import java.util.Objects;
+import com.bjfu.paperSystem.author.service.logService;
+@Controller
+@RequestMapping("/author/profile")
+public class profileSystemController {
+    @Autowired
+    private authorService authorService;
+    @GetMapping
+    public String profile(HttpSession session, Model model) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser == null) return "redirect:/index";
+        model.addAttribute("user", authorService.getUserById(loginUser.getUserId()));
+        return "author/profile";
+    }
+    @PostMapping("/update")
+    public String update(User user, HttpSession session, RedirectAttributes ra) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser == null) return "redirect:/index";
+        String errorMsg = authorService.updateProfile(user, loginUser.getUserId());
+        if (errorMsg != null) {
+            ra.addFlashAttribute("error", errorMsg);
+            return "redirect:/author/profile";
+        }
+        session.setAttribute("loginUser", authorService.getUserById(loginUser.getUserId()));
+        ra.addFlashAttribute("msg", "信息修改成功！");
+        return "redirect:/author/profile";
+    }
+}
+</file>
 
-        <div class="col-md-6">
-            <div class="card h-100 shadow-sm border-success">
-                <div class="card-body text-center">
-                    <h2 class="card-title text-success">📄 稿件管理业务模块</h2>
-                    <p class="card-text">提交新稿件、查询审稿进度、查看历史投稿记录。</p>
-                    <a th:href="@{/author/manuscript/list}" class="btn btn-success btn-lg">进入模块</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="mt-5 text-center">
-        <a href="/author/logout" class="btn btn-secondary">退出安全登录</a>
-    </div>
-    <p class="text-center mt-4 text-muted small">
-        © 2025 学术论文管理系统 · 作者
-    </p>
-</div>
-</body>
-</html>
+<file path="backend/src/main/java/com/bjfu/paperSystem/Login/controller/UserController.java">
+package com.bjfu.paperSystem.Login.controller;
+
+import com.bjfu.paperSystem.Login.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import com.bjfu.paperSystem.javabeans.User;
+import com.bjfu.paperSystem.Login.dao.UserDao;
+
+@Controller
+public class UserController {
+    @Autowired
+    private UserService userService;
+    
+    @Autowired
+    private UserDao userDao;
+
+    // 处理登陆请求
+    @PostMapping("/login")
+    public String login(User user, HttpSession session) {
+        // 先获取用户类型，调用Service层接口
+        User dbUser = userService.login(user.getUserName(), user.getPassword());
+
+        if (dbUser == null) {
+            // 检查用户名是否存在
+            boolean userNameExists = userDao.findByUserName(user.getUserName()).isPresent();
+            if (userNameExists) {
+                // 用户名存在但密码错误
+                return "redirect:/login-error?error=password";
+            } else {
+                // 用户名不存在
+                return "redirect:/login-error?error=username";
+            }
+        }
+
+        session.setAttribute("loginUser", dbUser);
+        String userType = dbUser.getUserType();
+        String status = dbUser.getStatus();
+
+        // 首先要确保是存在的用户，如果用户被封禁则提示无法登陆
+        if ("exist".equalsIgnoreCase(status)) {
+            // 如果是超级管理员(super_admin)
+            if ("super_admin".equalsIgnoreCase(userType)) {
+                return "redirect:/superadmin";
+            }
+            // 如果是系统管理员(sys_admin)
+            else if ("sys_admin".equalsIgnoreCase(userType)) {
+                return "redirect:/sysadmin";
+            }
+            //如果是作者(author)
+            else if ("author".equalsIgnoreCase(userType)) {
+                return "redirect:/author";
+            }
+            //如果是主编(chief_editor)
+            else if ("chief_editor".equalsIgnoreCase(userType)) {
+                return "redirect:/chiefeditor";
+            }
+            //如果是编辑(editor)
+            else if ("editor".equalsIgnoreCase(userType)) {
+                return "redirect:/editor";
+            }
+            //如果是编辑部管理员(option_admin)
+            else if ("option_admin".equalsIgnoreCase(userType)) {
+                return "redirect:/optionadmin";
+            }
+            //如果是审稿人(reviewer)
+            else if ("reviewer".equalsIgnoreCase(userType)) {
+                return "redirect:/reviewer";
+            }
+            else {
+                return "redirect:/login-error?error=invalid_role";
+            }
+        }
+        else {
+            // 账户被封禁或状态异常
+            return "redirect:/login-error?error=account_disabled";
+        }
+    }
+    
+    // 显示登录错误页面
+    @GetMapping("/login-error")
+    public String loginError(@RequestParam(value = "error", defaultValue = "general") String error, Model model) {
+        String errorMessage = "";
+        String errorTitle = "";
+        
+        switch (error) {
+            case "username":
+                errorTitle = "用户名不存在";
+                errorMessage = "您输入的用户名不存在，请检查后重试。";
+                break;
+            case "password":
+                errorTitle = "密码错误";
+                errorMessage = "您输入的密码不正确，请检查后重试。";
+                break;
+            case "account_disabled":
+                errorTitle = "账户已被禁用";
+                errorMessage = "您的账户已被禁用，无法登录。请联系系统管理员。";
+                break;
+            case "invalid_role":
+                errorTitle = "用户角色异常";
+                errorMessage = "您的用户角色异常，无法登录。请联系系统管理员。";
+                break;
+            default:
+                errorTitle = "登录失败";
+                errorMessage = "登录过程中出现错误，请重试。";
+                break;
+        }
+        
+        model.addAttribute("errorTitle", errorTitle);
+        model.addAttribute("errorMessage", errorMessage);
+        return "login-error";
+    }
+    
+    // 处理注册请求
+    @PostMapping("/register")
+    public String register(User user, HttpSession session) {
+        // 检查用户名是否存在
+        if (userService.isUserNameExists(user.getUserName())) {
+            return "redirect:/?error=username_exists";
+        }
+        // 调用服务层注册用户
+        User newUser = userService.register(user);
+        if (newUser == null) {
+            return "redirect:/?error=register_error";
+        }
+        // 注册成功后自动登录
+        session.setAttribute("loginUser", newUser);
+        // 根据角色重定向
+        String userType = newUser.getUserType();
+        if ("author".equalsIgnoreCase(userType)) {
+            return "redirect:/author";
+        } else if ("reviewer".equalsIgnoreCase(userType)) {
+            return "redirect:/reviewer";
+        } else {
+            return "redirect:/?error=register_error";
+        }
+    }
+}
+</file>
+
+<file path="backend/src/main/java/com/bjfu/paperSystem/superAdmin/service/superAdminServiceImpl.java">
+package com.bjfu.paperSystem.superAdmin.service;
+
+import com.bjfu.paperSystem.javabeans.Logs;
+import com.bjfu.paperSystem.javabeans.Review;
+import com.bjfu.paperSystem.javabeans.User;
+import com.bjfu.paperSystem.superAdmin.dao.superAdminDao;
+import com.bjfu.paperSystem.superAdmin.dao.systemManageDao;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+public class superAdminServiceImpl implements superAdminService{
+    @Autowired
+    private superAdminDao suAdminDao;
+
+    @Autowired
+    private systemManageDao sysManageDao;
+
+    @Override
+    public void createAccount(User user) {
+        // 设置状态为exist
+        user.setStatus("exist");
+
+        // 执行插入
+        suAdminDao.save(user);
+    }
+
+    @Override
+    public List<User> findAllUsers() {
+        List<User> userList = suAdminDao.findAll();
+
+        return userList;
+    }
+
+    @Override
+    public List<User> findAllExistUsers() {
+        List<User> userList = suAdminDao.findByStatus("exist");
+
+        return userList;
+    }
+
+    @Override
+    public void deleteUser(Integer userId) {
+        User user = suAdminDao.findById(userId).orElse(null);
+        if (user != null) {
+            user.setStatus("not_exist");
+            suAdminDao.save(user);
+        }
+    }
+
+    @Override
+    public User findUserById(Integer userId) {
+        return suAdminDao.findById(userId).orElse(null);
+    }
+
+    @Override
+    public void modifyUser(User user) {
+        User dbUser = suAdminDao.findById(user.getUserId()).orElse(null);
+        dbUser.setUserName(user.getUserName());
+        // 密码留空则不修改
+        if (!user.getPassword().equals("")) {
+            dbUser.setPassword(user.getPassword());
+        }
+        dbUser.setFullName(user.getFullName());
+        dbUser.setEmail(user.getEmail());
+        dbUser.setUserType(user.getUserType());
+        dbUser.setCompany(user.getCompany());
+        dbUser.setInvestigationDirection(user.getInvestigationDirection());
+        dbUser.setRegisterTime(user.getRegisterTime());
+        dbUser.setStatus(user.getStatus());
+
+        suAdminDao.save(dbUser);
+    }
+
+    @Override
+    public List<Logs> findAllLogs() {
+        List<Logs> logList = sysManageDao.findAll();
+
+        return logList;
+    }
+
+    @Override
+    public List<Logs> queryLogs(
+            LocalDateTime opTime,
+            Integer oporId,
+            String opType,
+            Integer paperId) {
+
+        return sysManageDao.findAll((root, query, cb) -> {
+
+            List<Predicate> predicates = new ArrayList<>();
+
+            // 操作时间
+            if (opTime != null) {
+                predicates.add(
+                        cb.equal(root.get("opTime"), opTime)
+                );
+            }
+
+            // 操作人 ID
+            if (oporId != null) {
+                predicates.add(
+                        cb.equal(root.get("oporId"), oporId)
+                );
+            }
+
+            // 操作类型（模糊查询更合理）
+            if (opType != null && !opType.isEmpty()) {
+                predicates.add(
+                        cb.like(root.get("opType"), "%" + opType + "%")
+                );
+            }
+
+            // 稿件 ID
+            if (paperId != null) {
+                predicates.add(
+                        cb.equal(root.get("paperId"), paperId)
+                );
+            }
+
+            // where 条件拼接
+            return cb.and(predicates.toArray(new Predicate[0]));
+        });
+    }
+
+    @Override
+    public List<User> findUserByType(String userType) {
+        List<User> editorList = suAdminDao.findByUserType("editor");
+        editorList.removeIf(e -> "not_exist".equals(e.getStatus()));
+
+        return editorList;
+    }
+}
 </file>
 
 <file path="backend/src/main/java/com/bjfu/paperSystem/author/service/authorService.java">
@@ -10257,211 +10772,65 @@ public interface authorService {
 }
 </file>
 
-<file path="backend/src/main/java/com/bjfu/paperSystem/author/service/authorServiceImpl.java">
-package com.bjfu.paperSystem.author.service;
-import com.bjfu.paperSystem.author.dao.*;
-import com.bjfu.paperSystem.javabeans.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.io.File;
-@Service
-public class authorServiceImpl implements authorService {
-    @Autowired private ManuscriptDao manuscriptDao;
-    @Autowired private ManuscriptAuthorDao authorRepository;
-    @Autowired private RecommendedReviewerDao reviewerRepository;
-    @Autowired private logService logService;
-    @Autowired private authorDao authorDao;
-    @Autowired private VersionsDao versionsDao;
-    @Autowired private FilesDao filesDao;
-    @Autowired
-    private LogsDao logsDao;
-    private String translateStatus(String status) {
-        if (status == null) return "未知状态";
-        return switch (status) {
-            case "Started Submission" -> "开始投稿";
-            case "Incomplete Submission" -> "尚未提交的草稿";
-            case "Pending Review" -> "待审查";
-            case "Pending Allocation" -> "待分配";
-            case "With Editor" -> "编辑处理中";
-            case "Under Review" -> "审稿中";
-            case "Rejected" -> "拒稿";
-            case "Accepted" -> "录用";
-            case "Need Revision" -> "需要返修";
-            case "With A Decision" -> "已决议";
-            default -> status;
-        };
-    }
-    @Override
-    @Transactional
-    public void fullSubmit(Manuscript manuscript, String action, User user) {
-        manuscript.setAuthorId(user.getUserId());
-        if ("submit".equals(action)) {
-            manuscript.setStatus("Pending Review");
-            manuscript.setSubmitTime(LocalDateTime.now());
-        } else {
-            if (manuscript.getTitle() == null || manuscript.getTitle().trim().isEmpty()) {
-                manuscript.setStatus("Started Submission");
-            } else {
-                manuscript.setStatus("Incomplete Submission");
-            }
-        }
-        if (manuscript.getManuscriptId() > 0) {
-            authorRepository.deleteByManuscriptId(manuscript.getManuscriptId());
-            reviewerRepository.deleteByManuscriptId(manuscript.getManuscriptId());
-        }
-        Manuscript savedManuscript = manuscriptDao.save(manuscript);
-        int mid = savedManuscript.getManuscriptId();
-        if ("submit".equals(action)) {
-            Versions ver = new Versions();
-            ver.setManuscriptId(mid);
-            ver.setVersionNumber(versionsDao.countByManuscriptId(mid) + 1);
-            ver.setFilePathOriginal(manuscript.getManuscriptPath());
-            ver.setCoverLetterPath(manuscript.getCoverLetterPath());
-            versionsDao.save(ver);
-            if (manuscript.getManuscriptPath() != null) {
-                Files f = new Files();
-                f.setManuscriptId(mid);
-                f.setFilePath(manuscript.getManuscriptPath());
-                f.setFileName("V" + ver.getVersionNumber() + "_Main_Manuscript");
-                filesDao.save(f);
-            }
-        }
-        String logAction = "submit".equals(action) ? "submit" : "save";
-        logService.record(user.getUserId(), logAction, mid);
-        if (manuscript.getAuthors() != null) {
-            for (ManuscriptAuthor author : manuscript.getAuthors()) {
-                if (author.getName() != null && !author.getName().trim().isEmpty()) {
-                    author.setManuscriptId(mid);
-                    author.setId(0);
-                    authorRepository.save(author);
-                }
-            }
-        }
-        if (manuscript.getReviewers() != null) {
-            for (RecommendedReviewer reviewer : manuscript.getReviewers()) {
-                if (reviewer.getName() != null && !reviewer.getName().trim().isEmpty()) {
-                    reviewer.setManuscriptId(mid);
-                    reviewer.setId(0);
-                    reviewerRepository.save(reviewer);
-                }
-            }
-        }
-    }
-    @Override
-    @Transactional
-    public void deleteManuscript(int manuscriptId) {
-        authorRepository.deleteByManuscriptId(manuscriptId);
-        reviewerRepository.deleteByManuscriptId(manuscriptId);
-        manuscriptDao.deleteById(manuscriptId);
-    }
-    @Override
-    public Map<String, List<Manuscript>> getCategorizedManuscripts(int authorId) {
-        List<Manuscript> all = manuscriptDao.findByAuthorId(authorId);
-        all.forEach(m -> m.setStatus(translateStatus(m.getStatus())));
-        Map<String, List<Manuscript>> map = new HashMap<>();
-        map.put("incompletePapers", all.stream().filter(m -> m.getStatus().equals("开始投稿") || m.getStatus().equals("尚未提交的草稿")).collect(Collectors.toList()));
-        map.put("pendingReviewList", all.stream().filter(m -> m.getStatus().equals("待审查")).collect(Collectors.toList()));
-        map.put("underReviewList", all.stream().filter(m -> m.getStatus().equals("审稿中")).collect(Collectors.toList()));
-        map.put("decidedPapers", all.stream().filter(m -> Arrays.asList("录用", "拒稿", "已决议").contains(m.getStatus())).collect(Collectors.toList()));
-        map.put("revisionPapers", all.stream().filter(m -> m.getStatus().equals("需要返修")).collect(Collectors.toList()));
-        map.put("pendingAllocationList", all.stream().filter(m -> m.getStatus().equals("待分配")).collect(Collectors.toList()));
-        map.put("withEditorList", all.stream().filter(m -> m.getStatus().equals("编辑处理中")).collect(Collectors.toList()));
-        return map;
-    }
-    @Override
-    public Manuscript getManuscriptByIdAndAuthor(int manuscriptId, int authorId) {
-        Optional<Manuscript> optional = manuscriptDao.findById(manuscriptId);
-        if (optional.isPresent() && optional.get().getAuthorId() == authorId) {
-            Manuscript m = optional.get();
-            m.setAuthors(authorRepository.findByManuscriptId(manuscriptId));
-            m.setReviewers(reviewerRepository.findByManuscriptId(manuscriptId));
-            return m;
-        }
-        return null;
-    }
-    @Override public User getUserById(int userId) { return authorDao.findById(userId).orElse(null); }
-    @Override
-    public User findUserById(int userId) {
-        return authorDao.findById(userId).orElse(null);
-    }
-    @Override
-    @Transactional
-    public String updateProfile(User user, int loginUserId) {
-        User dbUser = authorDao.findById(loginUserId).orElse(null);
-        if (dbUser == null) return "用户不存在";
-        dbUser.setUserName(user.getUserName());
-        dbUser.setFullName(user.getFullName());
-        dbUser.setEmail(user.getEmail());
-        dbUser.setCompany(user.getCompany());
-        dbUser.setInvestigationDirection(user.getInvestigationDirection());
-        authorDao.save(dbUser);
-        return null;
-    }
-    @Override
-    @Transactional
-    public void submitRevision(int manuscriptId, MultipartFile cleanFile, MultipartFile markedFile,
-                               MultipartFile replyFile, String responseText, User user) throws IOException {
-        String cleanPath = saveFile(cleanFile, "manuscripts");
-        String markedPath = saveFile(markedFile, "marked");
-        String replyPath = saveFile(replyFile, "replies");
-        Integer maxVersion = versionsDao.findMaxVersionNumberByManuscriptId(manuscriptId);
-        int nextVersion = (maxVersion == null) ? 1 : maxVersion + 1;
-        Versions newV = new Versions();
-        newV.setManuscriptId(manuscriptId);
-        newV.setVersionNumber(nextVersion);
-        newV.setFilePathOriginal(cleanPath);
-        newV.setFilePathAnon(markedPath);
-        newV.setResponseLetterPath(replyPath);
-        newV.setResponseText(responseText);
-        versionsDao.save(newV);
-        Manuscript ms = manuscriptDao.findById(manuscriptId).get();
-        ms.setStatus("Under Review");
-        manuscriptDao.save(ms);
-        Logs log = new Logs();
-        log.setPaperId(manuscriptId);
-        log.setOporId(user.getUserId());
-        log.setOpType("submit revision");
-        log.setOpTime(LocalDateTime.now());
-        logsDao.save(log);
-    }
-    private String saveFile(MultipartFile file, String subDir) {
-        if (file == null || file.isEmpty()) return null;
-        try {
-            String originalFileName = file.getOriginalFilename();
-            String suffix = originalFileName.substring(originalFileName.lastIndexOf("."));
-            String fileName = UUID.randomUUID().toString() + suffix;
-            String projectPath = System.getProperty("user.dir");
-            String srcPath = projectPath + "/backend/src/main/resources/static/uploads/" + subDir + "/";
-            File srcDir = new File(srcPath);
-            if (!srcDir.exists()) srcDir.mkdirs();
-            File srcFile = new File(srcDir, fileName);
-            String classPath = java.net.URLDecoder.decode(this.getClass().getClassLoader().getResource("").getPath(), "UTF-8");
-            if (System.getProperty("os.name").toLowerCase().contains("win") && classPath.startsWith("/")) {
-                classPath = classPath.substring(1);
-            }
-            String targetPath = classPath + "static/uploads/" + subDir + "/";
-            File targetDir = new File(targetPath);
-            if (!targetDir.exists()) targetDir.mkdirs();
-            File targetFile = new File(targetDir, fileName);
-            file.transferTo(srcFile);
-            org.springframework.util.FileCopyUtils.copy(srcFile, targetFile);
-            return "/uploads/" + subDir + "/" + fileName;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-    @Override
-    public List<Versions> getVersionsByManuscriptId(int manuscriptId) {
-        return versionsDao.findByManuscriptIdOrderByVersionNumberDesc(manuscriptId);
-    }
-}
+<file path="backend/src/main/resources/templates/author.html">
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>学术论文管理系统-作者端</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <div class="container">
+        <a class="navbar-brand" href="#">学术论文管理系统</a>
+        <div class="ms-auto d-flex align-items-center">
+            <span class="navbar-text text-light me-3">
+                <i class="bi bi-person-circle"></i> 您好，<span th:text="${session.loginUser.userName}">作者姓名</span>
+            </span>
+            <a href="/author/logout" class="btn btn-outline-light btn-sm">退出登录</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-5">
+    <div class="row mb-5">
+        <div class="col text-center">
+            <p class="text-muted">请选择您需要办理的业务模块</p>
+        </div>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+        <div class="col-md-5">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3 fs-1">👤</div>
+                    <h2 class="card-title h4">个人信息管理</h2>
+                    <p class="card-text text-muted">修改您的全名、邮箱、所属机构及研究方向。</p>
+                    <a th:href="@{/author/profile}" class="btn btn-outline-primary w-100 mt-3">进入模块</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="card h-100 shadow-sm border-0 border-top border-success border-4">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3 fs-1">📄</div>
+                    <h2 class="card-title h4 text-success">稿件管理业务</h2>
+                    <p class="card-text text-muted">提交新稿件、查询审稿进度、查看历史投稿记录。</p>
+                    <a th:href="@{/author/manuscript/list}" class="btn btn-success w-100 mt-3">进入模块</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <p class="text-center mt-5 text-muted small">
+        © 2025 学术论文管理系统 · 作者
+    </p>
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</body>
+</html>
 </file>
 
 <file path="backend/src/main/resources/templates/author/list.html">
@@ -10632,6 +11001,428 @@ public class authorServiceImpl implements authorService {
 </script>
 </body>
 </html>
+</file>
+
+<file path="backend/src/main/java/com/bjfu/paperSystem/author/service/authorServiceImpl.java">
+package com.bjfu.paperSystem.author.service;
+import com.bjfu.paperSystem.author.dao.*;
+import com.bjfu.paperSystem.javabeans.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.io.File;
+@Service
+public class authorServiceImpl implements authorService {
+    @Autowired private ManuscriptDao manuscriptDao;
+    @Autowired private ManuscriptAuthorDao authorRepository;
+    @Autowired private RecommendedReviewerDao reviewerRepository;
+    @Autowired private logService logService;
+    @Autowired private authorDao authorDao;
+    @Autowired private VersionsDao versionsDao;
+    @Autowired private FilesDao filesDao;
+    @Autowired
+    private LogsDao logsDao;
+    private String translateStatus(String status) {
+        if (status == null) return "未知状态";
+        return switch (status) {
+            case "Started Submission" -> "开始投稿";
+            case "Incomplete Submission" -> "尚未提交的草稿";
+            case "Pending Review" -> "待审查";
+            case "Pending Allocation" -> "待分配";
+            case "With Editor" -> "编辑处理中";
+            case "Under Review" -> "审稿中";
+            case "Rejected" -> "拒稿";
+            case "Accepted" -> "录用";
+            case "Need Revision" -> "需要返修";
+            case "With A Decision" -> "已决议";
+            default -> status;
+        };
+    }
+    @Override
+    @Transactional
+    public void fullSubmit(Manuscript manuscript, String action, User user) {
+        manuscript.setAuthorId(user.getUserId());
+        if ("submit".equals(action)) {
+            manuscript.setStatus("Pending Review");
+            manuscript.setSubmitTime(LocalDateTime.now());
+        } else {
+            if (manuscript.getTitle() == null || manuscript.getTitle().trim().isEmpty()) {
+                manuscript.setStatus("Started Submission");
+            } else {
+                manuscript.setStatus("Incomplete Submission");
+            }
+        }
+        if (manuscript.getManuscriptId() > 0) {
+            authorRepository.deleteByManuscriptId(manuscript.getManuscriptId());
+            reviewerRepository.deleteByManuscriptId(manuscript.getManuscriptId());
+        }
+        Manuscript savedManuscript = manuscriptDao.save(manuscript);
+        int mid = savedManuscript.getManuscriptId();
+        if ("submit".equals(action)) {
+            Versions ver = new Versions();
+            ver.setManuscriptId(mid);
+            ver.setVersionNumber(versionsDao.countByManuscriptId(mid) + 1);
+            ver.setFilePathOriginal(manuscript.getManuscriptPath());
+            ver.setCoverLetterPath(manuscript.getCoverLetterPath());
+            versionsDao.save(ver);
+            if (manuscript.getManuscriptPath() != null) {
+                Files f = new Files();
+                f.setManuscriptId(mid);
+                f.setFilePath(manuscript.getManuscriptPath());
+                f.setFileName("V" + ver.getVersionNumber() + "_Main_Manuscript");
+                filesDao.save(f);
+            }
+        }
+        String logAction = "submit".equals(action) ? "submit" : "save";
+        logService.record(user.getUserId(), logAction, mid);
+        if (manuscript.getAuthors() != null) {
+            for (ManuscriptAuthor author : manuscript.getAuthors()) {
+                if (author.getName() != null && !author.getName().trim().isEmpty()) {
+                    author.setManuscriptId(mid);
+                    author.setId(0);
+                    authorRepository.save(author);
+                }
+            }
+        }
+        if (manuscript.getReviewers() != null) {
+            for (RecommendedReviewer reviewer : manuscript.getReviewers()) {
+                if (reviewer.getName() != null && !reviewer.getName().trim().isEmpty()) {
+                    reviewer.setManuscriptId(mid);
+                    reviewer.setId(0);
+                    reviewerRepository.save(reviewer);
+                }
+            }
+        }
+    }
+    @Override
+    @Transactional
+    public void deleteManuscript(int manuscriptId) {
+        authorRepository.deleteByManuscriptId(manuscriptId);
+        reviewerRepository.deleteByManuscriptId(manuscriptId);
+        manuscriptDao.deleteById(manuscriptId);
+    }
+    @Override
+    public Map<String, List<Manuscript>> getCategorizedManuscripts(int authorId) {
+        List<Manuscript> all = manuscriptDao.findByAuthorId(authorId);
+        all.forEach(m -> m.setStatus(translateStatus(m.getStatus())));
+        Map<String, List<Manuscript>> map = new HashMap<>();
+        map.put("incompletePapers", all.stream().filter(m -> m.getStatus().equals("开始投稿") || m.getStatus().equals("尚未提交的草稿")).collect(Collectors.toList()));
+        map.put("pendingReviewList", all.stream().filter(m -> m.getStatus().equals("待审查")).collect(Collectors.toList()));
+        map.put("underReviewList", all.stream().filter(m -> m.getStatus().equals("审稿中")).collect(Collectors.toList()));
+        map.put("decidedPapers", all.stream().filter(m -> Arrays.asList("录用", "拒稿", "已决议").contains(m.getStatus())).collect(Collectors.toList()));
+        map.put("revisionPapers", all.stream().filter(m -> m.getStatus().equals("需要返修")).collect(Collectors.toList()));
+        map.put("pendingAllocationList", all.stream().filter(m -> m.getStatus().equals("待分配")).collect(Collectors.toList()));
+        map.put("withEditorList", all.stream().filter(m -> m.getStatus().equals("编辑处理中")).collect(Collectors.toList()));
+        return map;
+    }
+    @Override
+    public Manuscript getManuscriptByIdAndAuthor(int manuscriptId, int authorId) {
+        Optional<Manuscript> optional = manuscriptDao.findById(manuscriptId);
+        if (optional.isPresent() && optional.get().getAuthorId() == authorId) {
+            Manuscript m = optional.get();
+            m.setAuthors(authorRepository.findByManuscriptId(manuscriptId));
+            m.setReviewers(reviewerRepository.findByManuscriptId(manuscriptId));
+            return m;
+        }
+        return null;
+    }
+    @Override public User getUserById(int userId) { return authorDao.findById(userId).orElse(null); }
+    @Override
+    public User findUserById(int userId) {
+        return authorDao.findById(userId).orElse(null);
+    }
+    @Override
+    @Transactional
+    public String updateProfile(User user, int loginUserId) {
+        User duplicateUser = authorDao.findByUserName(user.getUserName());
+        if (duplicateUser != null && duplicateUser.getUserId() != loginUserId) {
+            return "用户名已被占用，请更换其他账号名";
+        }
+        User dbUser = authorDao.findById(loginUserId).orElse(null);
+        if (dbUser == null) return "用户不存在";
+        dbUser.setUserName(user.getUserName());
+        dbUser.setFullName(user.getFullName());
+        dbUser.setEmail(user.getEmail());
+        dbUser.setCompany(user.getCompany());
+        dbUser.setInvestigationDirection(user.getInvestigationDirection());
+        authorDao.save(dbUser);
+        return null;
+    }
+    @Override
+    @Transactional
+    public void submitRevision(int manuscriptId, MultipartFile cleanFile, MultipartFile markedFile,
+                               MultipartFile replyFile, String responseText, User user) throws IOException {
+        String cleanPath = saveFile(cleanFile, "manuscripts");
+        String markedPath = saveFile(markedFile, "marked");
+        String replyPath = saveFile(replyFile, "replies");
+        Integer maxVersion = versionsDao.findMaxVersionNumberByManuscriptId(manuscriptId);
+        int nextVersion = (maxVersion == null) ? 1 : maxVersion + 1;
+        Versions newV = new Versions();
+        newV.setManuscriptId(manuscriptId);
+        newV.setVersionNumber(nextVersion);
+        newV.setFilePathOriginal(cleanPath);
+        newV.setFilePathAnon(markedPath);
+        newV.setResponseLetterPath(replyPath);
+        newV.setResponseText(responseText);
+        versionsDao.save(newV);
+        Manuscript ms = manuscriptDao.findById(manuscriptId).get();
+        ms.setStatus("Under Review");
+        manuscriptDao.save(ms);
+        Logs log = new Logs();
+        log.setPaperId(manuscriptId);
+        log.setOporId(user.getUserId());
+        log.setOpType("submit revision");
+        log.setOpTime(LocalDateTime.now());
+        logsDao.save(log);
+    }
+    private String saveFile(MultipartFile file, String subDir) {
+        if (file == null || file.isEmpty()) return null;
+        try {
+            String originalFileName = file.getOriginalFilename();
+            String suffix = originalFileName.substring(originalFileName.lastIndexOf("."));
+            String fileName = UUID.randomUUID().toString() + suffix;
+            String projectPath = System.getProperty("user.dir");
+            String srcPath = projectPath + "/backend/src/main/resources/static/uploads/" + subDir + "/";
+            File srcDir = new File(srcPath);
+            if (!srcDir.exists()) srcDir.mkdirs();
+            File srcFile = new File(srcDir, fileName);
+            String classPath = java.net.URLDecoder.decode(this.getClass().getClassLoader().getResource("").getPath(), "UTF-8");
+            if (System.getProperty("os.name").toLowerCase().contains("win") && classPath.startsWith("/")) {
+                classPath = classPath.substring(1);
+            }
+            String targetPath = classPath + "static/uploads/" + subDir + "/";
+            File targetDir = new File(targetPath);
+            if (!targetDir.exists()) targetDir.mkdirs();
+            File targetFile = new File(targetDir, fileName);
+            file.transferTo(srcFile);
+            org.springframework.util.FileCopyUtils.copy(srcFile, targetFile);
+            return "/uploads/" + subDir + "/" + fileName;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    @Override
+    public List<Versions> getVersionsByManuscriptId(int manuscriptId) {
+        return versionsDao.findByManuscriptIdOrderByVersionNumberDesc(manuscriptId);
+    }
+}
+</file>
+
+<file path="backend/src/main/java/com/bjfu/paperSystem/reviewer/controller/reviewerController.java">
+package com.bjfu.paperSystem.reviewer.controller;
+
+import com.bjfu.paperSystem.javabeans.Manuscript;
+import com.bjfu.paperSystem.author.service.authorService;
+import com.bjfu.paperSystem.javabeans.Review;
+import com.bjfu.paperSystem.javabeans.User;
+import com.bjfu.paperSystem.mailUtils.Service.mailService;
+import com.bjfu.paperSystem.mailUtils.MailUtil;
+import com.bjfu.paperSystem.reviewer.service.reviewerService;
+import com.bjfu.paperSystem.superAdmin.service.superAdminService;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.File;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Controller
+@RequestMapping("/reviewer")
+public class reviewerController {
+    @Autowired
+    private reviewerService revService;
+
+    @Autowired
+    private authorService autService;
+
+    @Autowired
+    private superAdminService suService;
+
+    @Autowired
+    private mailService mSerivice;
+
+    private final MailUtil mailUtil1;
+
+    public reviewerController(MailUtil mailUtil) {
+        this.mailUtil1 = mailUtil;
+    }
+
+    @GetMapping
+    public String toReviewerPage() {
+        return "/reviewer";
+    }
+
+    @GetMapping("pendingView")
+    public String toPendingViewPage(Model model) {
+        List<Review> list = revService.filterByTime(null, null);
+        model.addAttribute("reviewList", list);
+        return "/reviewer/pendingView";
+    }
+
+    @GetMapping("reviewJobs")
+    public String toReviewJobsPage(Model model) {
+        List<Review> list = revService.filterByStatus("accepted");
+        model.addAttribute("jobList", list);
+
+        for (Review r : list) {
+            Manuscript m = r.getManuScript();
+            System.out.println("reviewId=" + r.getReviewId()
+                    + ", manuNull=" + (m == null)
+                    + ", manuscriptPath=[" + (m == null ? null : m.getManuscriptPath()) + "]");
+        }
+
+        return "/reviewer/jobPage";
+    }
+
+    @GetMapping("filter")
+    public String filter(@RequestParam(required = false)
+                             @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+                             LocalDateTime startTime,
+                         @RequestParam(required = false)
+                             @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+                             LocalDateTime endTime,
+                         Model model) {
+        List<Review> list = revService.filterByTime(startTime, endTime);
+        model.addAttribute("startTime", startTime);
+        model.addAttribute("endTime", endTime);
+        model.addAttribute("reviewList", list);
+        return "/reviewer/pendingView";
+    }
+
+    @GetMapping("getManuSummary/{manuId}")
+    @ResponseBody
+    public String getManuSummary(@PathVariable int manuId) {
+        return revService.findByManuId(manuId).getAbstractText();
+    }
+
+    @PostMapping("invitations/accept")
+    @ResponseBody
+    public String acceptManu(@RequestParam("manuId") int manuId, @RequestParam("reviewId") int reviewId) {
+        return revService.acceptManu(reviewId, manuId);
+    }
+
+    @PostMapping("invitations/reject")
+    @ResponseBody
+    public String rejectManu(@RequestParam("manuId") int manuId, @RequestParam("reviewId") int reviewId) {
+        return revService.rejectManu(reviewId, manuId);
+    }
+
+    @GetMapping("submitOpinionPage/{reviewId}")
+    public String tpSubmitOpinionPage(@PathVariable int reviewId, Model model) {
+        System.out.println(reviewId);
+        Review review = revService.findByRevId(reviewId);
+        if (review == null) {
+            System.out.println("null");
+        }
+        else {
+            System.out.println("not null");
+        }
+
+        System.out.println(review.getManuScript().getTitle());
+        model.addAttribute("review", review);
+        model.addAttribute("editors",
+                suService.findUserByType("editor"));
+        if (suService.findUserByType("editor").isEmpty()) {
+            System.out.println("it's empty");
+        }
+        else {
+            System.out.println("it's not empty");
+        }
+        return "/reviewer/submitOpinionPage";
+    }
+
+    @PostMapping("submitOpinion")
+    @ResponseBody
+    public String handleSubmitOpinion(
+            @RequestParam Integer reviewId, // 当前reviewId 可以查到编辑和作者id
+            @RequestParam Integer scoreNovelty, // 创新性打分1-5
+            @RequestParam Integer scoreMethod, // 方法论打分1-5
+            @RequestParam Integer scoreQuality, // 整体质量打分1-5
+            @RequestParam String keyComments, // 关键评价
+            @RequestParam String recommendation, // 总体建议
+            @RequestParam String commentsToAuthor // 给作者的具体修改建议
+    ) {
+        // 先查到编辑和作者id
+        Review review = revService.findByRevId(reviewId);
+        Manuscript manu = review.getManuScript();
+        int editor_id = manu.getEditorId();
+        int author_id = manu.getAuthorId();
+
+        // 再根据user表查具体的邮箱地址
+        String editor_email = suService.findUserById(editor_id).getEmail();
+        System.out.println("editor_email: " + editor_email);
+        String author_email = suService.findUserById(author_id).getEmail();
+        System.out.println("author_email: " + author_email);
+
+        // 开始发送邮件信息
+        String toEditorMessage = String.format("""
+                创新性打分:%d,
+                方法论打分:%d,
+                整体质量打分: %d,
+                关键评价: %s,
+                整体建议: %s
+                """, scoreNovelty, scoreMethod, scoreQuality, keyComments, recommendation);
+        String toAuthorMessage = String.format("""
+                具体修改建议: %s
+                """, commentsToAuthor);
+
+        mailUtil1.sendTextMail(editor_email, "给编辑的意见", toEditorMessage);
+        mailUtil1.sendTextMail(author_email, "给作者的建议", toAuthorMessage);
+        // 发送邮件的同时写入邮件信息表
+        mSerivice.insertRecord(editor_email, author_email, toEditorMessage, manu.getManuscriptId(), manu);
+
+        String exitCode = revService.updateFinish(reviewId);
+
+        return "意见已提交";
+    }
+
+    @GetMapping("download")
+    public org.springframework.http.ResponseEntity<org.springframework.core.io.Resource> downloadFile(
+            @RequestParam("path") String filePath,
+            HttpSession session) {
+        if (session.getAttribute("loginUser") == null) {
+            return org.springframework.http.ResponseEntity.status(403).build();
+        }
+        try {
+            String projectPath = System.getProperty("user.dir");
+            File file = new File(projectPath + "/backend/src/main/resources/static" + filePath);
+            if (!file.exists()) {
+                String classPath = java.net.URLDecoder.decode(this.getClass().getClassLoader().getResource("").getPath(), "UTF-8");
+                if (System.getProperty("os.name").toLowerCase().contains("win") && classPath.startsWith("/")) {
+                    classPath = classPath.substring(1);
+                }
+                file = new File(classPath + "static" + filePath);
+            }
+
+            if (!file.exists()) {
+                return org.springframework.http.ResponseEntity.notFound().build();
+            }
+
+            org.springframework.core.io.Resource resource = new org.springframework.core.io.FileSystemResource(file);
+            String fileName = file.getName();
+            String encodedFileName = java.net.URLEncoder.encode(fileName, "UTF-8").replace("+", "%20");
+
+            return org.springframework.http.ResponseEntity.ok()
+                    .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + encodedFileName + "\"")
+                    .contentType(org.springframework.http.MediaType.APPLICATION_OCTET_STREAM)
+                    .body(resource);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return org.springframework.http.ResponseEntity.internalServerError().build();
+        }
+    }
+}
 </file>
 
 <file path="backend/src/main/resources/templates/author/submit.html">
@@ -10927,6 +11718,12 @@ public class manuscriptSystemController {
     private logService logService;
     @Autowired
     private LogsDao logsDao;
+    @Autowired
+    private ManuscriptDao manuscriptDao;
+    @Autowired
+    private ManuscriptAuthorDao manuscriptAuthorDao;
+    @Autowired
+    private RecommendedReviewerDao recommendedReviewerDao;
     @GetMapping("/list")
     public String list(Model model, HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
@@ -11089,12 +11886,6 @@ public class manuscriptSystemController {
             return org.springframework.http.ResponseEntity.internalServerError().build();
         }
     }
-    @Autowired
-    private ManuscriptDao manuscriptDao;
-    @Autowired
-    private ManuscriptAuthorDao manuscriptAuthorDao;
-    @Autowired
-    private RecommendedReviewerDao recommendedReviewerDao;
     @GetMapping("/detail")
     public String showDetail(@RequestParam("id") int id, Model model) {
         Manuscript manuscript = manuscriptDao.findById(id).orElse(null);

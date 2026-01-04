@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>消息列表</title>
+    <style>
+        :root{
+            --card-bg:#fff;
+            --border:#e6e8ee;
+            --text:#1f2328;
+            --muted:#6b7280;
+            --shadow: 0 6px 18px rgba(0,0,0,.06);
+        }
+        body{
+            margin:0;
+            font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",Arial,sans-serif;
+            color:var(--text);
+            background:#f6f7fb;
+        }
+
+        /* 顶部栏 */
+        .topbar{
+            position:sticky;
+            top:0;
+            z-index:5;
+            background:#fff;
+            border-bottom:1px solid var(--border);
+            padding:14px 18px;
+            font-weight:600;
+        }
+
+        /* 外层：允许左右滑动 */
+        .h-scroll{
+            overflow-x:auto;          /* 关键：水平滚动 */
+            padding:16px;
+        }
+
+        /* 两栏容器：给一个最小宽度，屏幕窄时会触发水平滚动 */
+        .columns{
+            display:flex;
+            gap:16px;
+            min-width: 980px;         /* 关键：小屏时需要左右滑动 */
+        }
+
+        .panel{
+            flex: 1 1 0;
+            background:var(--card-bg);
+            border:1px solid var(--border);
+            border-radius:14px;
+            box-shadow:var(--shadow);
+            overflow:hidden;
+            min-height: 70vh;
+            display:flex;
+            flex-direction:column;
+        }
+
+        .panel-header{
+            padding:12px 14px;
+            border-bottom:1px solid var(--border);
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            background:#fbfbfd;
+            font-weight:600;
+        }
+
+        .badge{
+            font-size:12px;
+            color:var(--muted);
+            font-weight:500;
+        }
+
+        /* 列表区：独立纵向滚动 */
+        .list{
+            padding:12px;
+            overflow-y:auto;          /* 关键：每栏独立纵向滚动 */
+            flex:1;
+        }
+
+        .item{
+            border:1px solid var(--border);
+            border-radius:12px;
+            padding:10px 12px;
+            background:#fff;
+            margin-bottom:10px;
+        }
+
+        .meta{
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+            align-items:center;
+            font-size:12px;
+            color:var(--muted);
+            margin-bottom:8px;
+        }
+
+        .meta strong{
+            color:var(--text);
+            font-weight:600;
+            font-size:12px;
+        }
+
+        .subject{
+            font-weight:600;
+            margin:0 0 6px 0;
+            font-size:14px;
+        }
+
+        .content{
+            margin:0;
+            font-size:13px;
+            line-height:1.45;
+            color:#2f3337;
+            white-space:pre-wrap;     /* 保留换行 */
+            word-break:break-word;
+        }
+
+        /* 空状态 */
+        .empty{
+            padding:28px 10px;
+            text-align:center;
+            color:var(--muted);
+            font-size:13px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="topbar">消息列表（左：我发送的｜右：我收到的）</div>
+
+<div class="h-scroll">
+    <div class="columns">
+
+        <!-- 左：我发送的 -->
+        <section class="panel">
+            <div class="panel-header">
+                <div>我发送的</div>
+                <div class="badge" th:text="'共 ' + ${#lists.size(sentMessages)} + ' 条'">共 0 条</div>
+            </div>
+
+            <div class="list">
+                <div th:if="${sentMessages == null or #lists.isEmpty(sentMessages)}" class="empty">
+                    暂无发送记录
+                </div>
+
+                <article class="item" th:each="m : ${sentMessages}">
+                    <div class="meta">
+                        <span><strong>To</strong> <span th:text="${m.getReceiver().getUserName()}">receiver@qq.com</span></span>
+                        <span><strong>稿件号: </strong> <span th:text="${m.getManuId()}">1</span></span>
+              <strong>时间</strong>
+              <span th:text="${#temporals.format(m.getSendingTime(), 'yyyy-MM-dd HH:mm')}">2026-01-04 20:00</span>
+            </span>
+                    </div>
+                    <p class="content" th:text="${m.getMessageBody()}">内容...</p>
+                </article>
+            </div>
+        </section>
+
+        <!-- 右：我收到的 -->
+        <section class="panel">
+            <div class="panel-header">
+                <div>我收到的</div>
+                <div class="badge" th:text="'共 ' + ${#lists.size(receivedMessage)} + ' 条'">共 0 条</div>
+            </div>
+
+            <div class="list">
+                <div th:if="${receivedMessage == null or #lists.isEmpty(receivedMessage)}" class="empty">
+                    暂无收件记录
+                </div>
+
+                <article class="item" th:each="m : ${receivedMessage}">
+                    <div class="meta">
+                        <span><strong>From</strong> <span th:text="${m.getSender().getUserName()}">sender@qq.com</span></span>
+                        <span><strong>稿件</strong> <span th:text="${m.getManuId()}">1</span></span>
+              <strong>时间</strong>
+              <span th:text="${#temporals.format(m.getSendingTime(), 'yyyy-MM-dd HH:mm')}">2026-01-04 20:00</span>
+            </span>
+                    </div>
+                    <p class="content" th:text="${m.getMessageBody()}">内容</p>
+                </article>
+            </div>
+        </section>
+
+    </div>
+</div>
+</body>
+</html>

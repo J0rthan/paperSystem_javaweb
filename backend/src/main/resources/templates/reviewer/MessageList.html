@@ -152,7 +152,7 @@
               <span th:text="${#temporals.format(m.getSendingTime(), 'yyyy-MM-dd HH:mm')}">2026-01-04 20:00</span>
             </span>
                     </div>
-                    <p class="content" th:text="${m.getMessageBody()}">内容...</p>
+                    <p class="content" th:utext="${m.getMessageBody()}">内容...</p>
                 </article>
             </div>
         </section>
@@ -177,7 +177,7 @@
               <span th:text="${#temporals.format(m.getSendingTime(), 'yyyy-MM-dd HH:mm')}">2026-01-04 20:00</span>
             </span>
                     </div>
-                    <p class="content" th:text="${m.getMessageBody()}">内容</p>
+                    <p class="content" th:utext="${m.getMessageBody()}">内容</p>
                 </article>
             </div>
         </section>

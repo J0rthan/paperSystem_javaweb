@@ -118,9 +118,9 @@
             <label for="roleSelect">分配角色 <span style="color:red">*</span></label>
             <select id="roleSelect" name="role" onchange="toggleFields()" required>
                 <option value="">-- 请选择角色类型 --</option>
-                <option value="EDITOR">责任编辑 (Editor)</option>
-                <option value="REVIEWER">审稿专家 (Reviewer)</option>
-                <option value="EDITORIAL_ADMIN">编辑部管理员 (Admin)</option>
+                <option value="editor">责任编辑 (Editor)</option>
+                <option value="reviewer">审稿专家 (Reviewer)</option>
+                <option value="editorial_admin">编辑部管理员 (Admin)</option>
             </select>
             <div class="help-text">不同角色所需的填写信息不同。</div>
         </div>
@@ -174,14 +174,14 @@
         profileGroup.style.display = 'none';
 
         // 2. 根据选择显示对应内容
-        if (role === 'EDITOR') {
+        if (role === 'editor') {
             // 责编：需要专长 + 简介
             specialtyGroup.style.display = 'block';
             profileGroup.style.display = 'block';
             specialtyLabel.innerText = "负责专栏 (Specialty)";
             specialtyHelp.innerText = "该编辑将负责此领域的稿件初审。";
         }
-        else if (role === 'REVIEWER') {
+        else if (role === 'reviewer') {
             // 审稿人：只需要研究方向
             specialtyGroup.style.display = 'block';
             specialtyLabel.innerText = "研究方向 (Investigation Direction)";

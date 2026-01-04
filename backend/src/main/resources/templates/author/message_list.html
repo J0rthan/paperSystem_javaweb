@@ -89,9 +89,8 @@
             <thead class="table-light">
             <tr>
               <th class="ps-4">邮件 ID</th>
-              <th>内容预览</th>
+              <th>关联稿件</th> <th>内容预览</th>
               <th>发送邮箱</th>
-              <th>接收邮箱</th>
               <th class="sort-header" onclick="sortTable(4)">
                 发送时间 <i class="bi bi-arrow-down-up ms-1 small"></i>
               </th>
@@ -104,23 +103,32 @@
                 <span class="badge bg-secondary-subtle text-secondary" th:text="${'#' + email.emailMesId}">#1</span>
               </td>
               <td>
-                <div class="text-dark fw-medium text-truncate" style="max-width: 300px;"
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+              <i class="bi bi-file-earmark-text"></i> MS-<span th:text="${email.manuId}">101</span>
+            </span>
+              </td>
+              <td>
+                <div class="text-dark fw-medium text-truncate" style="max-width: 250px;"
                      th:text="${email.messageBody}" th:title="${email.messageBody}">
                   预览内容...
                 </div>
               </td>
               <td th:text="${email.senderEmail ?: '系统发送'}">sender@test.com</td>
-              <td th:text="${email.receiverEmail}">author@test.com</td>
               <td th:text="${#temporals.format(email.sendingTime, 'yyyy-MM-dd HH:mm')}">2026-01-01</td>
               <td class="text-end pe-4">
-                <button class="btn btn-sm btn-outline-primary rounded-pill px-3"
-                        th:onclick="showEmailDetail([[${email.messageBody}]])">
-                  查看原文
-                </button>
+                <div class="btn-group">
+                  <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-2"
+                          th:onclick="showEmailDetail([[${email.messageBody}]])">
+                    查看原文
+                  </button>
+                  <a th:href="@{/author/manuscript/track(id=${email.manuId})}" class="btn btn-sm btn-link">
+                    追踪稿件
+                  </a>
+                </div>
               </td>
             </tr>
             <tr th:if="${#lists.isEmpty(emailMsgs)}">
-              <td colspan="6" class="text-center py-5 text-muted">无邮件存档记录</td>
+              <td colspan="6" class="text-center py-5 text-muted">无属于您的邮件存档记录</td>
             </tr>
             </tbody>
           </table>

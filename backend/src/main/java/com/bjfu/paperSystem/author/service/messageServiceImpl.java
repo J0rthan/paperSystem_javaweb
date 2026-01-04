@@ -19,9 +19,13 @@ public class messageServiceImpl implements messageService {
     public Map<String, Object> getAuthorMessageCenter(User loginUser) {
         Map<String, Object> data = new HashMap<>();
         List<ClientMessage> clientMsgs = clientMsgService.findMessageByReceiver(loginUser.getUserId());
-        List<EmailMessage> emailMsgs = emailMessageDao.findByReceiverEmailOrderByEmailMesIdDesc(loginUser.getEmail());
+        List<EmailMessage> allEmailMsgs = emailMessageDao.findByReceiverEmailWithManuscript(loginUser.getEmail());
+        List<EmailMessage> filteredEmails = allEmailMsgs.stream()
+                .filter(email -> email.getManuscript() != null &&
+                        email.getManuscript().getAuthorId() == loginUser.getUserId())
+                .toList();
         data.put("clientMsgs", clientMsgs);
-        data.put("emailMsgs", emailMsgs);
+        data.put("emailMsgs", filteredEmails);
         return data;
     }
 }

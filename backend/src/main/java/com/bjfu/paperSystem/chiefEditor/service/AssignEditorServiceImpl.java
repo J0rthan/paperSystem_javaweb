@@ -31,7 +31,7 @@ public class AssignEditorServiceImpl implements AssignEditorService {
 
     @Override
     public List<Manuscript> getToAssignManuscripts() {
-        List<Manuscript> result = manuscriptDao.findByStatus("Pending Asllocation II");
+        List<Manuscript> result = manuscriptDao.findByStatus("Pending Allocation II");
         return result != null ? result : List.of();
     }
 

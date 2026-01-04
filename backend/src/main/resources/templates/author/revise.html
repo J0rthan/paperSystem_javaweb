@@ -2,57 +2,115 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>提交修回稿件 - IAIR</title>
+  <title>提交修回稿件</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
   <link href="https://unpkg.com/@wangeditor/editor@latest/dist/css/style.css" rel="stylesheet">
   <style>
-    .editor-container { border: 1px solid #ccc; margin-top: 10px; }
-    .editor-toolbar { border-bottom: 1px solid #ccc; }
-    .editor-content { height: 300px; }
+    body { background-color: #f8f9fa; }
+    .editor-container { border: 1px solid #ccc; margin-top: 10px; border-radius: 4px; overflow: hidden; }
+    .editor-toolbar { border-bottom: 1px solid #ccc; background: #f1f1f1; }
+    .editor-content { height: 400px; background: #fff; }
+    .card { border: none; border-radius: 12px; }
+    .card-header { border-radius: 12px 12px 0 0 !important; }
+    .section-title { border-left: 5px solid #0d6efd; padding-left: 15px; margin: 25px 0 15px 0; }
   </style>
 </head>
-<body class="bg-light">
+<body>
+
 <div class="container py-5">
   <div class="card shadow">
-    <div class="card-header bg-warning text-dark">
-      <h4 class="mb-0">提交修回稿件 (Revision Submission)</h4>
+    <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center py-3">
+      <h4 class="mb-0 fw-bold"><i class="bi bi-file-earmark-arrow-up"></i> 提交修回稿件 (Revision Submission)</h4>
+      <button type="button" class="btn btn-dark btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#msgModal">
+        <i class="bi bi-chat-dots-fill me-1"></i> 联系负责编辑
+      </button>
     </div>
-    <div class="card-body">
-      <small class="text-muted">欢迎您：<span th:text="${session.loginUser.userName}">作者</span></small>
+
+    <div class="card-body p-4">
+      <div class="alert alert-info d-flex align-items-center" role="alert">
+        <i class="bi bi-person-circle me-2"></i>
+        <div>欢迎您，作者：<strong th:text="${session.loginUser.userName}">作者</strong> |
+          当前稿件 ID：<strong th:text="'#MS-' + ${manuscript.manuscriptId}">#101</strong></div>
+      </div>
+
       <form th:action="@{/author/manuscript/doRevise}" method="post" enctype="multipart/form-data">
         <input type="hidden" name="manuscriptId" th:value="${manuscript.manuscriptId}">
-        <h5 class="text-primary border-bottom pb-2">1. 上传修改后的文件</h5>
+
+        <h5 class="section-title text-primary fw-bold">1. 上传修改后的文件</h5>
         <div class="row g-3 mb-4">
           <div class="col-md-4">
             <label class="form-label fw-bold">Clean version (无标记版 PDF)</label>
             <input type="file" name="cleanFile" class="form-control" accept=".pdf" required>
+            <div class="form-text">仅限 PDF 格式</div>
           </div>
           <div class="col-md-4">
             <label class="form-label fw-bold">Marked version (标记修改版 PDF)</label>
             <input type="file" name="markedFile" class="form-control" accept=".pdf" required>
+            <div class="form-text">请突出显示修改内容</div>
           </div>
           <div class="col-md-4">
             <label class="form-label fw-bold">Reply Letter (回复信 Word)</label>
             <input type="file" name="replyFile" class="form-control" accept=".doc,.docx" required>
+            <div class="form-text">支持 .doc 或 .docx</div>
           </div>
         </div>
-        <h5 class="text-primary border-bottom pb-2">2. 逐点回复审稿意见 (Response Text)</h5>
-        <div class="editor-container">
+
+        <h5 class="section-title text-primary fw-bold">2. 逐点回复审稿意见 (Response Text)</h5>
+        <div class="editor-container shadow-sm">
           <div id="toolbar-container" class="editor-toolbar"></div>
           <div id="editor-container" class="editor-content"></div>
         </div>
         <input type="hidden" name="responseText" id="responseText">
 
-        <div class="mt-4 text-center">
-          <button type="submit" class="btn btn-success btn-lg px-5">提交修回并进入下一轮审稿</button>
-          <a th:href="@{/author/manuscript/list}" class="btn btn-secondary btn-lg px-5">取消</a>
+        <div class="mt-5 d-flex justify-content-center gap-3">
+          <button type="submit" class="btn btn-success btn-lg px-5 shadow-sm">
+            <i class="bi bi-cloud-upload"></i> 提交修回
+          </button>
+          <a th:href="@{/author/manuscript/list}" class="btn btn-outline-secondary btn-lg px-5">取消</a>
         </div>
       </form>
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="msgModal" tabindex="-1" aria-labelledby="msgModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="msgModalLabel"><i class="bi bi-envelope-paper"></i> 向编辑咨询</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="mb-3">
+          <label class="form-label fw-bold">选择收件人</label>
+          <select id="editorSelect" class="form-select border-primary-subtle">
+            <option th:each="ed : ${assignedEditors}" th:value="${ed.userId}"
+                    th:text="${ed.fullName + ' (负责编辑)'}"></option>
+            <option th:if="${#lists.isEmpty(assignedEditors)}" value="">系统管理员 (当前无分配编辑)</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">消息标题</label>
+          <input type="text" id="msgTitle" class="form-control" placeholder="关于修改截止日期的请求">
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">沟通内容</label>
+          <textarea id="msgBody" class="form-control" rows="5" placeholder="请详细说明您的问题，例如：由于实验设备损坏，请求延期提交修回稿件..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer bg-light">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-primary px-4" onclick="submitFastMessage()">
+          <i class="bi bi-send"></i> 发送消息
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/@wangeditor/editor@latest/dist/index.js"></script>
-<script>
+<script th:inline="javascript">
   const { createEditor, createToolbar } = window.wangEditor;
   const editorConfig = {
     placeholder: '请在此逐点回复审稿意见，例如：“审稿人1意见1：同意，修改如下...”',
@@ -71,7 +129,42 @@
     selector: '#toolbar-container',
     mode: 'simple',
   });
+  function submitFastMessage() {
+    const receiverId = document.getElementById('editorSelect').value;
+    const title = document.getElementById('msgTitle').value;
+    const body = document.getElementById('msgBody').value;
+    const manuId = [[${manuscript.manuscriptId}]];
+    if(!receiverId || !body) {
+      alert("请选择收件编辑并输入沟通内容！");
+      return;
+    }
+    const params = new URLSearchParams();
+    params.append('receiverId', receiverId);
+    params.append('manuId', manuId);
+    params.append('body', title ? `【${title}】${body}` : body);
+    fetch('/author/manuscript/sendMessage', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params
+    })
+            .then(response => {
+              if (response.ok) {
+                alert("消息已成功发送至编辑！您可以在消息中心查看回复。");
+                // 关闭模态框并重置内容
+                const modal = bootstrap.Modal.getInstance(document.getElementById('msgModal'));
+                modal.hide();
+                document.getElementById('msgTitle').value = '';
+                document.getElementById('msgBody').value = '';
+              } else {
+                alert("发送失败，请稍后重试或联系技术支持。");
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              alert("网络异常，发送失败。");
+            });
+  }
 </script>
+<p class="text-center mt-5 text-muted small pb-4">© 2025学术论文管理系统· 作者</p>
 </body>
-<p class="text-center mt-4 text-muted small">© 2025 学术论文管理系统 ·作者</p>
 </html>

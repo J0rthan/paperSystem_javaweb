@@ -27,13 +27,14 @@ public class authorServiceImpl implements authorService {
             case "Started Submission" -> "开始投稿";
             case "Incomplete Submission" -> "尚未提交的草稿";
             case "Pending Review" -> "待审查";
-            case "Pending Allocation" -> "待分配";
+            case "Pending Allocation" -> "待初审";
             case "With Editor" -> "编辑处理中";
-            case "Under Review" -> "审稿中";
+            case "Pending Allocation II" -> "待分配";
             case "Rejected" -> "拒稿";
             case "Accepted" -> "录用";
             case "Need Revision" -> "需要返修";
             case "With A Decision" -> "已决议";
+            case "With Editor II"->"编辑再处理";
             default -> status;
         };
     }
@@ -110,7 +111,8 @@ public class authorServiceImpl implements authorService {
         map.put("underReviewList", all.stream().filter(m -> m.getStatus().equals("审稿中")).collect(Collectors.toList()));
         map.put("decidedPapers", all.stream().filter(m -> Arrays.asList("录用", "拒稿", "已决议").contains(m.getStatus())).collect(Collectors.toList()));
         map.put("revisionPapers", all.stream().filter(m -> m.getStatus().equals("需要返修")).collect(Collectors.toList()));
-        map.put("pendingAllocationList", all.stream().filter(m -> m.getStatus().equals("待分配")).collect(Collectors.toList()));
+        map.put("pendingAllocationList", all.stream().filter(m -> m.getStatus().equals("待初审")).collect(Collectors.toList()));
+        map.put("pendingAllocationIIList", all.stream().filter(m -> m.getStatus().equals("待分配")).collect(Collectors.toList()));
         map.put("withEditorList", all.stream().filter(m -> m.getStatus().equals("编辑处理中")).collect(Collectors.toList()));
         return map;
     }

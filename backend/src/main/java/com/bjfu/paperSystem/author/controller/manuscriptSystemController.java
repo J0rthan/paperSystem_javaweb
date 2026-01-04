@@ -138,15 +138,28 @@ public class manuscriptSystemController {
         model.addAttribute("userNames", userNames);
         return "author/track";
     }
+    @Autowired
+    private AuthorRecordAllocationDao recordAllocationDao;
     @GetMapping("/revise")
     public String toRevise(@RequestParam("id") int id, Model model, HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
-        if (loginUser == null) return "redirect:/login";
+        if (loginUser == null) return "redirect:/index";
         Manuscript manuscript = authorService.getManuscriptByIdAndAuthor(id, loginUser.getUserId());
         if (manuscript == null || !"Need Revision".equals(manuscript.getStatus())) {
             return "redirect:/author/manuscript/list";
         }
+        List<Record_Allocation> allocations = recordAllocationDao.findByManuscriptId(id);
+        List<User> assignedEditors = new ArrayList<>();
+        for (Record_Allocation allocation : allocations) {
+            if (allocation.getUserId() != null) {
+                User editor = authorService.findUserById(allocation.getUserId());
+                if (editor != null) {
+                    assignedEditors.add(editor);
+                }
+            }
+        }
         model.addAttribute("manuscript", manuscript);
+        model.addAttribute("assignedEditors", assignedEditors);
         return "author/revise";
     }
     @PostMapping("/doRevise")

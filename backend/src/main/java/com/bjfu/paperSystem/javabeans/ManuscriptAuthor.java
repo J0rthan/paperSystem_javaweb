@@ -19,15 +19,17 @@ public class ManuscriptAuthor {
 
     private String institution;
     private String email;
-    private String degree;           // 学历
+    private String degree;
 
     @Column(name = "professional_title")
-    private String professionalTitle; // 职称
+    private String professionalTitle;
 
-    private String position;         // 职位
+    private String position;
 
     @Column(name = "is_corresponding")
-    private boolean corresponding;   // 变量名改为 corresponding
+    private Boolean corresponding = false; // 改为包装类并赋初值
+
+    public ManuscriptAuthor() {}
 
     // --- Getter and Setter ---
     public int getId() { return id; }
@@ -54,7 +56,8 @@ public class ManuscriptAuthor {
     public String getPosition() { return position; }
     public void setPosition(String position) { this.position = position; }
 
-    // 关键：标准的 boolean getter
-    public boolean isCorresponding() { return corresponding; }
-    public void setCorresponding(boolean corresponding) { this.corresponding = corresponding; }
+    // 提供标准的 get/is/set 方法，确保 Thymeleaf 怎么都能读到
+    public Boolean getCorresponding() { return corresponding; }
+    public boolean isCorresponding() { return corresponding != null && corresponding; }
+    public void setCorresponding(Boolean corresponding) { this.corresponding = corresponding; }
 }

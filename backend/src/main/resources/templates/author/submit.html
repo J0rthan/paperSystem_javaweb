@@ -8,21 +8,20 @@
     <style>
         body { background-color: #f8f9fa; }
         .section-box { border: 1px solid #dee2e6; padding: 25px; border-radius: 12px; margin-bottom: 25px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .author-item { border-left: 4px solid #0d6efd; background: #f8f9fa; padding: 15px; margin-bottom: 15px; }
+        .item-row { border-left: 4px solid #0d6efd; background: #f8f9fa; padding: 15px; margin-bottom: 15px; border-radius: 0 8px 8px 0; }
         h4 { color: #0d6efd; border-bottom: 2px solid #0d6efd; display: inline-block; margin-bottom: 20px; }
+        .label-bold { font-weight: 600; color: #495057; }
     </style>
 </head>
 <body class="bg-light d-flex flex-column h-100">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
     <div class="container">
         <a class="navbar-brand fw-bold" th:href="@{/author/manuscript/list}">
-            <i class="bi bi-journal-bookmark-fill me-2"></i>学术论文管理系统
+            <i class="bi bi-journal-bookmark-fill me-2"></i>学术论文管理系统-作者端
         </a>
-
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#authorNavbar">
             <span class="navbar-toggler-icon"></span>
         </button>
-
         <div class="collapse navbar-collapse" id="authorNavbar">
             <ul class="navbar-nav ms-auto align-items-center">
                 <li class="nav-item me-3">
@@ -57,145 +56,183 @@
     <div class="container py-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h2 class="mb-0 fw-bold" th:text="${manuscript.manuscriptId > 0 ? '编辑稿件' : '发起新投稿'}">发起新投稿</h2>
                 <small class="text-muted">欢迎您：<span th:text="${session.loginUser.userName}">作者</span></small>
+                <h2 class="mb-0 fw-bold" th:text="${manuscript.manuscriptId > 0 ? '编辑稿件' : '发起新投稿'}">发起新投稿</h2>
             </div>
-            <a th:href="@{/author/manuscript/list}" class="btn btn-sm btn-outline-secondary rounded-pill shadow-sm">
-                <i class="bi bi-arrow-left"></i> 返回稿件中心
+            <a th:href="@{/author/manuscript/list}" class="btn btn-outline-secondary rounded-pill">
+                <i class="bi bi-arrow-left"></i> 返回列表
             </a>
         </div>
-        <form th:action="@{/author/manuscript/doSubmit}" th:object="${manuscript}" method="post" enctype="multipart/form-data">
+
+        <form id="manuscriptForm" th:action="@{/author/manuscript/doSubmit}" th:object="${manuscript}" method="post" enctype="multipart/form-data">
             <input type="hidden" th:field="*{manuscriptId}">
-            <input type="hidden" th:field="*{manuscriptPath}">
-            <input type="hidden" th:field="*{coverLetterPath}">
+
             <div class="section-box">
-                <h4>1. 稿件信息</h4>
+                <h4>1. 稿件基本信息</h4>
                 <div class="row g-3">
-                    <div class="col-md-8">
-                        <label class="form-label fw-bold">标题 <span class="text-danger">*</span></label>
+                    <div class="col-md-12">
+                        <label class="form-label label-bold">标题</label>
                         <input type="text" th:field="*{title}" id="titleField" class="form-control" placeholder="请输入稿件标题">
                     </div>
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold">研究主题</label>
-                        <input type="text" th:field="*{subjectArea}" class="form-control" placeholder="如：人工智能">
+                    <div class="col-md-6">
+                        <label class="form-label label-bold">研究主题</label>
+                        <input type="text" th:field="*{subjectArea}" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label label-bold">关键词</label>
+                        <input type="text" th:field="*{keywords}" class="form-control" placeholder="用逗号分隔">
                     </div>
                     <div class="col-12">
-                        <label class="form-label fw-bold">关键词</label>
-                        <input type="text" th:field="*{keywords}" class="form-control" placeholder="逗号分隔，如：深度学习,图像识别">
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label fw-bold">摘要</label>
-                        <textarea th:field="*{abstractText}" class="form-control" rows="4" placeholder="请简要说明研究内容..."></textarea>
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label fw-bold">项目资助情况</label>
-                        <input type="text" th:field="*{fundingInfo}" class="form-control" placeholder="资助机构及编号">
+                        <label class="form-label label-bold">摘要</label>
+                        <textarea th:field="*{abstractText}" class="form-control" rows="4"></textarea>
                     </div>
                 </div>
             </div>
+
             <div class="section-box">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h4>2. 作者列表</h4>
-                    <button type="button" class="btn btn-primary btn-sm rounded-pill shadow-sm" onclick="addAuthor()">
-                        <i class="bi bi-person-plus"></i> 添加作者
+                    <h4>2. 作者信息</h4>
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addAuthor()">
+                        <i class="bi bi-plus-lg"></i> 添加作者
                     </button>
                 </div>
                 <div id="author-list">
-                    <div class="author-item" th:each="author, stat : *{authors}">
+                    <div class="item-row author-item" th:each="author, stat : *{authors}">
                         <div class="row g-2">
-                            <div class="col-md-3"><input type="text" class="form-control" placeholder="姓名" th:field="*{authors[__${stat.index}__].name}"></div>
-                            <div class="col-md-3"><input type="text" class="form-control" placeholder="单位" th:field="*{authors[__${stat.index}__].institution}"></div>
-                            <div class="col-md-3"><input type="email" class="form-control" placeholder="邮箱" th:field="*{authors[__${stat.index}__].email}"></div>
-                            <div class="col-md-3 d-flex align-items-center">
-                                <input type="checkbox" class="form-check-input me-2" th:field="*{authors[__${stat.index}__].corresponding}">
-                                <label class="form-check-label">通讯作者</label>
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" placeholder="姓名" th:field="*{authors[__${stat.index}__].name}">
                             </div>
-                            <div class="col-md-4"><input type="text" class="form-control form-control-sm" placeholder="学历" th:field="*{authors[__${stat.index}__].degree}"></div>
-                            <div class="col-md-4"><input type="text" class="form-control form-control-sm" placeholder="职称" th:field="*{authors[__${stat.index}__].professionalTitle}"></div>
-                            <div class="col-md-4"><input type="text" class="form-control form-control-sm" placeholder="职位" th:field="*{authors[__${stat.index}__].position}"></div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" placeholder="单位" th:field="*{authors[__${stat.index}__].institution}">
+                            </div>
+                            <div class="col-md-3">
+                                <input type="email" class="form-control" placeholder="邮箱" th:field="*{authors[__${stat.index}__].email}">
+                            </div>
+                            <div class="col-md-2 d-flex align-items-center">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" th:field="*{authors[__${stat.index}__].corresponding}">
+                                    <label class="form-check-label">通讯作者</label>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
             <div class="section-box">
-                <h4>3. 文件上传</h4>
-                <div class="mb-4">
-                    <label class="form-label fw-bold">手稿 (Manuscript - PDF) <span class="text-danger">*</span></label>
-                    <input type="file" name="msFile" class="form-control" accept=".pdf">
-                    <div th:if="*{manuscriptPath}" class="text-success small mt-1">
-                        <i class="bi bi-check-circle-fill"></i> 已上传: <span th:text="*{manuscriptPath}"></span>
-                    </div>
-                    <div class="form-text">请务必上传无作者信息的匿名 PDF 版本用于送审。</div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4>3. 资助信息</h4>
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addFunding()">
+                        <i class="bi bi-plus-lg"></i> 添加资助项目
+                    </button>
                 </div>
-                <div class="mb-2">
-                    <label class="form-label fw-bold">附信 (Cover Letter - DOC/DOCX)</label>
-                    <input type="file" name="clFile" class="form-control" accept=".doc,.docx">
-                    <div th:if="*{coverLetterPath}" class="text-success small mt-1">
-                        <i class="bi bi-check-circle-fill"></i> 已上传: <span th:text="*{coverLetterPath}"></span>
+                <div id="funding-list">
+                    <div class="item-row funding-item" th:each="f, stat : *{fundings}">
+                        <div class="row g-2">
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" placeholder="资助项目名称" th:field="*{fundings[__${stat.index}__].grantName}">
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" placeholder="资助编号" th:field="*{fundings[__${stat.index}__].grantNumber}">
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" placeholder="资助机构" th:field="*{fundings[__${stat.index}__].organization}">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <div class="section-box">
+                <h4>4. 文件上传</h4>
+                <div class="mb-3">
+                    <label class="form-label label-bold">稿件正文 (PDF) <span class="text-danger">*</span></label>
+                    <input type="file" name="msFile" class="form-control" accept=".pdf">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label label-bold">附信 (Cover Letter)</label>
+                    <input type="file" name="clFile" class="form-control">
+                </div>
+            </div>
+
             <div class="section-box">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h4>4. 推荐审稿人</h4>
-                    <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill" onclick="addReviewer()">
-                        <i class="bi bi-plus-lg"></i> 添加审稿人
+                    <h4>5. 推荐审稿人</h4>
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addReviewer()">
+                        <i class="bi bi-plus-lg"></i> 添加推荐人
                     </button>
                 </div>
                 <div id="reviewer-list">
-                    <div class="row g-2 mb-2" th:each="rev, stat : *{reviewers}">
+                    <div class="row g-2 mb-2 reviewer-item" th:each="rev, stat : *{reviewers}">
                         <div class="col-md-3"><input type="text" class="form-control" placeholder="姓名" th:field="*{reviewers[__${stat.index}__].name}"></div>
                         <div class="col-md-3"><input type="email" class="form-control" placeholder="邮箱" th:field="*{reviewers[__${stat.index}__].email}"></div>
-                        <div class="col-md-6"><input type="text" class="form-control" placeholder="理由" th:field="*{reviewers[__${stat.index}__].reason}"></div>
+                        <div class="col-md-6"><input type="text" class="form-control" placeholder="推荐理由" th:field="*{reviewers[__${stat.index}__].reason}"></div>
                     </div>
                 </div>
             </div>
-            <div class="text-center mt-5">
-                <button type="submit" name="action" value="save" class="btn btn-outline-primary btn-lg px-5 shadow-sm">保存草稿</button>
-                <button type="submit" name="action" value="submit" class="btn btn-primary btn-lg px-5 ms-3 shadow" onclick="return validateSubmit()">提交稿件</button>
+
+            <div class="text-center pb-5">
+                <button type="submit" name="action" value="save" class="btn btn-secondary btn-lg px-5">保存草稿</button>
+                <button type="submit" name="action" value="submit" class="btn btn-primary btn-lg px-5 ms-3" onclick="return validateSubmit()">提交稿件</button>
             </div>
         </form>
     </div>
 </main>
-<footer class="py-4 mt-auto">
-    <p class="text-center text-muted small mb-0">© 2025 学术论文管理系统 · 作者</p>
-</footer>
+
 <script>
     function validateSubmit() {
         const titleField = document.getElementById('titleField');
         if (!titleField.value || titleField.value.trim() === "") {
-            alert("提交失败：必须填写稿件标题！");
+            alert("提交失败：正式投稿必须填写标题！");
             titleField.focus();
             return false;
         }
         return confirm('确认提交吗？提交后稿件将进入“待审查”状态，您将无法直接修改。');
     }
+
     function addAuthor() {
         const container = document.getElementById('author-list');
-        const i = container.children.length;
+        const i = container.getElementsByClassName('author-item').length;
         const html = `
-                <div class="author-item">
-                    <div class="row g-2">
-                        <div class="col-md-3"><input type="text" name="authors[${i}].name" class="form-control" placeholder="姓名"></div>
-                        <div class="col-md-3"><input type="text" name="authors[${i}].institution" class="form-control" placeholder="单位"></div>
-                        <div class="col-md-3"><input type="email" name="authors[${i}].email" class="form-control" placeholder="邮箱"></div>
-                        <div class="col-md-3 d-flex align-items-center"><input type="checkbox" name="authors[${i}].corresponding" class="form-check-input me-2"> 通讯作者</div>
-                        <div class="col-md-4"><input type="text" name="authors[${i}].degree" class="form-control form-control-sm" placeholder="学历"></div>
-                        <div class="col-md-4"><input type="text" name="authors[${i}].professionalTitle" class="form-control form-control-sm" placeholder="职称"></div>
-                        <div class="col-md-4"><input type="text" name="authors[${i}].position" class="form-control form-control-sm" placeholder="职位"></div>
+            <div class="item-row author-item">
+                <div class="row g-2">
+                    <div class="col-md-3"><input type="text" name="authors[${i}].name" class="form-control" placeholder="姓名"></div>
+                    <div class="col-md-4"><input type="text" name="authors[${i}].institution" class="form-control" placeholder="单位"></div>
+                    <div class="col-md-3"><input type="email" name="authors[${i}].email" class="form-control" placeholder="邮箱"></div>
+                    <div class="col-md-2 d-flex align-items-center">
+                        <div class="form-check">
+                            <input type="checkbox" name="authors[${i}].corresponding" class="form-check-input">
+                            <label class="form-check-label">通讯作者</label>
+                        </div>
                     </div>
-                </div>`;
+                </div>
+            </div>`;
         container.insertAdjacentHTML('beforeend', html);
     }
+
+    function addFunding() {
+        const container = document.getElementById('funding-list');
+        const i = container.getElementsByClassName('funding-item').length;
+        const html = `
+            <div class="item-row funding-item">
+                <div class="row g-2">
+                    <div class="col-md-4"><input type="text" name="fundings[${i}].grantName" class="form-control" placeholder="资助项目名称"></div>
+                    <div class="col-md-4"><input type="text" name="fundings[${i}].grantNumber" class="form-control" placeholder="资助编号"></div>
+                    <div class="col-md-4"><input type="text" name="fundings[${i}].organization" class="form-control" placeholder="资助机构"></div>
+                </div>
+            </div>`;
+        container.insertAdjacentHTML('beforeend', html);
+    }
+
     function addReviewer() {
         const container = document.getElementById('reviewer-list');
-        const i = container.children.length;
+        const i = container.getElementsByClassName('reviewer-item').length;
         const html = `
-                <div class="row g-2 mb-2">
-                    <div class="col-md-3"><input type="text" name="reviewers[${i}].name" class="form-control" placeholder="姓名"></div>
-                    <div class="col-md-3"><input type="email" name="reviewers[${i}].email" class="form-control" placeholder="邮箱"></div>
-                    <div class="col-md-6"><input type="text" name="reviewers[${i}].reason" class="form-control" placeholder="理由"></div>
-                </div>`;
+            <div class="row g-2 mb-2 reviewer-item">
+                <div class="col-md-3"><input type="text" name="reviewers[${i}].name" class="form-control" placeholder="姓名"></div>
+                <div class="col-md-3"><input type="email" name="reviewers[${i}].email" class="form-control" placeholder="邮箱"></div>
+                <div class="col-md-6"><input type="text" name="reviewers[${i}].reason" class="form-control" placeholder="理由"></div>
+            </div>`;
         container.insertAdjacentHTML('beforeend', html);
     }
 </script>

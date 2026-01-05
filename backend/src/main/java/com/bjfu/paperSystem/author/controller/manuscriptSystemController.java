@@ -16,18 +16,13 @@ import java.time.LocalDateTime;
 @Controller
 @RequestMapping("/author/manuscript")
 public class manuscriptSystemController {
-    @Autowired
-    private authorService authorService;
-    @Autowired
-    private logService logService;
-    @Autowired
-    private LogsDao logsDao;
-    @Autowired
-    private ManuscriptDao manuscriptDao;
-    @Autowired
-    private ManuscriptAuthorDao manuscriptAuthorDao;
-    @Autowired
-    private RecommendedReviewerDao recommendedReviewerDao;
+    @Autowired private authorService authorService;
+    @Autowired private logService logService;
+    @Autowired private LogsDao logsDao;
+    @Autowired private ManuscriptDao manuscriptDao;
+    @Autowired private ManuscriptAuthorDao manuscriptAuthorDao;
+    @Autowired private RecommendedReviewerDao recommendedReviewerDao;
+    @Autowired private ManuscriptFundingDao manuscriptFundingDao; // 新增注入
     @GetMapping("/list")
     public String list(Model model, HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
@@ -51,8 +46,15 @@ public class manuscriptSystemController {
     public String toSubmit(Model model) {
         Manuscript manuscript = new Manuscript();
         manuscript.setManuscriptId(0);
-        manuscript.getAuthors().add(new ManuscriptAuthor());
-        manuscript.getReviewers().add(new RecommendedReviewer());
+        List<ManuscriptAuthor> authors = new ArrayList<>();
+        authors.add(new ManuscriptAuthor());
+        manuscript.setAuthors(authors);
+        List<RecommendedReviewer> reviewers = new ArrayList<>();
+        reviewers.add(new RecommendedReviewer());
+        manuscript.setReviewers(reviewers);
+        List<ManuscriptFunding> fundings = new ArrayList<>();
+        fundings.add(new ManuscriptFunding());
+        manuscript.setFundings(fundings);
         model.addAttribute("manuscript", manuscript);
         return "author/submit";
     }
@@ -89,6 +91,24 @@ public class manuscriptSystemController {
         if (loginUser == null) return "redirect:/index";
         Manuscript manuscript = authorService.getManuscriptByIdAndAuthor(id, loginUser.getUserId());
         if (manuscript == null) return "redirect:/author/manuscript/list";
+        List<ManuscriptAuthor> dbAuthors = manuscriptAuthorDao.findByManuscriptId(id);
+        if (dbAuthors == null || dbAuthors.isEmpty()) {
+            dbAuthors = new ArrayList<>();
+            dbAuthors.add(new ManuscriptAuthor());
+        }
+        manuscript.setAuthors(dbAuthors);
+        List<RecommendedReviewer> dbReviewers = recommendedReviewerDao.findByManuscriptId(id);
+        if (dbReviewers == null || dbReviewers.isEmpty()) {
+            dbReviewers = new ArrayList<>();
+            dbReviewers.add(new RecommendedReviewer());
+        }
+        manuscript.setReviewers(dbReviewers);
+        List<ManuscriptFunding> dbFundings = manuscriptFundingDao.findByManuscriptId(id);
+        if (dbFundings == null || dbFundings.isEmpty()) {
+            dbFundings = new ArrayList<>();
+            dbFundings.add(new ManuscriptFunding());
+        }
+        manuscript.setFundings(dbFundings);
         model.addAttribute("manuscript", manuscript);
         return "author/submit";
     }
@@ -138,8 +158,8 @@ public class manuscriptSystemController {
         model.addAttribute("userNames", userNames);
         return "author/track";
     }
-    @Autowired
-    private AuthorRecordAllocationDao recordAllocationDao;
+    @Autowired private AuthorRecordAllocationDao recordAllocationDao;
+
     @GetMapping("/revise")
     public String toRevise(@RequestParam("id") int id, Model model, HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
@@ -153,9 +173,7 @@ public class manuscriptSystemController {
         for (Record_Allocation allocation : allocations) {
             if (allocation.getEditorId() != null) {
                 User editor = authorService.findUserById(allocation.getEditorId());
-                if (editor != null) {
-                    assignedEditors.add(editor);
-                }
+                if (editor != null) assignedEditors.add(editor);
             }
         }
         model.addAttribute("manuscript", manuscript);
@@ -197,9 +215,8 @@ public class manuscriptSystemController {
                 }
                 file = new File(classPath + "static" + filePath);
             }
-            if (!file.exists()) {
-                return org.springframework.http.ResponseEntity.notFound().build();
-            }
+            if (!file.exists()) return org.springframework.http.ResponseEntity.notFound().build();
+
             org.springframework.core.io.Resource resource = new org.springframework.core.io.FileSystemResource(file);
             String fileName = file.getName();
             String encodedFileName = java.net.URLEncoder.encode(fileName, "UTF-8").replace("+", "%20");
@@ -216,13 +233,12 @@ public class manuscriptSystemController {
     @GetMapping("/detail")
     public String showDetail(@RequestParam("id") int id, Model model) {
         Manuscript manuscript = manuscriptDao.findById(id).orElse(null);
-        if (manuscript == null) {
-            return "redirect:/author/manuscript/list";
-        }
-        List<ManuscriptAuthor> authors = manuscriptAuthorDao.findByManuscriptId(id);
-        manuscript.setAuthors(authors);
-        List<RecommendedReviewer> reviewers = recommendedReviewerDao.findByManuscriptId(id);
-        manuscript.setReviewers(reviewers);
+        if (manuscript == null) return "redirect:/author/manuscript/list";
+
+        manuscript.setAuthors(manuscriptAuthorDao.findByManuscriptId(id));
+        manuscript.setReviewers(recommendedReviewerDao.findByManuscriptId(id));
+        manuscript.setFundings(manuscriptFundingDao.findByManuscriptId(id)); // 加载资助列表
+
         model.addAttribute("manuscript", manuscript);
         return "author/detailedInformation";
     }

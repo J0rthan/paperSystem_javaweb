@@ -15,12 +15,12 @@ public class authorServiceImpl implements authorService {
     @Autowired private ManuscriptDao manuscriptDao;
     @Autowired private ManuscriptAuthorDao authorRepository;
     @Autowired private RecommendedReviewerDao reviewerRepository;
+    @Autowired private ManuscriptFundingDao fundingRepository;
     @Autowired private logService logService;
     @Autowired private authorDao authorDao;
     @Autowired private VersionsDao versionsDao;
     @Autowired private FilesDao filesDao;
-    @Autowired
-    private LogsDao logsDao;
+    @Autowired private LogsDao logsDao;
     private String translateStatus(String status) {
         if (status == null) return "未知状态";
         return switch (status) {
@@ -47,15 +47,13 @@ public class authorServiceImpl implements authorService {
             manuscript.setStatus("Pending Review");
             manuscript.setSubmitTime(LocalDateTime.now());
         } else {
-            if (manuscript.getTitle() == null || manuscript.getTitle().trim().isEmpty()) {
-                manuscript.setStatus("Started Submission");
-            } else {
-                manuscript.setStatus("Incomplete Submission");
-            }
+            manuscript.setStatus(manuscript.getTitle() == null || manuscript.getTitle().trim().isEmpty()
+                    ? "Started Submission" : "Incomplete Submission");
         }
         if (manuscript.getManuscriptId() > 0) {
             authorRepository.deleteByManuscriptId(manuscript.getManuscriptId());
             reviewerRepository.deleteByManuscriptId(manuscript.getManuscriptId());
+            fundingRepository.deleteByManuscriptId(manuscript.getManuscriptId()); // 清理旧资助
         }
         Manuscript savedManuscript = manuscriptDao.save(manuscript);
         int mid = savedManuscript.getManuscriptId();
@@ -66,6 +64,7 @@ public class authorServiceImpl implements authorService {
             ver.setFilePathOriginal(manuscript.getManuscriptPath());
             ver.setCoverLetterPath(manuscript.getCoverLetterPath());
             versionsDao.save(ver);
+
             if (manuscript.getManuscriptPath() != null) {
                 Files f = new Files();
                 f.setManuscriptId(mid);
@@ -74,8 +73,6 @@ public class authorServiceImpl implements authorService {
                 filesDao.save(f);
             }
         }
-        String logAction = "submit".equals(action) ? "submit" : "save";
-        logService.record(user.getUserId(), logAction, mid);
         if (manuscript.getAuthors() != null) {
             for (ManuscriptAuthor author : manuscript.getAuthors()) {
                 if (author.getName() != null && !author.getName().trim().isEmpty()) {
@@ -94,12 +91,23 @@ public class authorServiceImpl implements authorService {
                 }
             }
         }
+        if (manuscript.getFundings() != null) {
+            for (ManuscriptFunding funding : manuscript.getFundings()) {
+                if (funding.getGrantName() != null && !funding.getGrantName().trim().isEmpty()) {
+                    funding.setManuscriptId(mid);
+                    funding.setId(0);
+                    fundingRepository.save(funding);
+                }
+            }
+        }
+        logService.record(user.getUserId(), "submit".equals(action) ? "submit" : "save", mid);
     }
     @Override
     @Transactional
     public void deleteManuscript(int manuscriptId) {
         authorRepository.deleteByManuscriptId(manuscriptId);
         reviewerRepository.deleteByManuscriptId(manuscriptId);
+        fundingRepository.deleteByManuscriptId(manuscriptId); // 级联删除资助
         manuscriptDao.deleteById(manuscriptId);
     }
     @Override
@@ -125,15 +133,13 @@ public class authorServiceImpl implements authorService {
             Manuscript m = optional.get();
             m.setAuthors(authorRepository.findByManuscriptId(manuscriptId));
             m.setReviewers(reviewerRepository.findByManuscriptId(manuscriptId));
+            m.setFundings(fundingRepository.findByManuscriptId(manuscriptId)); // 加载资助
             return m;
         }
         return null;
     }
     @Override public User getUserById(int userId) { return authorDao.findById(userId).orElse(null); }
-    @Override
-    public User findUserById(int userId) {
-        return authorDao.findById(userId).orElse(null);
-    }
+    @Override public User findUserById(int userId) { return authorDao.findById(userId).orElse(null); }
     @Override
     @Transactional
     public String updateProfile(User user, int loginUserId) {

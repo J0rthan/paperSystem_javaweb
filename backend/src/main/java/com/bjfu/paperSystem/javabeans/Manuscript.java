@@ -26,9 +26,6 @@ public class Manuscript {
     @Column(name = "subject_area")
     private String subjectArea; // 研究主题
 
-    @Column(name = "funding_info", columnDefinition = "TEXT")
-    private String fundingInfo; // 项目资助情况
-
     @Column(name = "status", length = 50)
     private String status;
 
@@ -70,6 +67,9 @@ public class Manuscript {
     @Transient
     private List<RecommendedReviewer> reviewers = new ArrayList<>();
 
+    @Transient
+    private List<ManuscriptFunding> fundings = new ArrayList<>();
+
     // --- Getter and Setter ---
     public int getManuscriptId() { return manuscriptId; }
     public void setManuscriptId(int manuscriptId) { this.manuscriptId = manuscriptId; }
@@ -91,9 +91,6 @@ public class Manuscript {
 
     public String getSubjectArea() { return subjectArea; }
     public void setSubjectArea(String subjectArea) { this.subjectArea = subjectArea; }
-
-    public String getFundingInfo() { return fundingInfo; }
-    public void setFundingInfo(String fundingInfo) { this.fundingInfo = fundingInfo; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
@@ -130,4 +127,7 @@ public class Manuscript {
 
     public String getEditorComment() { return editorComment; }
     public void setEditorComment(String editorComment) { this.editorComment = editorComment; }
+
+    public List<ManuscriptFunding> getFundings() { return fundings; }
+    public void setFundings(List<ManuscriptFunding> fundings) { this.fundings = fundings; }
 }

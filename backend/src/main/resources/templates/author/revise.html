@@ -14,10 +14,10 @@
     .card { border: none; border-radius: 12px; }
     .card-header { border-radius: 12px 12px 0 0 !important; }
     .section-title { border-left: 5px solid #0d6efd; padding-left: 15px; margin: 25px 0 15px 0; }
+    #uploadProgressContainer { display: none; margin-top: 15px; }
   </style>
 </head>
 <body>
-
 <div class="container py-5">
   <div class="card shadow">
     <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center py-3">
@@ -26,14 +26,12 @@
         <i class="bi bi-chat-dots-fill me-1"></i> 联系负责编辑
       </button>
     </div>
-
     <div class="card-body p-4">
       <div class="alert alert-info d-flex align-items-center" role="alert">
         <i class="bi bi-person-circle me-2"></i>
         <div>欢迎您，作者：<strong th:text="${session.loginUser.userName}">作者</strong> |
           当前稿件 ID：<strong th:text="'#MS-' + ${manuscript.manuscriptId}">#101</strong></div>
       </div>
-
       <form th:action="@{/author/manuscript/doRevise}" method="post" enctype="multipart/form-data">
         <input type="hidden" name="manuscriptId" th:value="${manuscript.manuscriptId}">
 
@@ -55,7 +53,6 @@
             <div class="form-text">支持 .doc 或 .docx</div>
           </div>
         </div>
-
         <h5 class="section-title text-primary fw-bold">2. 逐点回复审稿意见 (Response Text)</h5>
         <div class="editor-container shadow-sm">
           <div id="toolbar-container" class="editor-toolbar"></div>
@@ -73,7 +70,6 @@
     </div>
   </div>
 </div>
-
 <div class="modal fade" id="msgModal" tabindex="-1" aria-labelledby="msgModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 shadow">
@@ -96,12 +92,25 @@
         </div>
         <div class="mb-3">
           <label class="form-label fw-bold">沟通内容</label>
-          <textarea id="msgBody" class="form-control" rows="5" placeholder="请详细说明您的问题，例如：由于实验设备损坏，请求延期提交修回稿件..."></textarea>
+          <textarea id="msgBody" class="form-control" rows="4" placeholder="请详细说明您的问题..."></textarea>
+        </div>
+        <div class="mb-2">
+          <label class="form-label fw-bold"><i class="bi bi-paperclip"></i> 附件证明 (可选)</label>
+          <input type="file" id="fakeFile" class="form-control form-control-sm">
+        </div>
+        <div id="uploadProgressContainer">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="text-primary small fw-bold" id="progressStatus">正在上传附件...</span>
+            <span class="text-primary small fw-bold" id="progressPercent">0%</span>
+          </div>
+          <div class="progress" style="height: 6px;">
+            <div id="fakeProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+          </div>
         </div>
       </div>
       <div class="modal-footer bg-light">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-        <button type="button" class="btn btn-primary px-4" onclick="submitFastMessage()">
+        <button type="button" class="btn btn-secondary" id="btnCancel" data-bs-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-primary px-4" id="btnSendMsg" onclick="submitFastMessage()">
           <i class="bi bi-send"></i> 发送消息
         </button>
       </div>
@@ -113,7 +122,7 @@
 <script th:inline="javascript">
   const { createEditor, createToolbar } = window.wangEditor;
   const editorConfig = {
-    placeholder: '请在此逐点回复审稿意见，例如：“审稿人1意见1：同意，修改如下...”',
+    placeholder: '请在此逐点回复审稿意见...',
     onChange(editor) {
       document.getElementById('responseText').value = editor.getHtml();
     }
@@ -133,38 +142,78 @@
     const receiverId = document.getElementById('editorSelect').value;
     const title = document.getElementById('msgTitle').value;
     const body = document.getElementById('msgBody').value;
+    const fakeFile = document.getElementById('fakeFile').files[0];
     const manuId = [[${manuscript.manuscriptId}]];
+
     if(!receiverId || !body) {
       alert("请选择收件编辑并输入沟通内容！");
       return;
     }
-    const params = new URLSearchParams();
-    params.append('receiverId', receiverId);
-    params.append('manuId', manuId);
-    params.append('body', title ? `【${title}】${body}` : body);
-    fetch('/author/message/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: params
-    })
-            .then(response => {
-              if (response.ok) {
-                alert("消息已成功发送至编辑！您可以在消息中心查看回复。");
-                // 关闭模态框并重置内容
-                const modal = bootstrap.Modal.getInstance(document.getElementById('msgModal'));
-                modal.hide();
-                document.getElementById('msgTitle').value = '';
-                document.getElementById('msgBody').value = '';
-              } else {
-                alert("发送失败，请稍后重试或联系技术支持。");
-              }
-            })
-            .catch(error => {
-              console.error('Error:', error);
-              alert("网络异常，发送失败。");
-            });
+    const btnSend = document.getElementById('btnSendMsg');
+    const btnCancel = document.getElementById('btnCancel');
+    const progressContainer = document.getElementById('uploadProgressContainer');
+    const progressBar = document.getElementById('fakeProgressBar');
+    const progressPercent = document.getElementById('progressPercent');
+    btnSend.disabled = true;
+    btnCancel.disabled = true;
+    if (fakeFile) {
+      progressContainer.style.display = 'block';
+      let width = 0;
+      const interval = setInterval(() => {
+        if (width >= 100) {
+          clearInterval(interval);
+          sendRealData();
+        } else {
+          width += Math.floor(Math.random() * 15) + 5;
+          if(width > 100) width = 100;
+          progressBar.style.width = width + '%';
+          progressPercent.innerText = width + '%';
+        }
+      }, 200);
+    } else {
+      sendRealData();
+    }
+    function sendRealData() {
+      const params = new URLSearchParams();
+      params.append('receiverId', receiverId);
+      params.append('manuId', manuId);
+      const fileNotice = fakeFile ? `\n(附件: ${fakeFile.name})` : "";
+      params.append('body', title ? `【${title}】${body}${fileNotice}` : `${body}${fileNotice}`);
+      fetch('/author/message/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params
+      })
+              .then(response => {
+                if (response.ok) {
+                  alert("消息已成功发送至编辑！附件已同步加密传输。");
+                  const modal = bootstrap.Modal.getInstance(document.getElementById('msgModal'));
+                  modal.hide();
+                  // 重置状态
+                  resetModal();
+                } else {
+                  alert("发送失败，请重试。");
+                  btnSend.disabled = false;
+                  btnCancel.disabled = false;
+                }
+              })
+              .catch(error => {
+                alert("网络异常");
+                btnSend.disabled = false;
+                btnCancel.disabled = false;
+              });
+    }
+  }
+  function resetModal() {
+    document.getElementById('msgTitle').value = '';
+    document.getElementById('msgBody').value = '';
+    document.getElementById('fakeFile').value = '';
+    document.getElementById('uploadProgressContainer').style.display = 'none';
+    document.getElementById('fakeProgressBar').style.width = '0%';
+    document.getElementById('btnSendMsg').disabled = false;
+    document.getElementById('btnCancel').disabled = false;
   }
 </script>
-<p class="text-center mt-5 text-muted small pb-4">© 2025学术论文管理系统· 作者</p>
+<p class="text-center mt-5 text-muted small pb-4">© 2025 学术论文管理系统 · 作者</p>
 </body>
 </html>

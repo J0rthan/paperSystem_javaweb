@@ -322,6 +322,20 @@
         if (error || success) {
             window.history.replaceState({}, document.title, window.location.pathname);
         }
+
+        // 自动设置当前页面的导航链接为active状态
+        const currentPath = window.location.pathname;
+        document.querySelectorAll('.nav-link').forEach(function(link) {
+            link.classList.remove('active');
+            const href = link.getAttribute('href');
+            if (href) {
+                if ((currentPath === '/' || currentPath === '/index') && (href === '/' || href === '/index')) {
+                    link.classList.add('active');
+                } else if (currentPath !== '/' && currentPath !== '/index' && currentPath === href) {
+                    link.classList.add('active');
+                }
+            }
+        });
     })();
 </script>
 </body>

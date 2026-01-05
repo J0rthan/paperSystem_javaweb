@@ -2,96 +2,331 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>编辑部管理员工作台</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
-        body { background-color: #f5f7fa; }
-        .page-title { font-weight: 700; }
-        .card-icon { font-size: 2.2rem; }
+        :root {
+            --primary-color: #00629B;
+            --secondary-color: #003d5c;
+            --success-color: #28a745;
+            --info-color: #17a2b8;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --bg-light: #f8f9fa;
+            --text-dark: #2c3e50;
+            --text-muted: #6c757d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: var(--text-dark);
+        }
+
+        /* 导航栏 */
+        .navbar-custom {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .navbar-brand-custom {
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--primary-color) !important;
+        }
+
+        .nav-link-custom {
+            color: var(--text-dark) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link-custom:hover {
+            color: var(--primary-color) !important;
+            background: var(--bg-light);
+            border-radius: 4px;
+        }
+
+        .nav-link-custom.active {
+            color: var(--primary-color) !important;
+            background: var(--bg-light);
+            border-radius: 4px;
+        }
+
+        /* 主容器 */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        /* 页面标题 */
+        .page-header {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .page-title {
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        /* 功能卡片 */
+        .feature-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            height: 100%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border-top: 4px solid transparent;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        .feature-card.primary { border-top-color: var(--primary-color); }
+        .feature-card.info { border-top-color: var(--info-color); }
+        .feature-card.success { border-top-color: var(--success-color); }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-icon.primary {
+            background: rgba(0, 98, 155, 0.1);
+            color: var(--primary-color);
+        }
+
+        .feature-icon.info {
+            background: rgba(23, 162, 184, 0.1);
+            color: var(--info-color);
+        }
+
+        .feature-icon.success {
+            background: rgba(40, 167, 69, 0.1);
+            color: var(--success-color);
+        }
+
+        .feature-card h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.75rem;
+        }
+
+        .feature-card p {
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-feature {
+            border-radius: 8px;
+            padding: 0.5rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-feature:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        /* 用户信息 */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem 0.5rem;
+            }
+            .page-header {
+                padding: 1.5rem;
+            }
+        }
     </style>
 </head>
 <body>
-<div class="container py-5">
-
-    <!-- 顶部欢迎区 + 右上角个人按钮 -->
-    <div class="row mb-4 align-items-center">
-        <div class="col">
-            <h1 class="page-title">编辑部管理员</h1>
-            <p class="lead">
-                您好，
-                <span th:text="${session.loginUser.userName}">管理员姓名</span>。
-                下面是您在系统中的主要权限和功能入口。
-            </p>
+<!-- 导航栏 -->
+<nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container-fluid">
+        <div class="container">
+            <a class="navbar-brand navbar-brand-custom" href="/optionadmin">
+                <i class="bi bi-journal-text"></i> 编辑部管理员
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom active" href="/optionadmin">
+                            <i class="bi bi-house-door"></i> 工作台
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/optionadmin/manuscripts">
+                            <i class="bi bi-file-text"></i> 稿件管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/optionadmin/news">
+                            <i class="bi bi-newspaper"></i> 新闻管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/optionadmin/journal">
+                            <i class="bi bi-book"></i> 期刊管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/optionadmin/profile">
+                            <i class="bi bi-person-circle"></i> 个人资料
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </div>
-        <div class="col-auto text-end">
-            <a href="/optionadmin/profile" class="btn btn-primary btn-sm me-2">
-                个人信息
-            </a>
-            <a href="/author/logout" class="btn btn-secondary btn-sm">
-                退出登录
-            </a>
+    </div>
+</nav>
+
+<div class="main-container">
+
+    <!-- 页面标题 -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="page-title">
+                    <i class="bi bi-speedometer2"></i> 工作台
+                </h1>
+                <p class="page-subtitle mb-0">
+                    欢迎回来，
+                    <span class="fw-bold text-primary" th:text="${session.loginUser != null ? session.loginUser.userName : '管理员'}">管理员</span>
+                    ！这里是您的管理控制中心
+                </p>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar" th:text="${session.loginUser != null ? #strings.substring(session.loginUser.userName, 0, 1).toUpperCase() : 'A'}">A</div>
+                <div>
+                    <a href="/optionadmin/profile" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-person-circle"></i> 个人资料
+                    </a>
+                    <a href="/optionadmin/logout" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-box-arrow-right"></i> 退出
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- 功能卡片区域 -->
     <div class="row g-4">
         <!-- 稿件管理 -->
-        <div class="col-md-6">
-            <div class="card h-100 shadow-sm border-primary">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h2 class="h5 mb-0">📂 稿件形式审查</h2>
-                        <span class="badge bg-primary">管理权限</span>
-                    </div>
-                    <p class="text-muted mb-3">
-                        对新投稿进行技术检查，包括字数、格式一致性、查重率），确保符合期刊规范。
-                    </p>
-                    <a th:href="@{/optionadmin/manuscripts}" class="btn btn-outline-primary btn-sm">
-                        进入稿件管理
-                    </a>
+        <div class="col-lg-4 col-md-6">
+            <div class="feature-card primary">
+                <div class="feature-icon primary">
+                    <i class="bi bi-file-text"></i>
                 </div>
+                <h3>稿件形式审查</h3>
+                <p>
+                    对新投稿进行技术检查，包括字数、格式一致性、查重率等，确保符合期刊规范。
+                    您可以查看稿件详情、通过审核或退回修改。
+                </p>
+                <a th:href="@{/optionadmin/manuscripts}" class="btn btn-primary btn-feature">
+                    <i class="bi bi-arrow-right-circle"></i> 进入管理
+                </a>
             </div>
         </div>
 
         <!-- 新闻管理 -->
-        <div class="col-md-6">
-            <div class="card h-100 shadow-sm border-info">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h2 class="h5 mb-0">📰 新闻管理</h2>
-                        <span class="badge bg-info">管理权限</span>
-                    </div>
-                    <p class="text-muted mb-3">
-                        管理前台新闻和公告，包括新增、修改、删除，支持定时发布，可上传附件。
-                    </p>
-                    <a th:href="@{/optionadmin/news}" class="btn btn-outline-info btn-sm">
-                        进入新闻管理
-                    </a>
+        <div class="col-lg-4 col-md-6">
+            <div class="feature-card info">
+                <div class="feature-icon info">
+                    <i class="bi bi-newspaper"></i>
                 </div>
+                <h3>新闻管理</h3>
+                <p>
+                    管理前台新闻和公告，包括新增、修改、删除操作。支持定时发布功能，可上传附件文件。
+                    让您的新闻内容更加丰富。
+                </p>
+                <a th:href="@{/optionadmin/news}" class="btn btn-info btn-feature">
+                    <i class="bi bi-arrow-right-circle"></i> 进入管理
+                </a>
             </div>
         </div>
 
         <!-- 期刊管理 -->
-        <div class="col-md-6">
-            <div class="card h-100 shadow-sm border-success">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h2 class="h5 mb-0">📚 期刊管理</h2>
-                        <span class="badge bg-success">管理权限</span>
-                    </div>
-                    <p class="text-muted mb-3">
-                        管理期刊信息，包括更新期刊名称、介绍、影响因子和发表时间线等。
-                    </p>
-                    <a th:href="@{/optionadmin/journal}" class="btn btn-outline-success btn-sm">
-                        进入期刊管理
-                    </a>
+        <div class="col-lg-4 col-md-6">
+            <div class="feature-card success">
+                <div class="feature-icon success">
+                    <i class="bi bi-book"></i>
                 </div>
+                <h3>期刊管理</h3>
+                <p>
+                    管理期刊信息，包括更新期刊名称、介绍、影响因子和发表时间线等。
+                    维护期刊的基本信息和展示内容。
+                </p>
+                <a th:href="@{/optionadmin/journal}" class="btn btn-success btn-feature">
+                    <i class="bi bi-arrow-right-circle"></i> 进入管理
+                </a>
             </div>
         </div>
+    </div>
 
-    <p class="text-center mt-4 text-muted small">
-        © 2025 学术论文管理系统 · 编辑部管理员
-    </p>
+    <!-- 页脚 -->
+    <footer class="text-center mt-5 py-4">
+        <p class="text-muted small mb-0">
+            <i class="bi bi-c-circle"></i> 2025 学术论文管理系统 · 编辑部管理员工作台
+        </p>
+    </footer>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

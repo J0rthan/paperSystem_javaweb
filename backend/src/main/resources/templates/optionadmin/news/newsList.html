@@ -2,38 +2,183 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>新闻管理 · 编辑部管理员</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</head>
-<body class="bg-light">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #00629B;
+            --bg-light: #f8f9fa;
+            --text-dark: #2c3e50;
+            --text-muted: #6c757d;
+        }
 
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h3 mb-0">新闻管理</h1>
-        <div class="d-flex gap-2">
-            <a href="/optionadmin" class="btn btn-outline-secondary btn-sm">&larr; 返回工作台</a>
-            <a href="/optionadmin/news/add" class="btn btn-primary btn-sm">+ 新增新闻</a>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-light);
+        }
+
+        .navbar-custom {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .navbar-brand-custom {
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--primary-color) !important;
+        }
+
+        .nav-link-custom {
+            color: var(--text-dark) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link-custom:hover, .nav-link-custom.active {
+            color: var(--primary-color) !important;
+            background: var(--bg-light);
+            border-radius: 4px;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem 2rem;
+        }
+
+        .page-header {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .page-title {
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .card {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .table thead {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .table thead th {
+            border: none;
+            padding: 1rem;
+            font-weight: 600;
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+
+        .table tbody tr:hover {
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+<!-- 导航栏 -->
+<nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container-fluid">
+        <div class="container">
+            <a class="navbar-brand navbar-brand-custom" href="/optionadmin">
+                <i class="bi bi-journal-text"></i> 编辑部管理员
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/optionadmin">
+                            <i class="bi bi-house-door"></i> 工作台
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/optionadmin/manuscripts">
+                            <i class="bi bi-file-text"></i> 稿件管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom active" href="/optionadmin/news">
+                            <i class="bi bi-newspaper"></i> 新闻管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/optionadmin/journal">
+                            <i class="bi bi-book"></i> 期刊管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/optionadmin/profile">
+                            <i class="bi bi-person-circle"></i> 个人资料
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="main-container">
+
+    <!-- 页面标题 -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="page-title">
+                    <i class="bi bi-newspaper"></i> 新闻管理
+                </h1>
+                <p class="text-muted mb-0 mt-2">
+                    <i class="bi bi-info-circle"></i> 管理前台新闻和公告，支持新增、编辑、删除和定时发布
+                </p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="/optionadmin" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> 返回工作台
+                </a>
+                <a href="/optionadmin/news/add" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> 新增新闻
+                </a>
+            </div>
         </div>
     </div>
 
-    <!-- 简单提示 -->
-    <p class="text-muted">
-        这里展示系统中的所有新闻，您可以进行新增、编辑、删除和发布操作。
-    </p>
-
     <!-- 搜索和筛选 -->
-    <div class="card mb-3 bg-white shadow-sm">
+    <div class="card mb-3">
         <div class="card-body">
             <form th:action="@{/optionadmin/news}" method="get" class="row g-3">
                 <div class="col-md-3">
-                    <label for="keyword" class="form-label">关键词搜索</label>
+                    <label for="keyword" class="form-label"><i class="bi bi-search"></i> 关键词搜索</label>
                     <input type="text" id="keyword" name="keyword" th:value="${keyword}" 
-                           class="form-control form-control-sm" placeholder="输入标题或内容关键词">
+                           class="form-control" placeholder="输入标题或内容关键词">
                 </div>
                 <div class="col-md-2">
-                    <label for="status" class="form-label">状态筛选</label>
-                    <select id="status" name="status" class="form-select form-select-sm">
+                    <label for="status" class="form-label"><i class="bi bi-funnel"></i> 状态筛选</label>
+                    <select id="status" name="status" class="form-select">
                         <option value="">全部状态</option>
                         <option value="published" th:selected="${status == 'published'}">已发布</option>
                         <option value="scheduled" th:selected="${status == 'scheduled'}">定时发布</option>
@@ -41,38 +186,43 @@
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label for="startDate" class="form-label">开始日期</label>
+                    <label for="startDate" class="form-label"><i class="bi bi-calendar"></i> 开始日期</label>
                     <input type="date" id="startDate" name="startDate" th:value="${startDate}" 
-                           class="form-control form-control-sm">
+                           class="form-control">
                 </div>
                 <div class="col-md-2">
-                    <label for="endDate" class="form-label">结束日期</label>
+                    <label for="endDate" class="form-label"><i class="bi bi-calendar-check"></i> 结束日期</label>
                     <input type="date" id="endDate" name="endDate" th:value="${endDate}" 
-                           class="form-control form-control-sm">
+                           class="form-control">
                 </div>
                 <div class="col-md-2 align-self-end">
-                    <button type="submit" class="btn btn-primary btn-sm w-100">搜索</button>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i> 搜索
+                    </button>
                 </div>
                 <div class="col-md-1 align-self-end">
-                    <a href="/optionadmin/news" class="btn btn-outline-secondary btn-sm w-100">重置</a>
+                    <a href="/optionadmin/news" class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-arrow-clockwise"></i> 重置
+                    </a>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- 新闻表格 -->
-    <table class="table table-hover table-sm align-middle bg-white shadow-sm">
-        <thead class="table-light">
-        <tr>
-            <th>新闻ID</th>
-            <th>标题</th>
-            <th>状态</th>
-            <th>创建时间</th>
-            <th>发布时间</th>
-            <th>附件</th>
-            <th>操作</th>
-        </tr>
-        </thead>
+    <div class="table-container">
+        <table class="table table-hover align-middle">
+            <thead>
+            <tr>
+                <th><i class="bi bi-hash"></i> 新闻ID</th>
+                <th><i class="bi bi-file-text"></i> 标题</th>
+                <th><i class="bi bi-tag"></i> 状态</th>
+                <th><i class="bi bi-calendar-plus"></i> 创建时间</th>
+                <th><i class="bi bi-calendar-check"></i> 发布时间</th>
+                <th><i class="bi bi-paperclip"></i> 附件</th>
+                <th><i class="bi bi-gear"></i> 操作</th>
+            </tr>
+            </thead>
         <tbody>
         <tr th:each="news : ${newsList}">
             <td th:text="${news.newsId}">1</td>
@@ -98,36 +248,50 @@
                     无附件
                 </span>
             </td>
-            <td>
-                <div class="btn-group btn-group-sm">
-                    <a th:href="@{/optionadmin/news/edit/{id}(id=${news.newsId})}" class="btn btn-outline-primary">编辑</a>
-                    <button type="button" class="btn btn-outline-danger" 
-                            th:data-id="${news.newsId}" onclick="confirmDelete(this)">删除</button>
-                </div>
-            </td>
-        </tr>
-        <tr th:if="${newsList.isEmpty()}">
-            <td colspan="7" class="text-center py-4">暂无新闻数据</td>
-        </tr>
-        </tbody>
-    </table>
+                <td>
+                    <div class="btn-group btn-group-sm">
+                        <a th:href="@{/optionadmin/news/edit/{id}(id=${news.newsId})}" class="btn btn-outline-primary">
+                            <i class="bi bi-pencil"></i> 编辑
+                        </a>
+                        <button type="button" class="btn btn-outline-danger" 
+                                th:data-id="${news.newsId}" onclick="confirmDelete(this)">
+                            <i class="bi bi-trash"></i> 删除
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${newsList.isEmpty()}">
+                <td colspan="7" class="text-center py-5">
+                    <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+                    <p class="text-muted mt-3">暂无新闻数据</p>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <!-- 删除确认模态框 -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">确认删除</h5>
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="bi bi-exclamation-triangle text-danger"></i> 确认删除
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                确定删除该新闻吗？此操作无法恢复。
+                <p>确定删除该新闻吗？此操作无法恢复。</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                <form id="deleteForm" method="post">
-                    <button type="submit" class="btn btn-danger">确定删除</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x"></i> 取消
+                </button>
+                <form id="deleteForm" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> 确定删除
+                    </button>
                 </form>
             </div>
         </div>

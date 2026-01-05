@@ -14,9 +14,9 @@ public class optionAdminController {
     public String optionAdmin() {
         return "optionadmin";
     }
-     @GetMapping("/logout")
+    @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
-        return "redirect:/Login.html";
+        return "redirect:/index";
     }
 }

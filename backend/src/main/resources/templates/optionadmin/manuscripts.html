@@ -2,155 +2,328 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>稿件管理 · 编辑部管理员</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- 引入思源宋体字体 -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
-        /* Science/Nature风格样式 */
+        :root {
+            --primary-color: #00629B;
+            --secondary-color: #003d5c;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --bg-light: #f8f9fa;
+            --text-dark: #2c3e50;
+            --text-muted: #6c757d;
+        }
+
         body {
-            font-family: 'Noto Serif SC', serif;
-            background-color: #f8f9fa;
-            color: #2c3e50;
-            line-height: 1.6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
         }
-        h1, h2, h3, h4, h5, h6 {
+
+        .navbar-custom {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .navbar-brand-custom {
             font-weight: 700;
-            color: #1a1a1a;
-            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            color: var(--primary-color) !important;
         }
-        .table {
-            font-size: 0.9rem;
-        }
-        .table th {
-            font-weight: 600;
-            background-color: #f1f3f5;
-            border-bottom: 2px solid #dee2e6;
-        }
-        .table td {
-            vertical-align: middle;
-        }
-        .badge {
+
+        .nav-link-custom {
+            color: var(--text-dark) !important;
             font-weight: 500;
-            padding: 0.35em 0.65em;
-            border-radius: 0.375rem;
-        }
-        .btn {
-            font-weight: 500;
-            border-radius: 0.25rem;
+            padding: 0.5rem 1rem !important;
             transition: all 0.3s ease;
         }
-        .btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+
+        .nav-link-custom:hover, .nav-link-custom.active {
+            color: var(--primary-color) !important;
+            background: var(--bg-light);
+            border-radius: 4px;
         }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem 2rem;
+        }
+
+        .page-header {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .page-title {
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .table thead th {
+            border: none;
+            padding: 1rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .badge {
+            padding: 0.4rem 0.8rem;
+            font-weight: 500;
+            border-radius: 6px;
+        }
+
+        .btn-group-sm .btn {
+            padding: 0.35rem 0.75rem;
+            font-size: 0.875rem;
+            border-radius: 6px;
+        }
+
         .modal-content {
-            border-radius: 0.5rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
         }
+
         .modal-header {
-            background-color: #f8f9fa;
+            background: var(--bg-light);
             border-bottom: 1px solid #dee2e6;
+            border-radius: 12px 12px 0 0;
         }
+
         .modal-title {
             font-weight: 600;
+            color: var(--text-dark);
         }
-        textarea.form-control {
-            resize: vertical;
-            min-height: 120px;
+
+        .info-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
         }
     </style>
 </head>
-<body class="bg-light">
-
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h3 mb-0">稿件管理</h1>
-        <a href="/optionadmin" class="btn btn-outline-secondary btn-sm">&larr; 返回编辑部管理员页面</a>
+<body>
+<!-- 导航栏 -->
+<nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container-fluid">
+        <div class="container">
+            <a class="navbar-brand navbar-brand-custom" href="/optionadmin">
+                <i class="bi bi-journal-text"></i> 编辑部管理员
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/optionadmin">
+                            <i class="bi bi-house-door"></i> 工作台
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom active" href="/optionadmin/manuscripts">
+                            <i class="bi bi-file-text"></i> 稿件管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/optionadmin/news">
+                            <i class="bi bi-newspaper"></i> 新闻管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/optionadmin/journal">
+                            <i class="bi bi-book"></i> 期刊管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/optionadmin/profile">
+                            <i class="bi bi-person-circle"></i> 个人资料
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>
+</nav>
 
-    <!-- 简单提示 -->
-    <p class="text-muted">
-        这里展示系统中的所有稿件，您可以查看详情并更新稿件状态。
-    </p>
+<div class="main-container">
+    <!-- 页面标题 -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="page-title">
+                    <i class="bi bi-file-text"></i> 稿件管理
+                </h1>
+                <p class="text-muted mb-0 mt-2">
+                    <i class="bi bi-info-circle"></i> 管理待审核的稿件，进行形式审查和审核操作
+                </p>
+            </div>
+            <a href="/optionadmin" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> 返回工作台
+            </a>
+        </div>
+    </div>
 
     <!-- 稿件表格 -->
-    <table class="table table-hover table-sm align-middle bg-white">
-        <thead class="table-light">
-        <tr>
-            <th>稿件ID</th>
-            <th>标题</th>
-            <th>提交时间</th>
-            <th>标记</th>
-            <th>操作</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="m : ${manuscripts}" th:if="${m.status} == 'Pending Review'">
-            <td th:text="${m.manuscriptId}">1</td>
-            <td th:text="${m.title}">示例标题</td>   
-            <td th:text="${#temporals.format(m.submitTime, 'yyyy-MM-dd HH:mm')}">2025-01-01 12:00</td>
-            <td>
-                <span th:if="${#strings.length(m.abstractText) > 8000}" class="badge bg-danger">字数超限</span>
-                <span th:if="${#strings.isEmpty(m.keywords) or #strings.isEmpty(m.subjectArea)}" class="badge bg-warning">格式不符</span>
-                <span th:unless="${#strings.length(m.abstractText) > 8000 or #strings.isEmpty(m.keywords) or #strings.isEmpty(m.subjectArea)}" class="badge bg-success">正常</span>
-            </td>
-            <td>
-                <div class="btn-group btn-group-sm">
-                    <a th:href="@{/optionadmin/manuscripts/{id}(id=${m.manuscriptId})}" class="btn btn-outline-primary">详情</a>
-                    <form th:action="@{/optionadmin/manuscripts/approve}" method="post" style="display: inline;">
-                        <input type="hidden" name="manuscriptId" th:value="${m.manuscriptId}">
-                        <button type="submit" class="btn btn-outline-success">通过</button>
-                    </form>
-                    <!-- 失败按钮触发模态框 -->
-                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#rejectModal" th:attr="data-manuscript-id=${m.manuscriptId}">退回修改</button>
-
-<!-- 失败模态框 -->
-<div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="rejectModalLabel">稿件问题反馈</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form id="rejectForm" th:action="@{/optionadmin/manuscripts/rejectWithFeedback}" method="post">
-          <input type="hidden" id="manuscriptId" name="manuscriptId">
-          <div class="mb-3">
-            <label for="feedback" class="form-label">问题列表和修改指南</label>
-            <textarea class="form-control" id="feedback" name="messageBody" rows="6" placeholder="请输入稿件的问题列表和修改指南..." required></textarea>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-            <button type="submit" class="btn btn-danger">提交反馈</button>
-          </div>
-        </form>
-      </div>
+    <div class="table-container">
+        <div th:if="${manuscripts != null and !manuscripts.isEmpty()}" class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                <tr>
+                    <th><i class="bi bi-hash"></i> 稿件ID</th>
+                    <th><i class="bi bi-file-text"></i> 标题</th>
+                    <th><i class="bi bi-calendar"></i> 提交时间</th>
+                    <th><i class="bi bi-tags"></i> 标记</th>
+                    <th><i class="bi bi-gear"></i> 操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="m : ${manuscripts}" th:if="${m.status} == 'Pending Review'">
+                    <td><strong th:text="${m.manuscriptId}">1</strong></td>
+                    <td>
+                        <div style="max-width: 400px;">
+                            <span th:text="${m.title}" class="text-truncate d-inline-block" style="max-width: 100%;">示例标题</span>
+                        </div>
+                    </td>
+                    <td>
+                        <i class="bi bi-clock"></i>
+                        <span th:text="${#temporals.format(m.submitTime, 'yyyy-MM-dd HH:mm')}">2025-01-01 12:00</span>
+                    </td>
+                    <td>
+                        <span th:if="${#strings.length(m.abstractText) > 8000}" class="badge bg-danger">
+                            <i class="bi bi-exclamation-triangle"></i> 字数超限
+                        </span>
+                        <span th:if="${#strings.isEmpty(m.keywords) or #strings.isEmpty(m.subjectArea)}" class="badge bg-warning text-dark">
+                            <i class="bi bi-exclamation-circle"></i> 格式不符
+                        </span>
+                        <span th:unless="${#strings.length(m.abstractText) > 8000 or #strings.isEmpty(m.keywords) or #strings.isEmpty(m.subjectArea)}" class="badge bg-success">
+                            <i class="bi bi-check-circle"></i> 正常
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <a th:href="@{/optionadmin/manuscripts/{id}(id=${m.manuscriptId})}" class="btn btn-outline-primary">
+                                <i class="bi bi-eye"></i> 详情
+                            </a>
+                            <form th:action="@{/optionadmin/manuscripts/approve}" method="post" style="display: inline;">
+                                <input type="hidden" name="manuscriptId" th:value="${m.manuscriptId}">
+                                <button type="submit" class="btn btn-outline-success">
+                                    <i class="bi bi-check-circle"></i> 通过
+                                </button>
+                            </form>
+                            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#rejectModal" th:attr="data-manuscript-id=${m.manuscriptId}">
+                                <i class="bi bi-x-circle"></i> 退回
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div th:if="${manuscripts == null or manuscripts.isEmpty()}" class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <h5 class="mt-3">暂无待审核稿件</h5>
+            <p class="text-muted">当前没有状态为"Pending Review"的稿件</p>
+        </div>
     </div>
-  </div>
 </div>
 
-<script>
-// JavaScript 用于将稿件ID传递给模态框
-var rejectModal = document.getElementById('rejectModal');
-rejectModal.addEventListener('show.bs.modal', function (event) {
-  // 获取触发模态框的按钮
-  var button = event.relatedTarget;
-  // 提取按钮中存储的稿件ID
-  var manuscriptId = button.getAttribute('data-manuscript-id');
-  // 将稿件ID设置到隐藏字段中
-  var modalForm = document.getElementById('rejectForm');
-  var manuscriptIdField = document.getElementById('manuscriptId');
-  manuscriptIdField.value = manuscriptId;
-});
-</script>
-                </div>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+<!-- 退回模态框 -->
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rejectModalLabel">
+                    <i class="bi bi-exclamation-triangle text-warning"></i> 稿件问题反馈
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="rejectForm" th:action="@{/optionadmin/manuscripts/rejectWithFeedback}" method="post">
+                    <input type="hidden" id="manuscriptId" name="manuscriptId">
+                    <div class="mb-3">
+                        <label for="feedback" class="form-label fw-bold">问题列表和修改指南</label>
+                        <textarea class="form-control" id="feedback" name="messageBody" rows="8" 
+                                  placeholder="请详细说明稿件存在的问题，并提供修改建议..." required></textarea>
+                        <small class="form-text text-muted">
+                            <i class="bi bi-info-circle"></i> 此反馈将通过邮件发送给作者
+                        </small>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x"></i> 取消
+                        </button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-send"></i> 提交反馈
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // 将稿件ID传递给模态框
+    var rejectModal = document.getElementById('rejectModal');
+    rejectModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var manuscriptId = button.getAttribute('data-manuscript-id');
+        var manuscriptIdField = document.getElementById('manuscriptId');
+        manuscriptIdField.value = manuscriptId;
+    });
+</script>
 </body>
 </html>

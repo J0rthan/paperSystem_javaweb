@@ -22,12 +22,18 @@
             box-sizing: border-box;
         }
 
+        html, body {
+            height: 100%;
+        }
+
         body {
             font-family: 'Times New Roman', 'Arial', sans-serif;
             font-size: 14px;
             line-height: 1.6;
             color: var(--text-dark);
             background: #fff;
+            display: flex;
+            flex-direction: column;
         }
 
         .navbar {
@@ -72,6 +78,11 @@
 
         .container {
             max-width: 1200px;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem 0;
         }
 
         .section-title {
@@ -145,8 +156,9 @@
             background: #2c3e50;
             color: white;
             padding: 1rem 0;
-            margin-top: 2rem;
             font-size: 0.8rem;
+            margin-top: auto;
+            flex-shrink: 0;
         }
 
         .footer .container {
@@ -159,6 +171,197 @@
             text-align: center;
             padding: 2rem;
             color: var(--text-muted);
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--ieee-blue);
+            border-radius: 4px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .stat-card i {
+            font-size: 2rem;
+            color: var(--ieee-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            color: var(--ieee-blue);
+            margin: 0.5rem 0;
+        }
+
+        .stat-card p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        /* 搜索和筛选 */
+        .filter-section {
+            background: var(--bg-light);
+            padding: 1.5rem;
+            border-radius: 4px;
+            margin-bottom: 2rem;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: end;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            font-size: 0.85rem;
+            color: var(--text-dark);
+            margin-bottom: 0.25rem;
+            display: block;
+        }
+
+        /* 视图切换 */
+        .view-toggle {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .view-toggle .btn {
+            padding: 0.4rem 0.8rem;
+        }
+
+        /* 文章卡片视图 */
+        .article-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .article-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .article-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 98, 155, 0.15);
+            transform: translateY(-2px);
+            border-color: var(--ieee-blue);
+        }
+
+        .article-card-header {
+            margin-bottom: 1rem;
+        }
+
+        .article-card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--ieee-blue);
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .article-card-title a {
+            color: var(--ieee-blue);
+            text-decoration: none;
+        }
+
+        .article-card-title a:hover {
+            text-decoration: underline;
+        }
+
+        .article-card-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .article-card-abstract {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .article-card-keywords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .keyword-tag {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            border-radius: 3px;
+            border: 1px solid var(--border-color);
+        }
+
+        .article-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .article-card-footer .badge {
+            font-size: 0.75rem;
+        }
+
+        /* 隐藏类 */
+        .d-none {
+            display: none !important;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .article-grid {
+                grid-template-columns: 1fr;
+            }
+            .filter-row {
+                flex-direction: column;
+            }
+            .filter-group {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -193,51 +396,166 @@
     </div>
 </section>
 
-<div class="container">
+<div class="container main-content">
+    <!-- 统计信息 -->
+    <section class="stats-section mb-4">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="bi bi-file-text"></i>
+                <h3 th:text="${latestIssues != null ? latestIssues.size() : 0}">0</h3>
+                <p>已发表文章</p>
+            </div>
+            <div class="stat-card">
+                <i class="bi bi-check-circle"></i>
+                <h3 id="publishedCount">0</h3>
+                <p>已发表</p>
+            </div>
+            <div class="stat-card">
+                <i class="bi bi-hourglass-split"></i>
+                <h3 id="acceptedCount">0</h3>
+                <p>已接受</p>
+            </div>
+            <div class="stat-card">
+                <i class="bi bi-tags"></i>
+                <h3 id="subjectCount">0</h3>
+                <p>研究领域</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 搜索和筛选 -->
+    <section class="filter-section">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label for="searchInput"><i class="bi bi-search"></i> 搜索</label>
+                <input type="text" class="form-control" id="searchInput" placeholder="搜索标题、关键词或摘要...">
+            </div>
+            <div class="filter-group">
+                <label for="subjectFilter"><i class="bi bi-tag"></i> 研究领域</label>
+                <select class="form-select" id="subjectFilter">
+                    <option value="">全部领域</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="statusFilter"><i class="bi bi-funnel"></i> 状态</label>
+                <select class="form-select" id="statusFilter">
+                    <option value="">全部状态</option>
+                    <option value="published">已发表</option>
+                    <option value="accepted">已接受</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <button class="btn btn-primary w-100" onclick="applyFilters()">
+                    <i class="bi bi-funnel-fill"></i> 筛选
+                </button>
+            </div>
+        </div>
+    </section>
+
     <!-- 最新发表 -->
     <section id="latest-issues" class="mb-4">
-        <h2 class="section-title">
-            <i class="bi bi-clock-history"></i> 最新发表 (Latest Issues)
-        </h2>
-        <div th:if="${latestIssues != null and !latestIssues.isEmpty()}">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="section-title" style="margin-bottom: 0;">
+                <i class="bi bi-clock-history"></i> 最新发表 (Latest Issues)
+            </h2>
+            <div class="view-toggle">
+                <button class="btn btn-outline-primary active" onclick="switchView('table')" id="tableViewBtn">
+                    <i class="bi bi-table"></i> 表格
+                </button>
+                <button class="btn btn-outline-primary" onclick="switchView('grid')" id="gridViewBtn">
+                    <i class="bi bi-grid"></i> 卡片
+                </button>
+            </div>
+        </div>
+
+        <!-- 表格视图 -->
+        <div id="tableView" th:if="${latestIssues != null and !latestIssues.isEmpty()}">
             <table class="article-table">
                 <thead>
                     <tr>
                         <th style="width: 5%;">#</th>
-                        <th style="width: 40%;">标题</th>
-                        <th style="width: 20%;">作者</th>
-                        <th style="width: 15%;">状态</th>
-                        <th style="width: 20%;">发表日期</th>
+                        <th style="width: 35%;">标题</th>
+                        <th style="width: 15%;">研究领域</th>
+                        <th style="width: 10%;">作者</th>
+                        <th style="width: 10%;">状态</th>
+                        <th style="width: 15%;">发表日期</th>
+                        <th style="width: 10%;">操作</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr th:each="article, iterStat : ${latestIssues}">
+                <tbody id="tableBody">
+                    <tr th:each="article, iterStat : ${latestIssues}" class="article-row" 
+                        th:attr="data-title=${article.title}, data-subject=${article.subjectArea != null ? article.subjectArea : ''}, data-status=${article.decision != null ? article.decision : ''}, data-keywords=${article.keywords != null ? article.keywords : ''}">
                         <td th:text="${iterStat.count}">1</td>
                         <td>
-                            <a href="#" th:href="@{'/articles/' + ${article.manuscriptId}}" th:text="${article.title}">论文标题</a>
+                            <a href="#" th:href="@{'/articles/' + ${article.manuscriptId}}" th:text="${article.title != null ? article.title : '无标题'}">论文标题</a>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary" th:if="${article.subjectArea != null}" th:text="${article.subjectArea}">研究领域</span>
+                            <span th:unless="${article.subjectArea != null}">-</span>
                         </td>
                         <td th:text="${article.authorId}">作者ID</td>
                         <td>
-                            <span class="badge bg-primary" th:text="${article.status}">Published</span>
+                            <span class="badge bg-success" th:if="${article.decision != null and article.decision.equalsIgnoreCase('published')}">已发表</span>
+                            <span class="badge bg-primary" th:if="${article.decision != null and article.decision.equalsIgnoreCase('accepted')}">已接受</span>
+                            <span class="badge bg-secondary" th:unless="${article.decision != null and (article.decision.equalsIgnoreCase('published') or article.decision.equalsIgnoreCase('accepted'))}">其他</span>
                         </td>
                         <td th:if="${article.submitTime != null}" th:text="${#temporals.format(article.submitTime, 'yyyy-MM-dd')}">2024-01-01</td>
                         <td th:unless="${article.submitTime != null}">-</td>
+                        <td>
+                            <a th:href="@{'/articles/' + ${article.manuscriptId}}" class="btn btn-sm btn-outline-primary">查看</a>
+                        </td>
                     </tr>
                 </tbody>
             </table>
         </div>
+
+        <!-- 卡片视图 -->
+        <div id="gridView" class="d-none" th:if="${latestIssues != null and !latestIssues.isEmpty()}">
+            <div class="article-grid" id="articleGrid">
+                <div class="article-card article-card-item" th:each="article : ${latestIssues}"
+                     th:attr="data-title=${article.title}, data-subject=${article.subjectArea != null ? article.subjectArea : ''}, data-status=${article.decision != null ? article.decision : ''}, data-keywords=${article.keywords != null ? article.keywords : ''}">
+                    <div class="article-card-header">
+                        <h3 class="article-card-title">
+                            <a th:href="@{'/articles/' + ${article.manuscriptId}}" th:text="${article.title != null ? article.title : '无标题'}">文章标题</a>
+                        </h3>
+                        <div class="article-card-meta">
+                            <span th:if="${article.subjectArea != null}">
+                                <i class="bi bi-tag"></i> <span th:text="${article.subjectArea}">研究领域</span>
+                            </span>
+                            <span th:if="${article.submitTime != null}">
+                                <i class="bi bi-calendar3"></i> <span th:text="${#temporals.format(article.submitTime, 'yyyy-MM-dd')}">2024-01-01</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="article-card-abstract" th:if="${article.abstractText != null}" th:text="${#strings.abbreviate(article.abstractText, 150)}">
+                        文章摘要内容...
+                    </div>
+                    <div class="article-card-keywords" th:if="${article.keywords != null and !article.keywords.isEmpty()}">
+                        <span class="keyword-tag" th:each="keyword : ${#strings.arraySplit(article.keywords, ',')}" th:text="${#strings.trim(keyword)}">关键词</span>
+                    </div>
+                    <div class="article-card-footer">
+                        <span class="badge bg-success" th:if="${article.decision != null and article.decision.equalsIgnoreCase('published')}">已发表</span>
+                        <span class="badge bg-primary" th:if="${article.decision != null and article.decision.equalsIgnoreCase('accepted')}">已接受</span>
+                        <a th:href="@{'/articles/' + ${article.manuscriptId}}" class="btn btn-sm btn-primary">查看详情</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="empty-state" th:if="${latestIssues == null or latestIssues.isEmpty()}">
+            <i class="bi bi-inbox" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
             <p>暂无已发表的文章</p>
         </div>
     </section>
 
     <!-- 专刊 -->
-    <section id="special-issues" class="mb-4" th:if="${specialIssues != null and !specialIssues.isEmpty()}">
+    <section id="special-issues" class="mb-4">
         <h2 class="section-title">
             <i class="bi bi-collection"></i> 专刊 (Special Issues)
         </h2>
         <div class="empty-state">
-            <p>专刊功能开发中</p>
+            <i class="bi bi-hourglass-split" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+            <p>专刊功能开发中，敬请期待</p>
         </div>
     </section>
 </div>
@@ -256,5 +574,111 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // 页面加载时初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        // 统计研究领域数量
+        const subjects = new Set();
+        let publishedCount = 0;
+        let acceptedCount = 0;
+        
+        document.querySelectorAll('.article-row, .article-card-item').forEach(item => {
+            const subject = item.getAttribute('data-subject');
+            if (subject && subject.trim()) {
+                subjects.add(subject.trim());
+            }
+            
+            const status = (item.getAttribute('data-status') || '').toLowerCase();
+            if (status === 'published') {
+                publishedCount++;
+            } else if (status === 'accepted') {
+                acceptedCount++;
+            }
+        });
+        
+        document.getElementById('subjectCount').textContent = subjects.size;
+        document.getElementById('publishedCount').textContent = publishedCount;
+        document.getElementById('acceptedCount').textContent = acceptedCount;
+        
+        // 填充研究领域下拉框
+        const subjectFilter = document.getElementById('subjectFilter');
+        subjects.forEach(subject => {
+            const option = document.createElement('option');
+            option.value = subject;
+            option.textContent = subject;
+            subjectFilter.appendChild(option);
+        });
+    });
+
+    // 视图切换
+    function switchView(view) {
+        const tableView = document.getElementById('tableView');
+        const gridView = document.getElementById('gridView');
+        const tableViewBtn = document.getElementById('tableViewBtn');
+        const gridViewBtn = document.getElementById('gridViewBtn');
+        
+        if (view === 'table') {
+            tableView.classList.remove('d-none');
+            gridView.classList.add('d-none');
+            tableViewBtn.classList.add('active');
+            gridViewBtn.classList.remove('active');
+        } else {
+            tableView.classList.add('d-none');
+            gridView.classList.remove('d-none');
+            tableViewBtn.classList.remove('active');
+            gridViewBtn.classList.add('active');
+        }
+    }
+
+    // 筛选功能
+    function applyFilters() {
+        const searchText = document.getElementById('searchInput').value.toLowerCase();
+        const subjectFilter = document.getElementById('subjectFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+        
+        // 筛选表格行
+        const tableRows = document.querySelectorAll('#tableBody .article-row');
+        tableRows.forEach(row => {
+            const title = (row.getAttribute('data-title') || '').toLowerCase();
+            const subject = row.getAttribute('data-subject') || '';
+            const status = (row.getAttribute('data-status') || '').toLowerCase();
+            const keywords = (row.getAttribute('data-keywords') || '').toLowerCase();
+            
+            const matchSearch = !searchText || title.includes(searchText) || keywords.includes(searchText);
+            const matchSubject = !subjectFilter || subject === subjectFilter;
+            const matchStatus = !statusFilter || status === statusFilter;
+            
+            if (matchSearch && matchSubject && matchStatus) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        // 筛选卡片
+        const cards = document.querySelectorAll('#articleGrid .article-card-item');
+        cards.forEach(card => {
+            const title = (card.getAttribute('data-title') || '').toLowerCase();
+            const subject = card.getAttribute('data-subject') || '';
+            const status = (card.getAttribute('data-status') || '').toLowerCase();
+            const keywords = (card.getAttribute('data-keywords') || '').toLowerCase();
+            
+            const matchSearch = !searchText || title.includes(searchText) || keywords.includes(searchText);
+            const matchSubject = !subjectFilter || subject === subjectFilter;
+            const matchStatus = !statusFilter || status === statusFilter;
+            
+            if (matchSearch && matchSubject && matchStatus) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    // 搜索框实时筛选
+    document.getElementById('searchInput').addEventListener('input', applyFilters);
+    document.getElementById('subjectFilter').addEventListener('change', applyFilters);
+    document.getElementById('statusFilter').addEventListener('change', applyFilters);
+</script>
 </body>
 </html>

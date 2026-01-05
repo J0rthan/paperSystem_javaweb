@@ -40,6 +40,10 @@
             padding: 15px;
             background-color: #f8f9fa;
             border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        :root {
+            --bs-primary: #00629B;
         }
         .back-button {
             margin-bottom: 20px;
@@ -77,12 +81,18 @@
 
             <div class="news-attachment" th:if="${news.attachmentPath != null and news.attachmentPath != ''}">
                 <h6 class="mb-2"><i class="bi bi-paperclip"></i> 附件</h6>
-                <a th:href="@{'/' + ${news.attachmentPath}}"
-                   th:text="${news.attachmentName != null ? news.attachmentName : '下载附件'}"
-                   class="btn btn-sm btn-outline-primary"
-                   target="_blank">
-                    <i class="bi bi-download"></i> 下载附件
-                </a>
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-file-earmark" style="font-size: 1.2rem; color: var(--bs-primary);"></i>
+                    <div class="flex-grow-1">
+                        <div class="fw-bold" th:text="${news.attachmentName != null ? news.attachmentName : '附件'}">附件名称</div>
+                        <small class="text-muted" th:if="${news.attachmentPath != null}" th:text="${news.attachmentPath}">文件路径</small>
+                    </div>
+                    <a th:href="@{'/download/news?path=' + ${news.attachmentPath} + '&filename=' + ${news.attachmentName}}"
+                       class="btn btn-sm btn-primary"
+                       target="_blank">
+                        <i class="bi bi-download"></i> 下载
+                    </a>
+                </div>
             </div>
         </div>
     </div>

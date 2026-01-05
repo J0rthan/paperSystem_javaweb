@@ -10,6 +10,10 @@
         :root {
             --ieee-blue: #00629B;
             --ieee-orange: #FF6F00;
+            --text-dark: #333;
+            --text-muted: #666;
+            --border-color: #ddd;
+            --bg-light: #f8f9fa;
         }
 
         * {
@@ -18,80 +22,81 @@
             box-sizing: border-box;
         }
 
-        html, body {
-            height: 100%;
-            width: 100%;
-            margin: 0;
-            padding: 0;
-        }
-
         body {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            margin: 0;
-            padding: 0;
+            font-family: 'Times New Roman', 'Arial', sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: #fff;
         }
 
         .navbar {
-            flex-shrink: 0;
-            background: white;
             border-bottom: 2px solid var(--ieee-blue);
             padding: 0.5rem 0;
         }
 
-        .navbar .container-fluid {
-            max-width: 100%;
-            width: 100%;
-        }
-
         .navbar-brand {
             font-weight: bold;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             color: var(--ieee-blue) !important;
         }
 
-        .main-container {
-            flex: 1;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding: 1rem;
-            background: #f8f9fa;
-        }
-
-        .hero-section {
-            background: linear-gradient(135deg, var(--ieee-blue) 0%, #003d5c 100%);
-            color: white;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            border-radius: 4px;
-        }
-
-        .hero-section h1 {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .hero-section p {
+        .nav-link {
             font-size: 0.9rem;
-            margin-bottom: 0.75rem;
+            padding: 0.5rem 1rem !important;
+            color: var(--text-dark) !important;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--ieee-blue) !important;
+            background: var(--bg-light);
+        }
+
+        .container {
+            max-width: 1200px;
+        }
+
+        .main-container {
+            padding: 2rem 0;
+        }
+
+        .page-header {
+            background: var(--ieee-blue);
+            color: white;
+            padding: 1.5rem 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .page-header p {
+            font-size: 0.95rem;
+            margin: 0.5rem 0 0 0;
         }
 
         .section {
-            margin-bottom: 1rem;
-            padding: 1rem;
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
             background: white;
             border-radius: 4px;
-            border: 1px solid #dee2e6;
+            border: 1px solid var(--border-color);
         }
 
         .section-title {
-            font-size: 1.1rem;
+            font-size: 1.3rem;
             font-weight: 600;
             color: var(--ieee-blue);
-            margin-bottom: 0.75rem;
+            margin-bottom: 1rem;
             padding-bottom: 0.5rem;
             border-bottom: 2px solid var(--ieee-blue);
+        }
+
+        .section-title i {
+            margin-right: 0.5rem;
         }
 
         .journal-info {
@@ -109,11 +114,16 @@
         }
 
         .editor-card {
-            padding: 0.75rem;
-            background: #f8f9fa;
+            padding: 1rem;
+            background: var(--bg-light);
             border-radius: 4px;
-            border: 1px solid #dee2e6;
-            font-size: 0.8rem;
+            border: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            transition: box-shadow 0.2s;
+        }
+
+        .editor-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .news-grid {
@@ -124,25 +134,311 @@
         }
 
         .news-card {
-            padding: 0.75rem;
-            background: #f8f9fa;
+            padding: 1rem;
+            background: var(--bg-light);
             border-radius: 4px;
-            border: 1px solid #dee2e6;
-            font-size: 0.8rem;
+            border: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            transition: box-shadow 0.2s;
         }
 
+        .news-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .article-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .article-card {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .article-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 98, 155, 0.15);
+            transform: translateY(-2px);
+            border-color: var(--ieee-blue);
+        }
+
+        .article-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.75rem;
+        }
+
+        .article-card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--ieee-blue);
+            margin: 0;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .article-card-title a {
+            color: var(--ieee-blue);
+            text-decoration: none;
+        }
+
+        .article-card-title a:hover {
+            text-decoration: underline;
+        }
+
+        .article-badge {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+            margin-left: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .article-card-meta {
+            font-size: 0.75rem;
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+        }
+
+        .article-card-abstract {
+            font-size: 0.85rem;
+            color: #495057;
+            line-height: 1.5;
+            margin-bottom: 0.75rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .article-card-keywords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .keyword-tag {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.4rem;
+            background: #e9ecef;
+            color: #495057;
+            border-radius: 3px;
+        }
+
+        .article-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: #6c757d;
+            padding-top: 0.5rem;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .article-card-footer .date {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
 
         .btn-sm {
             font-size: 0.75rem;
             padding: 0.25rem 0.5rem;
         }
 
+        .info-box {
+            background: var(--bg-light);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--ieee-blue);
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-box h4 {
+            font-size: 1.1rem;
+            color: var(--ieee-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        /* 特色介绍区域 */
+        .feature-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .feature-item {
+            text-align: center;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            background: var(--ieee-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+        }
+
+        .feature-item h4 {
+            color: var(--ieee-blue);
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .feature-item p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* 统计信息 */
+        .stats-section {
+            background: var(--ieee-blue);
+            color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-item h3 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+
+        .stat-item p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        /* 图片展示区域 */
+        .image-section {
+            margin-bottom: 2rem;
+        }
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .image-card {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .image-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .image-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: linear-gradient(135deg, var(--ieee-blue) 0%, #003d5c 100%);
+        }
+
+        .image-card-content {
+            padding: 1.5rem;
+            background: white;
+        }
+
+        .image-card-content h5 {
+            color: var(--ieee-blue);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .image-card-content p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        /* 欢迎文案 */
+        .welcome-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--ieee-blue);
+            margin-bottom: 2rem;
+        }
+
+        .welcome-content h2 {
+            color: var(--ieee-blue);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .welcome-content p {
+            color: var(--text-dark);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .editorial-grid, .news-grid, .article-grid, .feature-grid, .stats-grid, .image-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
 <!-- 导航栏 -->
-<nav class="navbar navbar-expand-lg navbar-light">
-    <div class="container-fluid">
+<nav class="navbar navbar-expand-lg navbar-light bg-white">
+    <div class="container">
         <a class="navbar-brand" href="/index">
             <i class="bi bi-journal-text"></i> 学术期刊
         </a>
@@ -152,7 +448,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="/index">首页</a>
+                    <a class="nav-link active" href="/index">首页</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/about-journal">关于期刊</a>
@@ -174,24 +470,134 @@
     </div>
 </nav>
 
+<!-- 页面标题 -->
+<section class="page-header">
+    <div class="container">
+        <h1>欢迎访问学术期刊</h1>
+        <p>专业的学术期刊投稿、审稿和管理平台 | 致力于推动学术研究与知识传播</p>
+        <div class="mt-3">
+            <a href="/guide" class="btn btn-outline-light btn-sm me-2">
+                <i class="bi bi-book"></i> Guide for authors
+            </a>
+            <a href="/articles" class="btn btn-outline-light btn-sm me-2">
+                <i class="bi bi-file-text"></i> Articles
+            </a>
+            <a href="/submit" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-upload"></i> Submit
+            </a>
+        </div>
+    </div>
+</section>
+
 <!-- 主内容区域 -->
-<div class="main-container">
+<div class="container main-container">
     <!-- 主要内容区 -->
     <div>
-        <!-- 英雄区域 -->
-        <section class="hero-section">
-            <h1>欢迎访问学术期刊</h1>
-            <p>专业的学术期刊投稿、审稿和管理平台</p>
-            <div>
-                <a href="/guide" class="btn btn-outline-light btn-sm">
-                    <i class="bi bi-book"></i> Guide for authors
-                </a>
-                <a href="/articles" class="btn btn-outline-light btn-sm">
-                    <i class="bi bi-file-text"></i> Articles
-                </a>
-                <a href="/submit" class="btn btn-outline-light btn-sm">
-                    <i class="bi bi-upload"></i> Submit
-                </a>
+        <!-- 欢迎文案 -->
+        <section class="welcome-content">
+            <h2><i class="bi bi-star-fill"></i> 关于我们</h2>
+            <p>
+                我们是一本致力于推动学术研究与知识传播的国际化期刊。自成立以来，我们始终坚持高质量、高标准的学术出版理念，
+                为全球学者提供优质的学术交流平台。我们的期刊涵盖多个学科领域，包括但不限于工程技术、自然科学、社会科学等，
+                旨在促进跨学科的研究合作与创新。
+            </p>
+            <p>
+                我们拥有经验丰富的编辑团队和严格的同行评议制度，确保每一篇发表的文章都经过严格的学术审查。
+                我们致力于为作者提供快速、公正、专业的审稿服务，为读者提供高质量、前沿的学术内容。
+            </p>
+        </section>
+
+        <!-- 统计信息 -->
+        <section class="stats-section">
+            <h2 style="text-align: center; margin-bottom: 0;"><i class="bi bi-bar-chart"></i> 期刊数据</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <i class="bi bi-file-text" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                    <h3 th:text="${latestPublished != null ? latestPublished.size() : 0}">0</h3>
+                    <p>已发表文章</p>
+                </div>
+                <div class="stat-item">
+                    <i class="bi bi-people" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                    <h3 th:text="${editorialBoard != null ? editorialBoard.size() : 0}">0</h3>
+                    <p>编委成员</p>
+                </div>
+                <div class="stat-item">
+                    <i class="bi bi-globe" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                    <h3>50+</h3>
+                    <p>合作机构</p>
+                </div>
+                <div class="stat-item">
+                    <i class="bi bi-calendar-check" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                    <h3>2025</h3>
+                    <p>创刊年份</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 特色服务 -->
+        <section class="feature-section">
+            <h2 class="section-title" style="color: var(--ieee-blue); border-color: var(--ieee-blue);">
+                <i class="bi bi-star"></i> 我们的特色
+            </h2>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="bi bi-speedometer2"></i>
+                    </div>
+                    <h4>快速审稿</h4>
+                    <p>我们承诺在收到稿件后30天内完成初审，为作者提供高效的审稿服务，缩短发表周期。</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <h4>严格评审</h4>
+                    <p>采用双盲同行评议制度，确保评审过程的公正性和专业性，维护学术诚信。</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="bi bi-globe2"></i>
+                    </div>
+                    <h4>国际视野</h4>
+                    <p>面向全球征稿，促进国际学术交流，为学者提供国际化的学术发表平台。</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="bi bi-book"></i>
+                    </div>
+                    <h4>开放获取</h4>
+                    <p>支持开放获取出版模式，让研究成果更广泛地传播，提升学术影响力。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 图片展示 -->
+        <section class="image-section">
+            <h2 class="section-title">
+                <i class="bi bi-images"></i> 期刊风采
+            </h2>
+            <div class="image-grid">
+                <div class="image-card">
+                    <img src="https://via.placeholder.com/400x200/00629B/FFFFFF?text=学术研究" alt="学术研究">
+                    <div class="image-card-content">
+                        <h5><i class="bi bi-lightbulb"></i> 前沿研究</h5>
+                        <p>我们关注各学科领域的前沿研究，为创新性研究成果提供发表平台，推动学术进步。</p>
+                    </div>
+                </div>
+                <div class="image-card">
+                    <img src="https://via.placeholder.com/400x200/003d5c/FFFFFF?text=学术交流" alt="学术交流">
+                    <div class="image-card-content">
+                        <h5><i class="bi bi-people"></i> 学术交流</h5>
+                        <p>定期举办学术会议和研讨会，促进学者之间的交流与合作，构建学术共同体。</p>
+                    </div>
+                </div>
+                <div class="image-card">
+                    <img src="https://via.placeholder.com/400x200/004d7a/FFFFFF?text=知识传播" alt="知识传播">
+                    <div class="image-card-content">
+                        <h5><i class="bi bi-share"></i> 知识传播</h5>
+                        <p>通过数字化出版和开放获取，让学术知识更广泛地传播，服务社会进步。</p>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -245,6 +651,48 @@
             </div>
         </section>
 
+        <!-- 文章与专刊 -->
+        <section class="section" th:if="${latestPublished != null and !latestPublished.isEmpty()}">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="section-title" style="margin-bottom: 0;">文章与专刊</div>
+                <a href="/articles" class="btn btn-sm btn-outline-primary">查看更多 <i class="bi bi-arrow-right"></i></a>
+            </div>
+            <div class="article-grid">
+                <div class="article-card" th:each="article : ${latestPublished.size() > 6 ? #lists.subList(latestPublished, 0, 6) : latestPublished}">
+                    <div class="article-card-header">
+                        <h3 class="article-card-title">
+                            <a th:href="@{'/articles'}" th:text="${article.title != null ? article.title : '文章标题'}">文章标题</a>
+                        </h3>
+                        <span class="badge bg-success article-badge" th:if="${article.decision != null and article.decision.equalsIgnoreCase('published')}">已发表</span>
+                        <span class="badge bg-primary article-badge" th:if="${article.decision != null and article.decision.equalsIgnoreCase('accepted')}">已接受</span>
+                    </div>
+                    <div class="article-card-meta">
+                        <i class="bi bi-calendar3"></i>
+                        <span th:if="${article.submitTime != null}" th:text="${#temporals.format(article.submitTime, 'yyyy-MM-dd')}">2024-01-01</span>
+                        <span th:if="${article.subjectArea != null}" class="ms-2">
+                            <i class="bi bi-tag"></i> <span th:text="${article.subjectArea}">研究领域</span>
+                        </span>
+                    </div>
+                    <div class="article-card-abstract" th:if="${article.abstractText != null}" th:text="${#strings.abbreviate(article.abstractText, 120)}">
+                        文章摘要内容...
+                    </div>
+                    <div class="article-card-keywords" th:if="${article.keywords != null and !article.keywords.isEmpty()}">
+                        <i class="bi bi-tags" style="font-size: 0.75rem; color: #6c757d; margin-right: 0.25rem;"></i>
+                        <span style="font-size: 0.75rem; color: #6c757d;" th:text="${#strings.abbreviate(article.keywords, 50)}">关键词</span>
+                    </div>
+                    <div class="article-card-footer">
+                        <div class="date">
+                            <i class="bi bi-clock"></i>
+                            <span th:if="${article.submitTime != null}" th:text="${#temporals.format(article.submitTime, 'yyyy-MM-dd')}">2024-01-01</span>
+                        </div>
+                        <a th:href="@{'/articles'}" class="btn btn-sm btn-outline-primary">
+                            查看详情 <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- 征稿通知 -->
         <section class="section" th:if="${callForPapers != null and !callForPapers.isEmpty()}">
             <div class="section-title">征稿通知 (Call for Papers)</div>
@@ -261,6 +709,22 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    // 确保所有链接使用正确的路径，防止URL改变
+    document.addEventListener('DOMContentLoaded', function() {
+        // 获取所有链接
+        const links = document.querySelectorAll('a[href]');
+        links.forEach(function(link) {
+            const href = link.getAttribute('href');
+            // 如果是相对路径（不以/开头），确保转换为绝对路径
+            if (href && !href.startsWith('/') && !href.startsWith('http') && !href.startsWith('#')) {
+                link.setAttribute('href', '/' + href);
+            }
+            // 确保首页链接统一为 /index
+            if (href === '/' || href === '') {
+                link.setAttribute('href', '/index');
+            }
+        });
+    });
 </script>
 </body>
 </html>

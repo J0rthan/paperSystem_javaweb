@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" class="h-100">
 <head>
     <meta charset="UTF-8">
     <title>稿件详情 - 稿件管理系统</title>
@@ -14,116 +14,160 @@
         .author-box { border: 1px solid #e9ecef; border-radius: 8px; padding: 15px; margin-bottom: 10px; background: #fff; }
     </style>
 </head>
-<body class="py-5">
-<div class="container">
-    <small class="text-muted">欢迎您：<span th:text="${session.loginUser.userName}">作者</span></small>
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold">稿件详情信息</h2>
-            <p class="text-muted mb-0">ID: <span th:text="${'#MS-' + manuscript.manuscriptId}">#MS-001</span> | 提交时间: <span th:text="${#temporals.format(manuscript.submitTime, 'yyyy-MM-dd HH:mm')}">2026-01-01</span></p>
-        </div>
-        <div>
-            <button onclick="window.print()" class="btn btn-outline-dark btn-sm me-2"><i class="bi bi-printer"></i> 打印</button>
-            <a th:href="@{/author/manuscript/track(id=${manuscript.manuscriptId})}" class="btn btn-primary btn-sm rounded-pill px-4">返回追踪页</a>
+<body class="bg-light d-flex flex-column h-100">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold" th:href="@{/author/manuscript/list}">
+            <i class="bi bi-journal-bookmark-fill me-2"></i>学术论文管理系统
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#authorNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="authorNavbar">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item me-3">
+                    <a class="nav-link text-light position-relative" th:href="@{/author/message/list}" title="消息中心">
+                        <i class="bi bi-envelope-fill fs-5"></i>
+                        <span class="position-absolute top-2 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
+                            <span class="visually-hidden">新消息</span>
+                        </span>
+                    </a>
+                </li>
+
+                <li class="nav-item me-3 border-end pe-3">
+                    <a class="nav-link text-light" th:href="@{/author/profile}" title="账号设置">
+                        <i class="bi bi-gear-fill fs-5"></i>
+                    </a>
+                </li>
+
+                <li class="nav-item dropdown ms-2">
+                    <span class="navbar-text text-light me-3">
+                        <i class="bi bi-person-circle me-1"></i>
+                        <span th:text="${session.loginUser.userName}">作者姓名</span>
+                    </span>
+                    <a href="/author/logout" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                        <i class="bi bi-box-arrow-right me-1"></i>退出登录
+                    </a>
+                </li>
+            </ul>
         </div>
     </div>
-
-    <div class="detail-card">
-        <h4 class="section-title">1. 基本信息</h4>
-        <div class="row">
-            <div class="col-12">
-                <div class="info-label">稿件标题</div>
-                <h4 class="info-value" th:text="${manuscript.title}">这是稿件标题</h4>
+</nav>
+<main class="flex-grow-1 py-5">
+    <div class="container">
+        <small class="text-muted">欢迎您：<span th:text="${session.loginUser.userName}">作者</span></small>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold">稿件详情信息</h2>
+                <p class="text-muted mb-0">ID: <span th:text="${'#MS-' + manuscript.manuscriptId}">#MS-001</span> | 提交时间: <span th:text="${#temporals.format(manuscript.submitTime, 'yyyy-MM-dd HH:mm')}">2026-01-01</span></p>
             </div>
-            <div class="col-md-6">
-                <div class="info-label">研究主题</div>
-                <p class="info-value" th:text="${manuscript.subjectArea ?: '未填写'}">人工智能</p>
-            </div>
-            <div class="col-md-6">
-                <div class="info-label">关键词</div>
-                <p class="info-value" th:text="${manuscript.keywords ?: '未填写'}">关键词1, 关键词2</p>
-            </div>
-            <div class="col-12">
-                <div class="info-label">摘要</div>
-                <div class="info-value p-3 bg-light rounded" style="white-space: pre-wrap;" th:text="${manuscript.abstractText ?: '暂无摘要内容'}">摘要内容...</div>
-            </div>
-            <div class="col-12 mt-3">
-                <div class="info-label">项目资助情况</div>
-                <p class="info-value" th:text="${manuscript.fundingInfo ?: '无'}">资助信息</p>
+            <div>
+                <button onclick="window.print()" class="btn btn-outline-dark btn-sm me-2"><i class="bi bi-printer"></i> 打印</button>
+                <a th:href="@{/author/manuscript/track(id=${manuscript.manuscriptId})}" class="btn btn-primary btn-sm rounded-pill px-4">返回追踪页</a>
             </div>
         </div>
-    </div>
 
-    <div class="detail-card">
-        <h4 class="section-title">2. 作者列表</h4>
-        <div class="row">
-            <div class="col-md-6" th:each="author, stat : ${manuscript.authors}">
-                <div class="author-box">
-                    <div class="d-flex justify-content-between">
-                        <strong th:text="${author.name}">作者名</strong>
-                        <span th:if="${author.corresponding}" class="badge bg-primary">通讯作者</span>
-                    </div>
-                    <div class="small text-muted mt-2">
-                        <div><i class="bi bi-bank me-1"></i> <span th:text="${author.institution}">单位</span></div>
-                        <div><i class="bi bi-envelope me-1"></i> <span th:text="${author.email}">邮箱</span></div>
-                        <div class="mt-1">
-                            <span class="me-2" th:text="|学历: ${author.degree ?: '-'}|"></span>
-                            <span class="me-2" th:text="|职称: ${author.professionalTitle ?: '-'}|"></span>
-                            <span th:text="|职位: ${author.position ?: '-'}|"></span>
+        <div class="detail-card">
+            <h4 class="section-title">1. 基本信息</h4>
+            <div class="row">
+                <div class="col-12">
+                    <div class="info-label">稿件标题</div>
+                    <h4 class="info-value" th:text="${manuscript.title}">这是稿件标题</h4>
+                </div>
+                <div class="col-md-6">
+                    <div class="info-label">研究主题</div>
+                    <p class="info-value" th:text="${manuscript.subjectArea ?: '未填写'}">人工智能</p>
+                </div>
+                <div class="col-md-6">
+                    <div class="info-label">关键词</div>
+                    <p class="info-value" th:text="${manuscript.keywords ?: '未填写'}">关键词1, 关键词2</p>
+                </div>
+                <div class="col-12">
+                    <div class="info-label">摘要</div>
+                    <div class="info-value p-3 bg-light rounded" style="white-space: pre-wrap;" th:text="${manuscript.abstractText ?: '暂无摘要内容'}">摘要内容...</div>
+                </div>
+                <div class="col-12 mt-3">
+                    <div class="info-label">项目资助情况</div>
+                    <p class="info-value" th:text="${manuscript.fundingInfo ?: '无'}">资助信息</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-card">
+            <h4 class="section-title">2. 作者列表</h4>
+            <div class="row">
+                <div class="col-md-6" th:each="author, stat : ${manuscript.authors}">
+                    <div class="author-box">
+                        <div class="d-flex justify-content-between">
+                            <strong th:text="${author.name}">作者名</strong>
+                            <span th:if="${author.corresponding}" class="badge bg-primary">通讯作者</span>
+                        </div>
+                        <div class="small text-muted mt-2">
+                            <div><i class="bi bi-bank me-1"></i> <span th:text="${author.institution}">单位</span></div>
+                            <div><i class="bi bi-envelope me-1"></i> <span th:text="${author.email}">邮箱</span></div>
+                            <div class="mt-1">
+                                <span class="me-2" th:text="|学历: ${author.degree ?: '-'}|"></span>
+                                <span class="me-2" th:text="|职称: ${author.professionalTitle ?: '-'}|"></span>
+                                <span th:text="|职位: ${author.position ?: '-'}|"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="detail-card">
-        <h4 class="section-title">3. 提交文件</h4>
-        <div class="row text-center">
-            <div class="col-md-6">
-                <div class="p-3 border rounded">
-                    <i class="bi bi-file-earmark-pdf text-danger fs-1"></i>
-                    <div class="mt-2 fw-bold">原始手稿 (PDF)</div>
-                    <a th:if="${manuscript.manuscriptPath}" th:href="@{/author/manuscript/download(path=${manuscript.manuscriptPath})}" class="btn btn-link btn-sm">点击下载</a>
-                    <span th:unless="${manuscript.manuscriptPath}" class="text-muted d-block small">未上传</span>
+        <div class="detail-card">
+            <h4 class="section-title">3. 提交文件</h4>
+            <div class="row text-center">
+                <div class="col-md-6">
+                    <div class="p-3 border rounded">
+                        <i class="bi bi-file-earmark-pdf text-danger fs-1"></i>
+                        <div class="mt-2 fw-bold">原始手稿 (PDF)</div>
+                        <a th:if="${manuscript.manuscriptPath}" th:href="@{/author/manuscript/download(path=${manuscript.manuscriptPath})}" class="btn btn-link btn-sm">点击下载</a>
+                        <span th:unless="${manuscript.manuscriptPath}" class="text-muted d-block small">未上传</span>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-6">
-                <div class="p-3 border rounded">
-                    <i class="bi bi-file-earmark-word text-primary fs-1"></i>
-                    <div class="mt-2 fw-bold">附信 (Cover Letter)</div>
-                    <a th:if="${manuscript.coverLetterPath}" th:href="@{/author/manuscript/download(path=${manuscript.coverLetterPath})}" class="btn btn-link btn-sm">点击下载</a>
-                    <span th:unless="${manuscript.coverLetterPath}" class="text-muted d-block small">未上传</span>
+                <div class="col-md-6">
+                    <div class="p-3 border rounded">
+                        <i class="bi bi-file-earmark-word text-primary fs-1"></i>
+                        <div class="mt-2 fw-bold">附信 (Cover Letter)</div>
+                        <a th:if="${manuscript.coverLetterPath}" th:href="@{/author/manuscript/download(path=${manuscript.coverLetterPath})}" class="btn btn-link btn-sm">点击下载</a>
+                        <span th:unless="${manuscript.coverLetterPath}" class="text-muted d-block small">未上传</span>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="detail-card">
-        <h4 class="section-title">4. 推荐审稿人</h4>
-        <div class="table-responsive">
-            <table class="table table-sm">
-                <thead class="table-light">
-                <tr>
-                    <th>姓名</th>
-                    <th>邮箱</th>
-                    <th>推荐理由</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="rev : ${manuscript.reviewers}">
-                    <td th:text="${rev.name}">-</td>
-                    <td th:text="${rev.email}">-</td>
-                    <td th:text="${rev.reason}">-</td>
-                </tr>
-                <tr th:if="${#lists.isEmpty(manuscript.reviewers)}">
-                    <td colspan="3" class="text-center text-muted">未提交推荐审稿人信息</td>
-                </tr>
-                </tbody>
-            </table>
+        <div class="detail-card">
+            <h4 class="section-title">4. 推荐审稿人</h4>
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead class="table-light">
+                    <tr>
+                        <th>姓名</th>
+                        <th>邮箱</th>
+                        <th>推荐理由</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="rev : ${manuscript.reviewers}">
+                        <td th:text="${rev.name}">-</td>
+                        <td th:text="${rev.email}">-</td>
+                        <td th:text="${rev.reason}">-</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(manuscript.reviewers)}">
+                        <td colspan="3" class="text-center text-muted">未提交推荐审稿人信息</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</div>
-<p class="text-center text-muted small">© 2025 学术论文管理系统 · 作者</p>
+</main>
+<footer class="py-4 mt-auto">
+    <p class="text-center text-muted small mb-0">© 2025 学术论文管理系统 · 作者</p>
+</footer>
 </body>
 </html>

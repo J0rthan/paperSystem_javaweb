@@ -1,3 +1,8 @@
+//查看所有稿件列表
+//查看稿件详情
+//通过稿件审核
+//拒绝稿件审核
+//拒绝稿件并发送反馈
 package com.bjfu.paperSystem.optionAdmin.controller;
 
 import com.bjfu.paperSystem.javabeans.Manuscript;

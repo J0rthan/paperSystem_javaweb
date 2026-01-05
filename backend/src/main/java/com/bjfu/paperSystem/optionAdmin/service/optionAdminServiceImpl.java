@@ -1,3 +1,7 @@
+//稿件查询审核，拒绝并发送邮件反馈
+//编辑管理：查询、保存、删除编辑
+//用户状态管理：按状态查询用户
+//个人资料管理：查询更新
 package com.bjfu.paperSystem.optionAdmin.service;
 
 import com.bjfu.paperSystem.optionAdmin.dao.optionAdminDao;

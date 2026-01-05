@@ -35,8 +35,11 @@ public class HomeController {
             List<Journal> journals = publicService.getPublishedJournals(1);
             if (journals != null && !journals.isEmpty()) {
                 model.addAttribute("journal", journals.get(0));
+            } else {
+                model.addAttribute("journal", null);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             model.addAttribute("journal", null);
         }
 

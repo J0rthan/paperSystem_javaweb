@@ -26,65 +26,89 @@ public class UserController {
     // 处理登陆请求
     @PostMapping("/login")
     public String login(User user, HttpSession session) {
-        // 先获取用户类型，调用Service层接口
-        User dbUser = userService.login(user.getUserName(), user.getPassword());
+        try {
+            // 检查用户名是否为空
+            if (user.getUserName() == null || user.getUserName().trim().isEmpty()) {
+                return "redirect:/index?error=username";
+            }
 
-        if (dbUser == null) {
-            // 检查用户名是否存在
-            boolean userNameExists = userDao.findByUserName(user.getUserName()).isPresent();
-            if (userNameExists) {
-                // 用户名存在但密码错误
-                return "redirect:/login-error?error=password";
-            } else {
-                // 用户名不存在
-                return "redirect:/login-error?error=username";
-            }
-        }
+            // 先获取用户类型，调用Service层接口
+            User dbUser = userService.login(user.getUserName(), user.getPassword());
 
-        session.setAttribute("loginUser", dbUser);
-        String userType = dbUser.getUserType();
-        String status = dbUser.getStatus();
+            if (dbUser == null) {
+                // 检查用户名是否存在
+                try {
+                    boolean userNameExists = userDao.findByUserName(user.getUserName()).isPresent();
+                    if (userNameExists) {
+                        // 用户名存在但密码错误
+                        return "redirect:/index?error=password";
+                    } else {
+                        // 用户名不存在
+                        return "redirect:/index?error=username";
+                    }
+                } catch (Exception e) {
+                    // 如果查询出错，默认认为用户名不存在
+                    e.printStackTrace();
+                    return "redirect:/index?error=username";
+                }
+            }
 
-        // 首先要确保是存在的用户，如果用户被封禁则提示无法登陆
-        if ("exist".equalsIgnoreCase(status)) {
-            // session传user_id
-            int user_id = suService.findUseIdByName(user.getUserName());
-            session.setAttribute("user_id", user_id);
-            // 如果是超级管理员(super_admin)
-            if ("super_admin".equalsIgnoreCase(userType)) {
-                return "redirect:/superadmin";
-            }
-            // 如果是系统管理员(sys_admin)
-            else if ("sys_admin".equalsIgnoreCase(userType)) {
-                return "redirect:/sysadmin";
-            }
-            //如果是作者(author)
-            else if ("author".equalsIgnoreCase(userType)) {
-                return "redirect:/author";
-            }
-            //如果是主编(chief_editor)
-            else if ("chief_editor".equalsIgnoreCase(userType)) {
-                return "redirect:/chiefeditor";
-            }
-            //如果是编辑(editor)
-            else if ("editor".equalsIgnoreCase(userType)) {
-                return "redirect:/editor";
-            }
-            //如果是编辑部管理员(option_admin)
-            else if ("option_admin".equalsIgnoreCase(userType)) {
-                return "redirect:/optionadmin";
-            }
-            //如果是审稿人(reviewer)
-            else if ("reviewer".equalsIgnoreCase(userType)) {
-                return "redirect:/reviewer";
+            // 登录成功，继续处理
+            session.setAttribute("loginUser", dbUser);
+            String userType = dbUser.getUserType();
+            String status = dbUser.getStatus();
+
+            // 首先要确保是存在的用户，如果用户被封禁则提示无法登陆
+            if ("exist".equalsIgnoreCase(status)) {
+                try {
+                    // session传user_id
+                    int user_id = suService.findUseIdByName(user.getUserName());
+                    session.setAttribute("user_id", user_id);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    // 如果获取user_id失败，继续登录流程
+                }
+                
+                // 如果是超级管理员(super_admin)
+                if ("super_admin".equalsIgnoreCase(userType)) {
+                    return "redirect:/superadmin";
+                }
+                // 如果是系统管理员(sys_admin)
+                else if ("sys_admin".equalsIgnoreCase(userType)) {
+                    return "redirect:/sysadmin";
+                }
+                //如果是作者(author)
+                else if ("author".equalsIgnoreCase(userType)) {
+                    return "redirect:/author";
+                }
+                //如果是主编(chief_editor)
+                else if ("chief_editor".equalsIgnoreCase(userType)) {
+                    return "redirect:/chiefeditor";
+                }
+                //如果是编辑(editor)
+                else if ("editor".equalsIgnoreCase(userType)) {
+                    return "redirect:/editor";
+                }
+                //如果是编辑部管理员(option_admin)
+                else if ("option_admin".equalsIgnoreCase(userType)) {
+                    return "redirect:/optionadmin";
+                }
+                //如果是审稿人(reviewer)
+                else if ("reviewer".equalsIgnoreCase(userType)) {
+                    return "redirect:/reviewer";
+                }
+                else {
+                    return "redirect:/index?error=invalid_role";
+                }
             }
             else {
-                return "redirect:/login-error?error=invalid_role";
+                // 账户被封禁或状态异常
+                return "redirect:/index?error=account_disabled";
             }
-        }
-        else {
-            // 账户被封禁或状态异常
-            return "redirect:/login-error?error=account_disabled";
+        } catch (Exception e) {
+            // 捕获所有异常，避免跳转到空白页
+            e.printStackTrace();
+            return "redirect:/index?error=username";
         }
     }
     

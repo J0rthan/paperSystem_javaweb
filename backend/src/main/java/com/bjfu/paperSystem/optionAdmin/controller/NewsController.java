@@ -1,3 +1,11 @@
+////查看所有新闻列表
+////新增新闻
+////编辑新闻
+////删除新闻
+////发布新闻
+////定时发布新闻
+////保存为草稿
+////获取已发布的新闻（用于首页显示）
 package com.bjfu.paperSystem.optionAdmin.controller;
 
 import com.bjfu.paperSystem.javabeans.News;

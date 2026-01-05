@@ -8,79 +8,174 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #0d6efd;
-            --secondary-color: #6c757d;
-            --success-color: #198754;
+            --ieee-blue: #00629B;
+            --ieee-orange: #FF6F00;
         }
 
-        .hero-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 100px 0;
-            margin-bottom: 60px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .feature-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: none;
-            border-radius: 15px;
-            overflow: hidden;
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
         }
 
-        .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
         }
 
-        .feature-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            color: var(--primary-color);
+        .navbar {
+            flex-shrink: 0;
+            background: white;
+            border-bottom: 2px solid var(--ieee-blue);
+            padding: 0.5rem 0;
         }
 
-        .login-section {
-            background-color: #f8f9fa;
-            padding: 60px 0;
-            margin-top: 60px;
-        }
-
-        .footer {
-            background-color: #212529;
-            color: white;
-            padding: 40px 0;
-            margin-top: 60px;
+        .navbar .container-fluid {
+            max-width: 100%;
+            width: 100%;
         }
 
         .navbar-brand {
             font-weight: bold;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
+            color: var(--ieee-blue) !important;
         }
 
-        .btn-login {
-            padding: 12px 30px;
+        .main-container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 0;
+            min-height: 0;
+            overflow: visible;
+        }
+
+        .left-panel {
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 1rem;
+            background: #f8f9fa;
+        }
+
+        .right-panel {
+            background: white;
+            border-left: 1px solid #dee2e6;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 1rem;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, var(--ieee-blue) 0%, #003d5c 100%);
+            color: white;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+
+        .hero-section h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero-section p {
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .section {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+
+        .section-title {
             font-size: 1.1rem;
-            border-radius: 50px;
+            font-weight: 600;
+            color: var(--ieee-blue);
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--ieee-blue);
+        }
+
+        .journal-info {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .editorial-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .editor-card {
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+            font-size: 0.8rem;
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin-top: 0.5rem;
         }
 
         .news-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+            font-size: 0.8rem;
         }
 
-        .news-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+        .login-card {
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+            padding: 1rem;
         }
 
-        .news-card .card-title a:hover {
-            color: var(--primary-color) !important;
+        .btn-sm {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+        }
+
+        @media (max-width: 992px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .right-panel {
+                border-left: none;
+                border-top: 1px solid #dee2e6;
+            }
         }
     </style>
 </head>
 <body>
 <!-- 导航栏 -->
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-    <div class="container">
-        <a class="navbar-brand" href="/">
+<nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/index">
             <i class="bi bi-journal-text"></i> 学术期刊
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -89,7 +184,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="/">首页</a>
+                    <a class="nav-link" href="/index">首页</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/about-journal">关于期刊</a>
@@ -104,365 +199,263 @@
                     <a class="nav-link" href="/guide">用户指南</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#login">登录</a>
+                    <a class="nav-link" href="/index#login">登录</a>
                 </li>
             </ul>
         </div>
     </div>
 </nav>
 
-<!-- 英雄区域 -->
-<section class="hero-section text-center">
-    <div class="container">
-        <h1 class="display-3 fw-bold mb-4">欢迎访问学术期刊</h1>
-        <p class="lead mb-5">专业的学术期刊投稿、审稿和管理平台</p>
-        <div class="d-flex gap-3 justify-content-center flex-wrap">
-            <a href="/guide" class="btn btn-outline-light btn-lg btn-login">
-                <i class="bi bi-book"></i> Guide for authors
-            </a>
-            <a href="#call-for-papers" class="btn btn-outline-light btn-lg btn-login">
-                <i class="bi bi-megaphone"></i> Call for papers
-            </a>
-        </div>
-    </div>
-</section>
-
-<!-- 期刊介绍 -->
-<section id="journal-intro" class="container py-5">
-    <div class="text-center mb-5">
-        <h2 class="display-5 fw-bold">期刊介绍</h2>
-        <p class="text-muted">了解我们的学术期刊</p>
-    </div>
-    <div class="row align-items-center" th:if="${journal != null}">
-        <div class="col-md-8">
-            <h3 class="fw-bold mb-4" th:text="${journal.name}">期刊名称</h3>
-            <p class="lead text-muted mb-4" th:text="${journal.introduction}">期刊介绍内容</p>
-            <a href="/about-journal" class="btn btn-primary">了解更多 <i class="bi bi-arrow-right"></i></a>
-        </div>
-        <div class="col-md-4 text-center">
-            <div class="p-4">
-                <div class="mb-3">
-                    <i class="bi bi-graph-up" style="font-size: 3rem; color: var(--primary-color);"></i>
-                </div>
-                <h4 th:if="${journal.impactFactor > 0}">影响因子</h4>
-                <h2 class="text-primary" th:if="${journal.impactFactor > 0}" th:text="${journal.impactFactor}">0.0</h2>
+<!-- 主内容区域 -->
+<div class="main-container">
+    <!-- 左侧主要内容区 -->
+    <div class="left-panel">
+        <!-- 英雄区域 -->
+        <section class="hero-section">
+            <h1>欢迎访问学术期刊</h1>
+            <p>专业的学术期刊投稿、审稿和管理平台</p>
+            <div>
+                <a href="/guide" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-book"></i> Guide for authors
+                </a>
+                <a href="/articles" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-file-text"></i> Articles
+                </a>
+                <a href="/submit" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-upload"></i> Submit
+                </a>
             </div>
-        </div>
-    </div>
-    <div class="text-center" th:unless="${journal != null}">
-        <p class="text-muted">暂无期刊信息</p>
-    </div>
-</section>
+        </section>
 
-<!-- 编委介绍 -->
-<section id="editorial-board" class="container py-5">
-    <div class="text-center mb-5">
-        <h2 class="display-5 fw-bold">编委介绍</h2>
-        <p class="text-muted">认识我们的编辑委员会成员</p>
-    </div>
-    <div class="row g-4" th:if="${editorialBoard != null and !editorialBoard.isEmpty()}">
-        <div class="col-md-6 col-lg-4" th:each="member : ${editorialBoard}">
-            <div class="card h-100 shadow-sm feature-card">
-                <div class="card-body">
-                    <h5 class="card-title" th:text="${member.user != null ? member.user.fullName : '未知'}">姓名</h5>
-                    <p class="text-muted mb-2">
-                        <span class="badge bg-primary" th:text="${member.position == 'chief_editor' ? '主编' : (member.position == 'editor' ? '编辑' : member.position)}">职位</span>
-                    </p>
-                    <p class="text-muted small mb-2" th:if="${member.user != null and member.user.company != null}" th:text="${member.user.company}">单位</p>
-                    <p class="card-text small" th:if="${member.profile != null}" th:text="${#strings.abbreviate(member.profile, 100)}">简介</p>
+        <!-- 期刊介绍 -->
+        <section class="section" th:if="${journal != null}">
+            <div class="section-title">期刊介绍</div>
+            <div class="journal-info">
+                <div>
+                    <h3 style="font-size: 1rem; color: var(--ieee-blue); margin-bottom: 0.5rem;" th:text="${journal.name != null ? journal.name : '期刊名称'}">期刊名称</h3>
+                    <p style="font-size: 0.85rem; color: #6c757d; margin-bottom: 0.5rem;" th:text="${journal.introduction != null ? #strings.abbreviate(journal.introduction, 150) : '期刊介绍内容'}">期刊介绍内容</p>
+                    <a href="/about-journal" class="btn btn-sm btn-primary">了解更多</a>
+                </div>
+                <div style="text-align: center; padding: 0.5rem;" th:if="${journal.impactFactor != null and journal.impactFactor > 0}">
+                    <i class="bi bi-graph-up" style="font-size: 2rem; color: var(--ieee-blue);"></i>
+                    <h4 style="font-size: 0.85rem; color: #6c757d; margin-bottom: 0.25rem;">影响因子</h4>
+                    <h2 style="font-size: 1.5rem; color: var(--ieee-blue);" th:text="${journal.impactFactor}">0.0</h2>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="text-center" th:if="${editorialBoard == null or editorialBoard.isEmpty()}">
-        <p class="text-muted">暂无编委信息</p>
-    </div>
-    <div class="text-center mt-4" th:if="${editorialBoard != null and !editorialBoard.isEmpty()}">
-        <a href="/about-journal#editorial-board" class="btn btn-outline-primary">查看完整编委列表</a>
-    </div>
-</section>
+        </section>
 
-<!-- 论文列表 -->
-<section id="papers" class="container py-5">
-    <div class="text-center mb-5">
-        <h2 class="display-5 fw-bold">论文列表</h2>
-        <p class="text-muted">浏览已发表的学术论文</p>
-    </div>
-    <div class="text-center mt-4">
-        <a href="/articles" class="btn btn-outline-primary">查看所有文章</a>
-    </div>
-</section>
+        <!-- 编委介绍 -->
+        <section class="section" th:if="${editorialBoard != null and !editorialBoard.isEmpty()}">
+            <div class="section-title">编委介绍</div>
+            <div class="editorial-grid">
+                <div class="editor-card" th:each="member : ${editorialBoard.size() > 6 ? #lists.subList(editorialBoard, 0, 6) : editorialBoard}">
+                    <h5 style="font-size: 0.9rem; margin-bottom: 0.25rem; color: var(--ieee-blue);" th:text="${member.user != null and member.user.fullName != null ? member.user.fullName : '未知'}">姓名</h5>
+                    <span class="badge bg-primary" style="font-size: 0.7rem; padding: 0.2rem 0.5rem;" th:text="${member.position != null and member.position == 'chief_editor' ? '主编' : (member.position != null and member.position == 'editor' ? '编辑' : (member.position != null ? member.position : '未知'))}">职位</span>
+                    <p class="text-muted small mt-1" style="font-size: 0.75rem;" th:if="${member.user != null and member.user.company != null}" th:text="${#strings.abbreviate(member.user.company, 20)}">单位</p>
+                </div>
+            </div>
+            <div class="text-center mt-2">
+                <a href="/about-journal#editorial-board" class="btn btn-sm btn-outline-primary">查看完整列表</a>
+            </div>
+        </section>
 
-<!-- 最新新闻 -->
-<section id="news" class="container py-5">
-    <div class="text-center mb-5">
-        <h2 class="display-5 fw-bold">最新动态</h2>
-        <p class="text-muted">了解系统最新资讯和公告</p>
-    </div>
-
-    <div class="row g-4" th:if="${newsList != null and !newsList.isEmpty()}">
-        <div class="col-md-6 col-lg-4" th:each="news : ${newsList}">
-            <div class="card h-100 shadow-sm news-card" style="transition: transform 0.3s ease, box-shadow 0.3s ease; border: none; border-radius: 15px; overflow: hidden;">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <span class="badge bg-primary" th:text="${news.status == 'published' ? '已发布' : news.status}"></span>
-                        <small class="text-muted" th:if="${news.publishTime != null}" th:text="${#temporals.format(news.publishTime, 'yyyy-MM-dd')}"></small>
-                        <small class="text-muted" th:unless="${news.publishTime != null}">未设置</small>
+        <!-- 最新新闻 -->
+        <section class="section" th:if="${newsList != null and !newsList.isEmpty()}">
+            <div class="section-title">最新动态</div>
+            <div class="news-grid">
+                <div class="news-card" th:each="news : ${newsList.size() > 4 ? #lists.subList(newsList, 0, 4) : newsList}">
+                    <div class="d-flex justify-content-between align-items-start mb-1">
+                        <span class="badge bg-primary" style="font-size: 0.7rem;" th:text="${news.status != null and news.status == 'published' ? '已发布' : (news.status != null ? news.status : '未知')}"></span>
+                        <small class="text-muted" style="font-size: 0.75rem;" th:if="${news.publishTime != null}" th:text="${#temporals.format(news.publishTime, 'MM-dd')}"></small>
                     </div>
-                    <h5 class="card-title mb-3" style="font-weight: 600; color: #333;">
-                        <a href="#" th:href="@{'/news/' + ${news.newsId}}"
-                           style="text-decoration: none; color: inherit;"
-                           th:text="${news.title}"></a>
+                    <h5 style="font-size: 0.9rem; margin-bottom: 0.5rem;">
+                        <a href="#" style="color: var(--ieee-blue); text-decoration: none;" th:href="${news.newsId != null ? '/news/' + news.newsId : '#'}" th:text="${news.title != null ? news.title : '标题'}">标题</a>
                     </h5>
-                    <p class="card-text text-muted" style="font-size: 0.9rem; line-height: 1.6;
-                            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
-                            overflow: hidden; text-overflow: ellipsis;"
-                       th:text="${#strings.abbreviate(news.content, 100)}"></p>
-                    <div class="mt-auto">
-                        <a href="#" th:href="@{'/news/' + ${news.newsId}}"
-                           class="btn btn-sm btn-outline-primary">
-                            阅读更多 <i class="bi bi-arrow-right"></i>
-                        </a>
+                    <p style="font-size: 0.75rem; color: #6c757d; margin-bottom: 0.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;" th:text="${news.content != null ? #strings.abbreviate(news.content, 60) : '内容摘要'}">内容摘要</p>
+                    <a href="#" th:href="${news.newsId != null ? '/news/' + news.newsId : '#'}" class="btn btn-sm btn-outline-primary">阅读更多</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 征稿通知 -->
+        <section class="section" th:if="${callForPapers != null and !callForPapers.isEmpty()}">
+            <div class="section-title">征稿通知 (Call for Papers)</div>
+            <div class="news-grid">
+                <div class="news-card" th:each="cfp : ${callForPapers.size() > 2 ? #lists.subList(callForPapers, 0, 2) : callForPapers}">
+                    <h5 style="font-size: 0.9rem; margin-bottom: 0.5rem;" th:text="${cfp.title != null ? cfp.title : '征稿标题'}">征稿标题</h5>
+                    <p style="font-size: 0.75rem; color: #6c757d; margin-bottom: 0.5rem;" th:text="${cfp.content != null ? #strings.abbreviate(cfp.content, 60) : '内容'}">内容</p>
+                    <a th:href="${cfp.newsId != null ? '/news/' + cfp.newsId : '#'}" class="btn btn-sm btn-outline-primary">阅读更多</a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- 右侧登录区 -->
+    <div class="right-panel">
+        <section id="login" class="login-section">
+            <div class="login-card">
+                <!-- 登录/注册选项卡 -->
+                <ul class="nav nav-pills mb-3 justify-content-center" id="authTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-tab-pane" type="button" role="tab" aria-controls="login-tab-pane" aria-selected="true">
+                            <i class="bi bi-box-arrow-in-right"></i> 登录
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register-tab-pane" type="button" role="tab" aria-controls="register-tab-pane" aria-selected="false">
+                            <i class="bi bi-person-plus"></i> 注册
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- 错误提示框 -->
+                <div id="errorAlert" class="alert alert-danger alert-dismissible fade show d-none mb-2" role="alert" style="font-size: 0.75rem; padding: 0.5rem;">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span id="errorMessage"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" style="font-size: 0.7rem;"></button>
+                </div>
+
+                <!-- 成功提示框 -->
+                <div id="successAlert" class="alert alert-success alert-dismissible fade show d-none mb-2" role="alert" style="font-size: 0.75rem; padding: 0.5rem;">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span id="successMessage"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" style="font-size: 0.7rem;"></button>
+                </div>
+
+                <!-- 选项卡内容 -->
+                <div class="tab-content" id="authTabsContent">
+                    <!-- 登录表单 -->
+                    <div class="tab-pane fade show active" id="login-tab-pane" role="tabpanel" aria-labelledby="login-tab" tabindex="0">
+                        <form action="/login" method="post" id="loginForm">
+                            <div class="mb-2">
+                                <label for="loginUserName" class="form-label" style="font-size: 0.85rem;">
+                                    <i class="bi bi-person"></i> 用户账号
+                                </label>
+                                <input type="text" class="form-control" style="font-size: 0.85rem; padding: 0.4rem 0.75rem;"
+                                       id="loginUserName" name="userName"
+                                       placeholder="请输入账号" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="loginPassword" class="form-label" style="font-size: 0.85rem;">
+                                    <i class="bi bi-lock"></i> 密码
+                                </label>
+                                <input type="password" class="form-control" style="font-size: 0.85rem; padding: 0.4rem 0.75rem;"
+                                       id="loginPassword" name="password"
+                                       placeholder="请输入密码" required>
+                            </div>
+                            <div class="d-grid mb-2">
+                                <button type="submit" class="btn btn-primary" style="font-size: 0.85rem; padding: 0.4rem 1rem;">
+                                    <i class="bi bi-box-arrow-in-right"></i> 登录
+                                </button>
+                            </div>
+                            <div class="text-center mb-2">
+                                <button type="button" class="btn btn-link btn-sm p-0" onclick="goToResetPage()" style="font-size: 0.75rem; text-decoration: none;">
+                                    找回密码
+                                </button>
+                            </div>
+                        </form>
+                        <div class="text-center">
+                            <small class="text-muted" style="font-size: 0.7rem;">
+                                支持：作者、审稿人、编辑、主编、管理员
+                            </small>
+                        </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <div class="text-center" th:if="${newsList == null or newsList.isEmpty()}">
-        <p class="text-muted">暂无新闻动态</p>
-    </div>
-</section>
-
-<!-- 征稿通知 -->
-<section id="call-for-papers" class="container py-5">
-    <div class="text-center mb-5">
-        <h2 class="display-5 fw-bold">征稿通知 (Call for Papers)</h2>
-        <p class="text-muted">了解最新的投稿机会</p>
-    </div>
-    <div class="row g-4" th:if="${callForPapers != null and !callForPapers.isEmpty()}">
-        <div class="col-md-6" th:each="cfp : ${callForPapers}">
-            <div class="card shadow-sm feature-card">
-                <div class="card-body">
-                    <h5 class="card-title" th:text="${cfp.title}">征稿标题</h5>
-                    <p class="card-text text-muted" th:text="${#strings.abbreviate(cfp.content, 150)}">内容</p>
-                    <a th:href="@{'/news/' + ${cfp.newsId}}" class="btn btn-sm btn-outline-primary">阅读更多</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="text-center" th:if="${callForPapers == null or callForPapers.isEmpty()}">
-        <p class="text-muted">暂无征稿通知</p>
-    </div>
-</section>
-
-<!-- 登录区域 -->
-<section id="login" class="login-section">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-6 col-lg-5">
-                <div class="card shadow-lg border-0">
-                    <div class="card-body p-5">
-                        <!-- 登录/注册选项卡 -->
-                        <ul class="nav nav-pills mb-4 justify-content-center" id="authTabs" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-tab-pane" type="button" role="tab" aria-controls="login-tab-pane" aria-selected="true">
-                                    <i class="bi bi-box-arrow-in-right"></i> 用户登录
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register-tab-pane" type="button" role="tab" aria-controls="register-tab-pane" aria-selected="false">
-                                    <i class="bi bi-person-plus"></i> 账号注册
-                                </button>
-                            </li>
-                        </ul>
-
-                        <!-- 错误提示框 -->
-                        <div id="errorAlert" class="alert alert-danger alert-dismissible fade show d-none" role="alert">
-                            <i class="bi bi-exclamation-triangle-fill"></i>
-                            <span id="errorMessage"></span>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-
-                        <!-- 成功提示框 -->
-                        <div id="successAlert" class="alert alert-success alert-dismissible fade show d-none" role="alert">
-                            <i class="bi bi-check-circle-fill"></i>
-                            <span id="successMessage"></span>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-
-                        <!-- 选项卡内容 -->
-                        <div class="tab-content" id="authTabsContent">
-                            <!-- 登录表单 -->
-                            <div class="tab-pane fade show active" id="login-tab-pane" role="tabpanel" aria-labelledby="login-tab" tabindex="0">
-                                <form action="/login" method="post" id="loginForm">
-                                    <div class="mb-3">
-                                        <label for="loginUserName" class="form-label">
-                                            <i class="bi bi-person"></i> 用户账号
-                                        </label>
-                                        <input type="text" class="form-control form-control-lg"
-                                               id="loginUserName" name="userName"
-                                               placeholder="请输入您的账号" required>
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="loginPassword" class="form-label">
-                                            <i class="bi bi-lock"></i> 账号密码
-                                        </label>
-                                        <input type="password" class="form-control form-control-lg"
-                                               id="loginPassword" name="password"
-                                               placeholder="请输入您的密码" required>
-                                    </div>
-                                    <div class="d-grid">
-                                        <button type="submit" class="btn btn-primary btn-lg">
-                                            <i class="bi bi-box-arrow-in-right"></i> 登录
-                                        </button>
-                                        <button type="button" onclick="goToResetPage()">
-                                            找回密码
-                                        </button>
-                                    </div>
-                                </form>
-                                <div class="text-center mt-4">
-                                    <small class="text-muted">
-                                        支持角色：作者、审稿人、编辑、主编、系统管理员
-                                    </small>
-                                </div>
+                    <!-- 注册表单 -->
+                    <div class="tab-pane fade" id="register-tab-pane" role="tabpanel" aria-labelledby="register-tab" tabindex="0">
+                        <form action="/register" method="post" id="registerForm">
+                            <div class="mb-2">
+                                <label for="registerUserName" class="form-label" style="font-size: 0.85rem;">
+                                    <i class="bi bi-person"></i> 账号
+                                </label>
+                                <input type="text" class="form-control" style="font-size: 0.85rem; padding: 0.4rem 0.75rem;"
+                                       id="registerUserName" name="userName"
+                                       placeholder="请输入账号" required>
                             </div>
-
-                            <!-- 注册表单 -->
-                            <div class="tab-pane fade" id="register-tab-pane" role="tabpanel" aria-labelledby="register-tab" tabindex="0">
-                                <form action="/register" method="post" id="registerForm">
-                                    <div class="mb-3">
-                                        <label for="registerUserName" class="form-label">
-                                            <i class="bi bi-person"></i> 用户账号
-                                        </label>
-                                        <input type="text" class="form-control form-control-lg"
-                                               id="registerUserName" name="userName"
-                                               placeholder="请输入您的账号" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="registerFullName" class="form-label">
-                                            <i class="bi bi-person"></i> 全名
-                                        </label>
-                                        <input type="text" class="form-control form-control-lg"
-                                               id="registerFullName" name="fullName"
-                                               placeholder="请输入您的全名" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="registerEmail" class="form-label">
-                                            <i class="bi bi-envelope"></i> 邮箱
-                                        </label>
-                                        <input type="email" class="form-control form-control-lg"
-                                               id="registerEmail" name="email"
-                                               placeholder="请输入您的邮箱" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="registerCompany" class="form-label">
-                                            <i class="bi bi-building"></i> 单位
-                                        </label>
-                                        <input type="text" class="form-control form-control-lg"
-                                               id="registerCompany" name="company"
-                                               placeholder="请输入您的单位" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="registerPassword" class="form-label">
-                                            <i class="bi bi-lock"></i> 账号密码
-                                        </label>
-                                        <input type="password" class="form-control form-control-lg"
-                                               id="registerPassword" name="password"
-                                               placeholder="请输入您的密码" required>
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="registerRole" class="form-label">
-                                            <i class="bi bi-person-badge"></i> 用户角色
-                                        </label>
-                                        <select class="form-select form-select-lg"
-                                                id="registerRole" name="userType" required>
-                                            <option value="author">作者</option>
-                                            <option value="reviewer">审稿人</option>
-                                        </select>
-                                    </div>
-                                    <div class="d-grid">
-                                        <button type="submit" class="btn btn-primary btn-lg">
-                                            <i class="bi bi-person-plus"></i> 注册
-                                        </button>
-                                    </div>
-                                </form>
-                                <div class="text-center mt-4">
-                                    <small class="text-muted">
-                                        注册成功后将自动登录系统
-                                    </small>
-                                </div>
+                            <div class="mb-2">
+                                <label for="registerFullName" class="form-label" style="font-size: 0.85rem;">
+                                    <i class="bi bi-person"></i> 全名
+                                </label>
+                                <input type="text" class="form-control" style="font-size: 0.85rem; padding: 0.4rem 0.75rem;"
+                                       id="registerFullName" name="fullName"
+                                       placeholder="请输入全名" required>
                             </div>
+                            <div class="mb-2">
+                                <label for="registerEmail" class="form-label" style="font-size: 0.85rem;">
+                                    <i class="bi bi-envelope"></i> 邮箱
+                                </label>
+                                <input type="email" class="form-control" style="font-size: 0.85rem; padding: 0.4rem 0.75rem;"
+                                       id="registerEmail" name="email"
+                                       placeholder="请输入邮箱" required>
+                            </div>
+                            <div class="mb-2">
+                                <label for="registerCompany" class="form-label" style="font-size: 0.85rem;">
+                                    <i class="bi bi-building"></i> 单位
+                                </label>
+                                <input type="text" class="form-control" style="font-size: 0.85rem; padding: 0.4rem 0.75rem;"
+                                       id="registerCompany" name="company"
+                                       placeholder="请输入单位" required>
+                            </div>
+                            <div class="mb-2">
+                                <label for="registerPassword" class="form-label" style="font-size: 0.85rem;">
+                                    <i class="bi bi-lock"></i> 密码
+                                </label>
+                                <input type="password" class="form-control" style="font-size: 0.85rem; padding: 0.4rem 0.75rem;"
+                                       id="registerPassword" name="password"
+                                       placeholder="请输入密码" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="registerRole" class="form-label" style="font-size: 0.85rem;">
+                                    <i class="bi bi-person-badge"></i> 角色
+                                </label>
+                                <select class="form-select" style="font-size: 0.85rem; padding: 0.4rem 0.75rem;"
+                                        id="registerRole" name="userType" required>
+                                    <option value="author">作者</option>
+                                    <option value="reviewer">审稿人</option>
+                                </select>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary" style="font-size: 0.85rem; padding: 0.4rem 1rem;">
+                                    <i class="bi bi-person-plus"></i> 注册
+                                </button>
+                            </div>
+                        </form>
+                        <div class="text-center mt-2">
+                            <small class="text-muted" style="font-size: 0.7rem;">
+                                注册成功后将自动登录
+                            </small>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
     </div>
-</section>
-
-<!-- 页脚 -->
-<footer class="footer">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-6">
-                <h5><i class="bi bi-journal-text"></i> 学术期刊</h5>
-                <p class="text-muted">专业的学术期刊投稿、审稿和管理平台</p>
-            </div>
-            <div class="col-md-6 text-md-end">
-                <p class="text-muted mb-0">
-                    © 2025 学术期刊. 保留所有权利.
-                </p>
-                <p class="text-muted">
-                    <i class="bi bi-envelope"></i> 联系我们: support@papersystem.edu
-                </p>
-            </div>
-        </div>
-    </div>
-</footer>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // 平滑滚动
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        });
-    });
-
+    // 找回密码功能
     function goToResetPage() {
         const userName = document.getElementById("loginUserName").value.trim();
-
         if (!userName) {
             alert("请先输入用户名");
             return;
         }
-
-        window.location.href =
-            "/passwordreset/mainpage?loginUserName=" + encodeURIComponent(userName);
+        window.location.href = "/passwordreset/mainpage?loginUserName=" + encodeURIComponent(userName);
     }
 
-    // 检查URL参数并显示消息
+    // 处理URL参数（错误和成功消息）
     (function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const error = urlParams.get('error');
-        const success = urlParams.get('success');
+        var urlParams = new URLSearchParams(window.location.search);
+        var error = urlParams.get('error');
+        var success = urlParams.get('success');
 
-        // 处理错误消息
         if (error) {
             const errorAlert = document.getElementById('errorAlert');
             const errorMessage = document.getElementById('errorMessage');
             let message = '';
 
             switch(error) {
-                // 登录错误
                 case 'username':
                     message = '用户名不存在，请检查后重试。';
                     break;
@@ -475,22 +468,15 @@
                 case 'invalid_role':
                     message = '用户角色异常，请联系系统管理员。';
                     break;
-                // 注册错误
                 case 'username_exists':
                     message = '用户名已存在，请选择其他用户名。';
-                    // 切换到注册标签
-                    const registerTab = document.getElementById('register-tab');
-                    if (registerTab) {
-                        registerTab.click();
-                    }
+                    var registerTab = document.getElementById('register-tab');
+                    if (registerTab) registerTab.click();
                     break;
                 case 'register_error':
                     message = '注册失败，请重试。';
-                    // 切换到注册标签
-                    const regTab = document.getElementById('register-tab');
-                    if (regTab) {
-                        regTab.click();
-                    }
+                    var regTab = document.getElementById('register-tab');
+                    if (regTab) regTab.click();
                     break;
                 default:
                     message = '操作失败，请重试。';
@@ -499,49 +485,40 @@
             if (errorAlert && errorMessage) {
                 errorMessage.textContent = message;
                 errorAlert.classList.remove('d-none');
-
-                // 滚动到登录区域
-                setTimeout(() => {
-                    document.getElementById('login').scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }, 100);
+                if (error !== 'username_exists' && error !== 'register_error') {
+                    var loginTab = document.getElementById('login-tab');
+                    if (loginTab) loginTab.click();
+                }
             }
         }
 
-        // 处理成功消息
         if (success) {
             const successAlert = document.getElementById('successAlert');
             const successMessage = document.getElementById('successMessage');
-            let message = '';
-
-            switch(success) {
-                case 'registered':
-                    message = '注册成功！正在跳转...';
-                    break;
-                default:
-                    message = '操作成功！';
-            }
+            let message = success === 'registered' ? '注册成功！正在跳转...' : '操作成功！';
 
             if (successAlert && successMessage) {
                 successMessage.textContent = message;
                 successAlert.classList.remove('d-none');
-
-                // 滚动到登录区域
-                setTimeout(() => {
-                    document.getElementById('login').scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }, 100);
             }
         }
 
         // 清除URL参数
-        window.history.replaceState({}, document.title, window.location.pathname);
+        if (error || success) {
+            window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+        }
+
+        // 处理锚点跳转（从其他页面跳转到首页的登录区域）
+        // 如果有错误参数或hash为#login，滚动到登录区域
+        if (window.location.hash === '#login' || error || success) {
+            setTimeout(function() {
+                var loginSection = document.getElementById('login');
+                if (loginSection) {
+                    loginSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 100);
+        }
     })();
 </script>
 </body>
 </html>
-

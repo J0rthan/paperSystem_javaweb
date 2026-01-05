@@ -13,7 +13,7 @@ public class JournalServiceImpl implements JournalService {
 
     @Autowired
     private JournalDao journalDao;
-
+//新增新闻
     @Override
     public void saveJournal(Journal journal) {
         journal.setCreateTime(LocalDateTime.now());
@@ -21,7 +21,7 @@ public class JournalServiceImpl implements JournalService {
         journal.setStatus("published");
         journalDao.save(journal);
     }
-
+//更新新闻
     @Override
     public void updateJournal(Journal journal) {
         // 确保createTime不为空
@@ -31,7 +31,7 @@ public class JournalServiceImpl implements JournalService {
         journal.setUpdateTime(LocalDateTime.now());
         journalDao.save(journal);
     }
-
+//删除新闻
     @Override
     public void deleteJournal(Integer journalId) {
         journalDao.deleteById(journalId);

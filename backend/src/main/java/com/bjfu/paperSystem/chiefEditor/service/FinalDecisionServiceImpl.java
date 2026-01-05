@@ -24,7 +24,7 @@ public class FinalDecisionServiceImpl implements FinalDecisionService {
     @Override
     public List<Manuscript> listPendingFinalDecisions() {
         // 【关键修改】查找状态为 PENDING_DECISION 的稿件
-        return manuscriptDao.findByStatus("PENDING_DECISION");
+        return manuscriptDao.findByStatus("With Editor II");
     }
 
     @Override
@@ -33,7 +33,7 @@ public class FinalDecisionServiceImpl implements FinalDecisionService {
     }
 
     @Override
-    @Transactional // 确保数据一致性
+    @Transactional
     public void makeFinalDecision(int manuscriptId, String decision, String comment) {
         Manuscript m = manuscriptDao.findById(manuscriptId).orElse(null);
         if (m == null) return;
@@ -41,9 +41,9 @@ public class FinalDecisionServiceImpl implements FinalDecisionService {
         // 1. 更新稿件状态
         // decision 对应前端的值: ACCEPT, REJECT, NEED_REVISION
         switch (decision) {
-            case "ACCEPT" -> m.setStatus("ACCEPTED"); // 录用
-            case "REJECT" -> m.setStatus("REJECTED"); // 拒稿
-            case "NEED_REVISION" -> m.setStatus("NEED_REVISION"); // 需返修
+            case "Accepted" -> m.setStatus("Accepted"); // 录用
+            case "Rejected" -> m.setStatus("Rejected"); // 拒稿
+            case "Need Revision" -> m.setStatus("Need Revision"); // 需返修
             default -> { return; }
         }
 

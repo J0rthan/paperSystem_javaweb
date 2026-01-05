@@ -37,4 +37,21 @@ public class DecisionHistory {
     @ManyToOne
     @JoinColumn(name = "decider_id")
     private User decider;
+
+    public Integer getRound() { return round; }
+    public void setRound(Integer round) { this.round = round;}
+    public String getEditorRecommendation() { return editorRecommendation; }
+    public void setEditorRecommendation(String editorRecommendation) { this.editorRecommendation = editorRecommendation;}
+    public String getEditorComment() { return editorComment; }
+    public void setEditorComment(String editorComment) { this.editorComment = editorComment;}
+    public String getFinalDecision() { return finalDecision; }
+    public void setFinalDecision(String finalDecision) { this.finalDecision = finalDecision;}
+    public String getFinalDecisionComment() { return finalDecisionComment; }
+    public void setFinalDecisionComment(String finalDecisionComment) { this.finalDecisionComment = finalDecisionComment;}
+    public Date getDecisionDate() { return decisionDate; }
+    public void setDecisionDate(Date decisionDate) { this.decisionDate = decisionDate;}
+    public User getDecider() { return decider; }
+    public void setDecider(User decider) { this.decider = decider;}
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 }

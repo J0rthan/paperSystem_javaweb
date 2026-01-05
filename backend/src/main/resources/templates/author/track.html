@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" class="h-100">
 <head>
     <meta charset="UTF-8">
     <title>稿件追踪 - 稿件管理系统</title>
@@ -37,143 +37,183 @@
         }
     </style>
 </head>
-<body>
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a th:href="@{/author/manuscript/list}">我的稿件</a></li>
-                <li class="breadcrumb-item active">追踪状态</li>
-            </ol>
-        </nav>
-        <a th:href="@{/author/manuscript/list}" class="btn btn-outline-secondary btn-sm rounded-pill">
-            <i class="bi bi-arrow-left"></i> 返回稿件列表
+<body class="bg-light d-flex flex-column h-100">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold" th:href="@{/author/manuscript/list}">
+            <i class="bi bi-journal-bookmark-fill me-2"></i>学术论文管理系统
         </a>
-    </div>
 
-    <div class="main-card mb-4">
-        <div class="row">
-            <div class="col-md-8">
-                <small class="text-muted">欢迎您：<span th:text="${session.loginUser.userName}">作者</span></small>
-                <h2 class="fw-bold text-dark mt-2" th:text="|稿件标题：${manuscript.title}|">稿件标题</h2>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#authorNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-                <div class="mt-3">
-                    <span class="badge bg-light text-dark border me-2" th:text="|#MS-${manuscript.manuscriptId}|">#MS-000</span>
-                    <span class="badge rounded-pill px-3"
-                          th:classappend="${manuscript.status == 'Need Revision' or manuscript.status == '需要返修'} ? 'bg-primary' : 'bg-info text-dark'"
-                          th:switch="${manuscript.status}">
-                        <span th:case="'Started Submission'">开始投稿</span>
-                        <span th:case="'Incomplete Submission'">草稿箱</span>
-                        <span th:case="'Pending Review'">待审查</span>
-                        <span th:case="'Under Review'">审稿中</span>
-                        <span th:case="'Accepted'">录用</span>
-                        <span th:case="'Rejected'">拒稿</span>
-                        <span th:case="'Pending Allocation'">待初审</span>
-                        <span th:case="'Pending Allocation II'">待分配</span>
-                        <span th:case="'With Editor'">编辑处理中</span>
-                        <span th:case="'Need Revision'">需要返修</span>
-                        <span th:case="*" th:text="${manuscript.status}"></span>
-                    </span>
-                    <a th:href="@{/author/manuscript/detail(id=${manuscript.manuscriptId})}" class="btn btn-sm btn-link text-decoration-none ms-2">
-                        <i class="bi bi-info-circle"></i> 查看详情
+        <div class="collapse navbar-collapse" id="authorNavbar">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item me-3">
+                    <a class="nav-link text-light position-relative" th:href="@{/author/message/list}" title="消息中心">
+                        <i class="bi bi-envelope-fill fs-5"></i>
+                        <span class="position-absolute top-2 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
+                            <span class="visually-hidden">新消息</span>
+                        </span>
                     </a>
-                </div>
+                </li>
 
-                <div th:if="${manuscript.decision != null and manuscript.decision != ''}" class="mt-4 p-3 decision-alert">
-                    <div class="fw-bold mb-1"><i class="bi bi- megaphone-fill me-2"></i>主编意见：</div>
-                    <div th:text="${manuscript.decision}" style="white-space: pre-wrap;">这里显示来自 Manuscript 实体的决议解释...</div>
+                <li class="nav-item me-3 border-end pe-3">
+                    <a class="nav-link text-light" th:href="@{/author/profile}" title="账号设置">
+                        <i class="bi bi-gear-fill fs-5"></i>
+                    </a>
+                </li>
+
+                <li class="nav-item dropdown ms-2">
+                    <span class="navbar-text text-light me-3">
+                        <i class="bi bi-person-circle me-1"></i>
+                        <span th:text="${session.loginUser.userName}">作者姓名</span>
+                    </span>
+                    <a href="/author/logout" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                        <i class="bi bi-box-arrow-right me-1"></i>退出登录
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<main class="flex-grow-1">
+    <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a th:href="@{/author/manuscript/list}">我的稿件</a></li>
+                    <li class="breadcrumb-item active">追踪状态</li>
+                </ol>
+            </nav>
+            <a th:href="@{/author/manuscript/list}" class="btn btn-outline-secondary btn-sm rounded-pill shadow-sm">
+                <i class="bi bi-arrow-left"></i>返回稿件列表
+            </a>
+        </div>
+        <div class="main-card mb-4">
+            <div class="row">
+                <div class="col-md-8">
+                    <small class="text-muted">欢迎您：<span th:text="${session.loginUser.userName}">作者</span></small>
+                    <h2 class="fw-bold text-dark mt-2" th:text="|稿件标题：${manuscript.title}|">稿件标题</h2>
+                    <div class="mt-3">
+                        <span class="badge bg-light text-dark border me-2" th:text="|#MS-${manuscript.manuscriptId}|">#MS-000</span>
+                        <span class="badge rounded-pill px-3"
+                              th:classappend="${manuscript.status == 'Need Revision' or manuscript.status == '需要返修'} ? 'bg-primary' : 'bg-info text-dark'"
+                              th:switch="${manuscript.status}">
+                            <span th:case="'Started Submission'">开始投稿</span>
+                            <span th:case="'Incomplete Submission'">草稿箱</span>
+                            <span th:case="'Pending Review'">待审查</span>
+                            <span th:case="'Under Review'">审稿中</span>
+                            <span th:case="'Accepted'">录用</span>
+                            <span th:case="'Rejected'">拒稿</span>
+                            <span th:case="'Pending Allocation'">待初审</span>
+                            <span th:case="'Pending Allocation II'">待分配</span>
+                            <span th:case="'With Editor'">编辑处理中</span>
+                            <span th:case="'Need Revision'">需要返修</span>
+                            <span th:case="*" th:text="${manuscript.status}"></span>
+                        </span>
+                        <a th:href="@{/author/manuscript/detail(id=${manuscript.manuscriptId})}" class="btn btn-sm btn-link text-decoration-none ms-2">
+                            <i class="bi bi-info-circle"></i> 查看详情
+                        </a>
+                    </div>
+                    <div th:if="${manuscript.decision != null and manuscript.decision != ''}" class="mt-4 p-3 decision-alert shadow-sm">
+                        <div class="fw-bold mb-1"><i class="bi bi-megaphone-fill me-2"></i>主编意见：</div>
+                        <div th:text="${manuscript.decision}" style="white-space: pre-wrap;">意见内容...</div>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                <div class="p-3 bg-light rounded-3 border">
-                    <div class="small text-muted mb-1 text-uppercase fw-bold" style="font-size: 0.7rem;">平均审稿时效</div>
-                    <div class="fw-bold text-primary">4-6 周</div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <div class="p-3 bg-light rounded-3 border">
+                        <div class="small text-muted mb-1 text-uppercase fw-bold" style="font-size: 0.7rem;">平均审稿时效</div>
+                        <div class="fw-bold text-primary">4-6 周</div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-7">
-            <div class="main-card mt-0 h-100">
-                <h4 class="fw-bold mb-4"><i class="bi bi-clock-history me-2"></i>处理记录</h4>
-                <div class="timeline">
-                    <div th:each="log, stat : ${logs}"
-                         th:if="${log.opType != 'save'}"
-                         class="timeline-item" th:classappend="${stat.first} ? 'latest' : ''">
-                        <div class="timeline-marker">
-                            <i th:class="${stat.first} ? 'bi bi-play-fill' : 'bi bi-check-lg'"></i>
-                        </div>
-                        <div class="timeline-content">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <div>
-                                    <h5 class="fw-bold mb-1 text-dark" th:switch="${log.opType}">
-                                        <span th:case="'submit'">初始投稿提交</span>
-                                        <span th:case="'through review'">通过初步审查</span>
-                                        <span th:case="'Desk Accept'">通过初审</span>
-                                        <span th:case="'Desk Reject'">未通过初审</span>
-                                        <span th:case="'submit revision'">提交修改稿 (Revision)</span>
-                                        <span th:case="*" th:text="${log.opType}">系统记录</span>
-                                    </h5>
-                                    <div class="text-primary small">
-                                        <i class="bi bi-person-circle me-1"></i>
-                                        <span class="fw-bold" th:text="${userNames[log.oporId]}">操作员</span>
+        <div class="row g-4">
+            <div class="col-lg-7">
+                <div class="main-card mt-0 h-100">
+                    <h4 class="fw-bold mb-4"><i class="bi bi-clock-history me-2 text-primary"></i>处理记录</h4>
+                    <div class="timeline">
+                        <div th:each="log, stat : ${logs}"
+                             th:if="${log.opType != 'save'}"
+                             class="timeline-item" th:classappend="${stat.first} ? 'latest' : ''">
+                            <div class="timeline-marker">
+                                <i th:class="${stat.first} ? 'bi bi-play-fill' : 'bi bi-check-lg'"></i>
+                            </div>
+                            <div class="timeline-content shadow-sm">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h5 class="fw-bold mb-1 text-dark" th:switch="${log.opType}">
+                                            <span th:case="'submit'">初始投稿提交</span>
+                                            <span th:case="'through review'">通过初步审查</span>
+                                            <span th:case="'Desk Accept'">通过初审</span>
+                                            <span th:case="'Desk Reject'">未通过初审</span>
+                                            <span th:case="'submit revision'">提交修改稿 (Revision)</span>
+                                            <span th:case="*" th:text="${log.opType}">系统记录</span>
+                                        </h5>
+                                        <div class="text-primary small">
+                                            <i class="bi bi-person-circle me-1"></i>
+                                            <span class="fw-bold" th:text="${userNames[log.oporId]}">操作员</span>
+                                        </div>
                                     </div>
+                                    <span class="text-muted small">
+                                        <i class="bi bi-calendar3 me-1"></i>
+                                        <span th:text="${#temporals.format(log.opTime, 'yyyy-MM-dd HH:mm:ss')}">时间</span>
+                                    </span>
                                 </div>
-                                <span class="text-muted small">
-                                    <i class="bi bi-calendar3 me-1"></i>
-                                    <span th:text="${#temporals.format(log.opTime, 'yyyy-MM-dd HH:mm:ss')}">时间</span>
-                                </span>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div th:if="${#lists.isEmpty(logs)}" class="text-center py-5">
-                    <i class="bi bi-inbox text-muted fs-1 d-block mb-3"></i>
-                    <p class="text-muted">暂无正式处理记录</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-5">
-            <div class="main-card mt-0 h-100">
-                <h4 class="fw-bold mb-4"><i class="bi bi-files me-2"></i>版本历史与附件</h4>
-                <div th:if="${not #lists.isEmpty(versions)}" class="list-group list-group-flush">
-                    <div th:each="v : ${versions}" class="list-group-item px-0 py-3 border-bottom">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="badge bg-secondary version-badge" th:text="'Version ' + ${v.versionNumber}">V1</span>
-                        </div>
-                        <div class="d-grid gap-2">
-                            <a th:if="${v.filePathOriginal != null and v.filePathOriginal != ''}"
-                               th:href="@{/author/manuscript/download(path=${v.filePathOriginal})}"
-                               class="btn btn-sm btn-outline-primary text-start">
-                                <i class="bi bi-file-earmark-word me-2"></i>下载稿件 (Clean)
-                            </a>
-                            <a th:if="${v.coverLetterPath != null and v.coverLetterPath != ''}"
-                               th:href="@{/author/manuscript/download(path=${v.coverLetterPath})}"
-                               class="btn btn-sm btn-outline-info text-start">
-                                <i class="bi bi-envelope-paper me-2"></i>下载投稿信 (Cover Letter)
-                            </a>
-                            <a th:if="${v.filePathAnon != null and v.filePathAnon != ''}"
-                               th:href="@{/author/manuscript/download(path=${v.filePathAnon})}"
-                               class="btn btn-sm btn-outline-warning text-start">
-                                <i class="bi bi-file-earmark-diff me-2"></i>下载标记版 (Marked)
-                            </a>
-                            <a th:if="${v.responseLetterPath != null and v.responseLetterPath != ''}"
-                               th:href="@{/author/manuscript/download(path=${v.responseLetterPath})}"
-                               class="btn btn-sm btn-outline-success text-start">
-                                <i class="bi bi-chat-left-dots me-2"></i>下载回复信 (Reply Letter)
-                            </a>
-                        </div>
+                    <div th:if="${#lists.isEmpty(logs)}" class="text-center py-5">
+                        <i class="bi bi-inbox text-muted fs-1 d-block mb-3"></i>
+                        <p class="text-muted">暂无正式处理记录</p>
                     </div>
                 </div>
-                <div th:if="${#lists.isEmpty(versions)}" class="text-center py-4">
-                    <p class="text-muted small">尚无版本文件记录</p>
+            </div>
+            <div class="col-lg-5">
+                <div class="main-card mt-0 h-100">
+                    <h4 class="fw-bold mb-4"><i class="bi bi-files me-2 text-primary"></i>版本历史与附件</h4>
+                    <div th:if="${not #lists.isEmpty(versions)}" class="list-group list-group-flush">
+                        <div th:each="v : ${versions}" class="list-group-item px-0 py-3 border-bottom">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="badge bg-secondary version-badge shadow-sm" th:text="'Version ' + ${v.versionNumber}">V1</span>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <a th:if="${v.filePathOriginal != null and v.filePathOriginal != ''}"
+                                   th:href="@{/author/manuscript/download(path=${v.filePathOriginal})}"
+                                   class="btn btn-sm btn-outline-primary text-start px-3 py-2">
+                                    <i class="bi bi-file-earmark-word me-2"></i>下载稿件 (Clean)
+                                </a>
+                                <a th:if="${v.coverLetterPath != null and v.coverLetterPath != ''}"
+                                   th:href="@{/author/manuscript/download(path=${v.coverLetterPath})}"
+                                   class="btn btn-sm btn-outline-info text-start px-3 py-2">
+                                    <i class="bi bi-envelope-paper me-2"></i>下载投稿信 (Cover Letter)
+                                </a>
+                                <a th:if="${v.filePathAnon != null and v.filePathAnon != ''}"
+                                   th:href="@{/author/manuscript/download(path=${v.filePathAnon})}"
+                                   class="btn btn-sm btn-outline-warning text-start px-3 py-2">
+                                    <i class="bi bi-file-earmark-diff me-2"></i>下载标记版 (Marked)
+                                </a>
+                                <a th:if="${v.responseLetterPath != null and v.responseLetterPath != ''}"
+                                   th:href="@{/author/manuscript/download(path=${v.responseLetterPath})}"
+                                   class="btn btn-sm btn-outline-success text-start px-3 py-2">
+                                    <i class="bi bi-chat-left-dots me-2"></i>下载回复信 (Reply Letter)
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div th:if="${#lists.isEmpty(versions)}" class="text-center py-4">
+                        <p class="text-muted small">尚无版本文件记录</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <p class="text-center mt-5 text-muted small">© 2025学术论文管理系统 · 作者</p>
-</div>
+</main>
+<footer class="py-4 mt-auto">
+    <p class="text-center text-muted small mb-0">© 2025 学术论文管理系统 · 作者</p>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

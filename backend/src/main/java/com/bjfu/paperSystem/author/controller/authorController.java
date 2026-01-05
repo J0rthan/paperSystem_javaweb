@@ -13,7 +13,7 @@ public class authorController {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) return "redirect:/index";
         model.addAttribute("username", loginUser.getFullName());
-        return "author";
+        return "redirect:author/manuscript/list";
     }
     @GetMapping("/logout")
     public String logout(HttpSession session) {

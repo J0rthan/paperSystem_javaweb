@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - 学术期刊</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --ieee-blue: #00629B;
+            --ieee-orange: #FF6F00;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            background: white;
+            border-bottom: 2px solid var(--ieee-blue);
+            padding: 0.5rem 0;
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.3rem;
+            color: var(--ieee-blue) !important;
+        }
+
+        .login-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h2 {
+            color: var(--ieee-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            padding: 0.75rem;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+
+        .form-control:focus {
+            border-color: var(--ieee-blue);
+            box-shadow: 0 0 0 0.2rem rgba(0, 98, 155, 0.25);
+        }
+
+        .btn-primary {
+            background-color: var(--ieee-blue);
+            border-color: var(--ieee-blue);
+            padding: 0.75rem;
+            font-weight: 500;
+        }
+
+        .btn-primary:hover {
+            background-color: #004d7a;
+            border-color: #004d7a;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 1.5rem 0;
+            position: relative;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 45%;
+            height: 1px;
+            background: #dee2e6;
+        }
+
+        .divider::before {
+            left: 0;
+        }
+
+        .divider::after {
+            right: 0;
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 1rem;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .register-link a {
+            color: var(--ieee-blue);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<!-- 导航栏 -->
+<nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/index">
+            <i class="bi bi-journal-text"></i> 学术期刊
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/index">首页</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/about-journal">关于期刊</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/submit">论文发表</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/articles">文章与专刊</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/guide">用户指南</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/login">登录</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- 登录容器 -->
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <h2><i class="bi bi-box-arrow-in-right"></i> 用户登录</h2>
+            <p>欢迎回来，请登录您的账户</p>
+        </div>
+
+        <!-- 错误提示框 -->
+        <div id="errorAlert" class="alert alert-danger alert-dismissible fade show d-none mb-3" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <span id="errorMessage"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- 成功提示框 -->
+        <div id="successAlert" class="alert alert-success alert-dismissible fade show d-none mb-3" role="alert">
+            <i class="bi bi-check-circle-fill"></i>
+            <span id="successMessage"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- 登录表单 -->
+        <form action="/login" method="post" id="loginForm">
+            <div class="mb-3">
+                <label for="loginUserName" class="form-label">
+                    <i class="bi bi-person"></i> 用户账号
+                </label>
+                <input type="text" class="form-control"
+                       id="loginUserName" name="userName"
+                       placeholder="请输入账号" required autofocus>
+            </div>
+            <div class="mb-3">
+                <label for="loginPassword" class="form-label">
+                    <i class="bi bi-lock"></i> 密码
+                </label>
+                <input type="password" class="form-control"
+                       id="loginPassword" name="password"
+                       placeholder="请输入密码" required>
+            </div>
+            <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <button type="button" class="btn btn-link p-0" onclick="goToResetPage()" style="text-decoration: none; font-size: 0.9rem;">
+                            <i class="bi bi-question-circle"></i> 找回密码
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="d-grid mb-3">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-box-arrow-in-right"></i> 登录
+                </button>
+            </div>
+        </form>
+
+        <div class="divider">
+            <span>或</span>
+        </div>
+
+        <div class="register-link">
+            <p>还没有账户？ <a href="/register">立即注册</a></p>
+        </div>
+
+        <div class="text-center mt-3">
+            <small class="text-muted">
+                支持：作者、审稿人、编辑、主编、管理员
+            </small>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // 找回密码功能
+    function goToResetPage() {
+        const userName = document.getElementById("loginUserName").value.trim();
+        if (!userName) {
+            alert("请先输入用户名");
+            return;
+        }
+        window.location.href = "/passwordreset/mainpage?loginUserName=" + encodeURIComponent(userName);
+    }
+
+    // 处理URL参数（错误和成功消息）
+    (function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        const success = urlParams.get('success');
+
+        if (error) {
+            const errorAlert = document.getElementById('errorAlert');
+            const errorMessage = document.getElementById('errorMessage');
+            let message = '';
+
+            switch(error) {
+                case 'username':
+                    message = '用户名不存在，请检查后重试。';
+                    break;
+                case 'password':
+                    message = '密码错误，请检查后重试。';
+                    break;
+                case 'account_disabled':
+                    message = '您的账户已被禁用，请联系系统管理员。';
+                    break;
+                case 'invalid_role':
+                    message = '用户角色异常，请联系系统管理员。';
+                    break;
+                default:
+                    message = '登录失败，请重试。';
+            }
+
+            if (errorAlert && errorMessage) {
+                errorMessage.textContent = message;
+                errorAlert.classList.remove('d-none');
+            }
+        }
+
+        if (success) {
+            const successAlert = document.getElementById('successAlert');
+            const successMessage = document.getElementById('successMessage');
+            let message = success === 'registered' ? '注册成功！正在跳转...' : '操作成功！';
+
+            if (successAlert && successMessage) {
+                successMessage.textContent = message;
+                successAlert.classList.remove('d-none');
+            }
+        }
+
+        // 清除URL参数
+        if (error || success) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    })();
+</script>
+</body>
+</html>
+

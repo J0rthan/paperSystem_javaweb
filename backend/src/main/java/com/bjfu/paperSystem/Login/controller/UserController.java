@@ -29,7 +29,7 @@ public class UserController {
         try {
             // 检查用户名是否为空
             if (user.getUserName() == null || user.getUserName().trim().isEmpty()) {
-                return "redirect:/index?error=username";
+                return "redirect:/login?error=username";
             }
 
             // 先获取用户类型，调用Service层接口
@@ -41,15 +41,15 @@ public class UserController {
                     boolean userNameExists = userDao.findByUserName(user.getUserName()).isPresent();
                     if (userNameExists) {
                         // 用户名存在但密码错误
-                        return "redirect:/index?error=password";
+                        return "redirect:/login?error=password";
                     } else {
                         // 用户名不存在
-                        return "redirect:/index?error=username";
+                        return "redirect:/login?error=username";
                     }
                 } catch (Exception e) {
                     // 如果查询出错，默认认为用户名不存在
                     e.printStackTrace();
-                    return "redirect:/index?error=username";
+                    return "redirect:/login?error=username";
                 }
             }
 
@@ -98,20 +98,32 @@ public class UserController {
                     return "redirect:/reviewer";
                 }
                 else {
-                    return "redirect:/index?error=invalid_role";
+                    return "redirect:/login?error=invalid_role";
                 }
             }
             else {
                 // 账户被封禁或状态异常
-                return "redirect:/index?error=account_disabled";
+                return "redirect:/login?error=account_disabled";
             }
         } catch (Exception e) {
             // 捕获所有异常，避免跳转到空白页
             e.printStackTrace();
-            return "redirect:/index?error=username";
+            return "redirect:/login?error=username";
         }
     }
     
+    // 显示登录页面
+    @GetMapping("/login")
+    public String loginPage() {
+        return "login";
+    }
+
+    // 显示注册页面
+    @GetMapping("/register")
+    public String registerPage() {
+        return "register";
+    }
+
     // 显示登录错误页面
     @GetMapping("/login-error")
     public String loginError(@RequestParam(value = "error", defaultValue = "general") String error, Model model) {
@@ -151,12 +163,12 @@ public class UserController {
     public String register(User user, HttpSession session) {
         // 检查用户名是否存在
         if (userService.isUserNameExists(user.getUserName())) {
-            return "redirect:/?error=username_exists";
+            return "redirect:/register?error=username_exists";
         }
         // 调用服务层注册用户
         User newUser = userService.register(user);
         if (newUser == null) {
-            return "redirect:/?error=register_error";
+            return "redirect:/register?error=register_error";
         }
         // 注册成功后自动登录
         session.setAttribute("loginUser", newUser);
@@ -167,7 +179,7 @@ public class UserController {
         } else if ("reviewer".equalsIgnoreCase(userType)) {
             return "redirect:/reviewer";
         } else {
-            return "redirect:/?error=register_error";
+            return "redirect:/register?error=register_error";
         }
     }
 }

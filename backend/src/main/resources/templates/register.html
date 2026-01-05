@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册 - 学术期刊</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --ieee-blue: #00629B;
+            --ieee-orange: #FF6F00;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            background: white;
+            border-bottom: 2px solid var(--ieee-blue);
+            padding: 0.5rem 0;
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.3rem;
+            color: var(--ieee-blue) !important;
+        }
+
+        .register-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .register-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .register-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .register-header h2 {
+            color: var(--ieee-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .register-header p {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control, .form-select {
+            padding: 0.75rem;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--ieee-blue);
+            box-shadow: 0 0 0 0.2rem rgba(0, 98, 155, 0.25);
+        }
+
+        .btn-primary {
+            background-color: var(--ieee-blue);
+            border-color: var(--ieee-blue);
+            padding: 0.75rem;
+            font-weight: 500;
+        }
+
+        .btn-primary:hover {
+            background-color: #004d7a;
+            border-color: #004d7a;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 1.5rem 0;
+            position: relative;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 45%;
+            height: 1px;
+            background: #dee2e6;
+        }
+
+        .divider::before {
+            left: 0;
+        }
+
+        .divider::after {
+            right: 0;
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 1rem;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .login-link a {
+            color: var(--ieee-blue);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<!-- 导航栏 -->
+<nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/index">
+            <i class="bi bi-journal-text"></i> 学术期刊
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/index">首页</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/about-journal">关于期刊</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/submit">论文发表</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/articles">文章与专刊</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/guide">用户指南</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/login">登录</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- 注册容器 -->
+<div class="register-container">
+    <div class="register-card">
+        <div class="register-header">
+            <h2><i class="bi bi-person-plus"></i> 用户注册</h2>
+            <p>创建新账户，开始您的学术之旅</p>
+        </div>
+
+        <!-- 错误提示框 -->
+        <div id="errorAlert" class="alert alert-danger alert-dismissible fade show d-none mb-3" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <span id="errorMessage"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- 成功提示框 -->
+        <div id="successAlert" class="alert alert-success alert-dismissible fade show d-none mb-3" role="alert">
+            <i class="bi bi-check-circle-fill"></i>
+            <span id="successMessage"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- 注册表单 -->
+        <form action="/register" method="post" id="registerForm">
+            <div class="mb-3">
+                <label for="registerUserName" class="form-label">
+                    <i class="bi bi-person"></i> 账号
+                </label>
+                <input type="text" class="form-control"
+                       id="registerUserName" name="userName"
+                       placeholder="请输入账号" required autofocus>
+            </div>
+            <div class="mb-3">
+                <label for="registerFullName" class="form-label">
+                    <i class="bi bi-person"></i> 全名
+                </label>
+                <input type="text" class="form-control"
+                       id="registerFullName" name="fullName"
+                       placeholder="请输入全名" required>
+            </div>
+            <div class="mb-3">
+                <label for="registerEmail" class="form-label">
+                    <i class="bi bi-envelope"></i> 邮箱
+                </label>
+                <input type="email" class="form-control"
+                       id="registerEmail" name="email"
+                       placeholder="请输入邮箱" required>
+            </div>
+            <div class="mb-3">
+                <label for="registerCompany" class="form-label">
+                    <i class="bi bi-building"></i> 单位
+                </label>
+                <input type="text" class="form-control"
+                       id="registerCompany" name="company"
+                       placeholder="请输入单位" required>
+            </div>
+            <div class="mb-3">
+                <label for="registerPassword" class="form-label">
+                    <i class="bi bi-lock"></i> 密码
+                </label>
+                <input type="password" class="form-control"
+                       id="registerPassword" name="password"
+                       placeholder="请输入密码" required>
+            </div>
+            <div class="mb-3">
+                <label for="registerRole" class="form-label">
+                    <i class="bi bi-person-badge"></i> 角色
+                </label>
+                <select class="form-select"
+                        id="registerRole" name="userType" required>
+                    <option value="author">作者</option>
+                    <option value="reviewer">审稿人</option>
+                </select>
+            </div>
+            <div class="d-grid mb-3">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-person-plus"></i> 注册
+                </button>
+            </div>
+        </form>
+
+        <div class="divider">
+            <span>或</span>
+        </div>
+
+        <div class="login-link">
+            <p>已有账户？ <a href="/login">立即登录</a></p>
+        </div>
+
+        <div class="text-center mt-3">
+            <small class="text-muted">
+                注册成功后将自动登录
+            </small>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // 处理URL参数（错误和成功消息）
+    (function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        const success = urlParams.get('success');
+
+        if (error) {
+            const errorAlert = document.getElementById('errorAlert');
+            const errorMessage = document.getElementById('errorMessage');
+            let message = '';
+
+            switch(error) {
+                case 'username_exists':
+                    message = '用户名已存在，请选择其他用户名。';
+                    break;
+                case 'register_error':
+                    message = '注册失败，请重试。';
+                    break;
+                default:
+                    message = '注册失败，请重试。';
+            }
+
+            if (errorAlert && errorMessage) {
+                errorMessage.textContent = message;
+                errorAlert.classList.remove('d-none');
+            }
+        }
+
+        if (success) {
+            const successAlert = document.getElementById('successAlert');
+            const successMessage = document.getElementById('successMessage');
+            let message = success === 'registered' ? '注册成功！正在跳转...' : '操作成功！';
+
+            if (successAlert && successMessage) {
+                successMessage.textContent = message;
+                successAlert.classList.remove('d-none');
+            }
+        }
+
+        // 清除URL参数
+        if (error || success) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    })();
+</script>
+</body>
+</html>
+

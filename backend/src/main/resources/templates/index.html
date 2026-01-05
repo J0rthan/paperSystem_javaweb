@@ -53,26 +53,10 @@
 
         .main-container {
             flex: 1;
-            display: grid;
-            grid-template-columns: 1fr 400px;
-            gap: 0;
-            min-height: 0;
-            overflow: visible;
-        }
-
-        .left-panel {
             overflow-y: auto;
             overflow-x: hidden;
             padding: 1rem;
             background: #f8f9fa;
-        }
-
-        .right-panel {
-            background: white;
-            border-left: 1px solid #dee2e6;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding: 1rem;
         }
 
         .hero-section {
@@ -147,28 +131,12 @@
             font-size: 0.8rem;
         }
 
-        .login-card {
-            background: white;
-            border-radius: 4px;
-            border: 1px solid #dee2e6;
-            padding: 1rem;
-        }
 
         .btn-sm {
             font-size: 0.75rem;
             padding: 0.25rem 0.5rem;
         }
 
-        @media (max-width: 992px) {
-            .main-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .right-panel {
-                border-left: none;
-                border-top: 1px solid #dee2e6;
-            }
-        }
     </style>
 </head>
 <body>
@@ -199,7 +167,7 @@
                     <a class="nav-link" href="/guide">用户指南</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/index#login">登录</a>
+                    <a class="nav-link" href="/login">登录</a>
                 </li>
             </ul>
         </div>
@@ -208,8 +176,8 @@
 
 <!-- 主内容区域 -->
 <div class="main-container">
-    <!-- 左侧主要内容区 -->
-    <div class="left-panel">
+    <!-- 主要内容区 -->
+    <div>
         <!-- 英雄区域 -->
         <section class="hero-section">
             <h1>欢迎访问学术期刊</h1>
@@ -289,236 +257,10 @@
             </div>
         </section>
     </div>
-
-    <!-- 右侧登录区 -->
-    <div class="right-panel">
-        <section id="login" class="login-section">
-            <div class="login-card">
-                <!-- 登录/注册选项卡 -->
-                <ul class="nav nav-pills mb-3 justify-content-center" id="authTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-tab-pane" type="button" role="tab" aria-controls="login-tab-pane" aria-selected="true">
-                            <i class="bi bi-box-arrow-in-right"></i> 登录
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register-tab-pane" type="button" role="tab" aria-controls="register-tab-pane" aria-selected="false">
-                            <i class="bi bi-person-plus"></i> 注册
-                        </button>
-                    </li>
-                </ul>
-
-                <!-- 错误提示框 -->
-                <div id="errorAlert" class="alert alert-danger alert-dismissible fade show d-none mb-2" role="alert" style="font-size: 0.75rem; padding: 0.5rem;">
-                    <i class="bi bi-exclamation-triangle-fill"></i>
-                    <span id="errorMessage"></span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" style="font-size: 0.7rem;"></button>
-                </div>
-
-                <!-- 成功提示框 -->
-                <div id="successAlert" class="alert alert-success alert-dismissible fade show d-none mb-2" role="alert" style="font-size: 0.75rem; padding: 0.5rem;">
-                    <i class="bi bi-check-circle-fill"></i>
-                    <span id="successMessage"></span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" style="font-size: 0.7rem;"></button>
-                </div>
-
-                <!-- 选项卡内容 -->
-                <div class="tab-content" id="authTabsContent">
-                    <!-- 登录表单 -->
-                    <div class="tab-pane fade show active" id="login-tab-pane" role="tabpanel" aria-labelledby="login-tab" tabindex="0">
-                        <form action="/login" method="post" id="loginForm">
-                            <div class="mb-2">
-                                <label for="loginUserName" class="form-label" style="font-size: 0.85rem;">
-                                    <i class="bi bi-person"></i> 用户账号
-                                </label>
-                                <input type="text" class="form-control" style="font-size: 0.85rem; padding: 0.4rem 0.75rem;"
-                                       id="loginUserName" name="userName"
-                                       placeholder="请输入账号" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="loginPassword" class="form-label" style="font-size: 0.85rem;">
-                                    <i class="bi bi-lock"></i> 密码
-                                </label>
-                                <input type="password" class="form-control" style="font-size: 0.85rem; padding: 0.4rem 0.75rem;"
-                                       id="loginPassword" name="password"
-                                       placeholder="请输入密码" required>
-                            </div>
-                            <div class="d-grid mb-2">
-                                <button type="submit" class="btn btn-primary" style="font-size: 0.85rem; padding: 0.4rem 1rem;">
-                                    <i class="bi bi-box-arrow-in-right"></i> 登录
-                                </button>
-                            </div>
-                            <div class="text-center mb-2">
-                                <button type="button" class="btn btn-link btn-sm p-0" onclick="goToResetPage()" style="font-size: 0.75rem; text-decoration: none;">
-                                    找回密码
-                                </button>
-                            </div>
-                        </form>
-                        <div class="text-center">
-                            <small class="text-muted" style="font-size: 0.7rem;">
-                                支持：作者、审稿人、编辑、主编、管理员
-                            </small>
-                        </div>
-                    </div>
-
-                    <!-- 注册表单 -->
-                    <div class="tab-pane fade" id="register-tab-pane" role="tabpanel" aria-labelledby="register-tab" tabindex="0">
-                        <form action="/register" method="post" id="registerForm">
-                            <div class="mb-2">
-                                <label for="registerUserName" class="form-label" style="font-size: 0.85rem;">
-                                    <i class="bi bi-person"></i> 账号
-                                </label>
-                                <input type="text" class="form-control" style="font-size: 0.85rem; padding: 0.4rem 0.75rem;"
-                                       id="registerUserName" name="userName"
-                                       placeholder="请输入账号" required>
-                            </div>
-                            <div class="mb-2">
-                                <label for="registerFullName" class="form-label" style="font-size: 0.85rem;">
-                                    <i class="bi bi-person"></i> 全名
-                                </label>
-                                <input type="text" class="form-control" style="font-size: 0.85rem; padding: 0.4rem 0.75rem;"
-                                       id="registerFullName" name="fullName"
-                                       placeholder="请输入全名" required>
-                            </div>
-                            <div class="mb-2">
-                                <label for="registerEmail" class="form-label" style="font-size: 0.85rem;">
-                                    <i class="bi bi-envelope"></i> 邮箱
-                                </label>
-                                <input type="email" class="form-control" style="font-size: 0.85rem; padding: 0.4rem 0.75rem;"
-                                       id="registerEmail" name="email"
-                                       placeholder="请输入邮箱" required>
-                            </div>
-                            <div class="mb-2">
-                                <label for="registerCompany" class="form-label" style="font-size: 0.85rem;">
-                                    <i class="bi bi-building"></i> 单位
-                                </label>
-                                <input type="text" class="form-control" style="font-size: 0.85rem; padding: 0.4rem 0.75rem;"
-                                       id="registerCompany" name="company"
-                                       placeholder="请输入单位" required>
-                            </div>
-                            <div class="mb-2">
-                                <label for="registerPassword" class="form-label" style="font-size: 0.85rem;">
-                                    <i class="bi bi-lock"></i> 密码
-                                </label>
-                                <input type="password" class="form-control" style="font-size: 0.85rem; padding: 0.4rem 0.75rem;"
-                                       id="registerPassword" name="password"
-                                       placeholder="请输入密码" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="registerRole" class="form-label" style="font-size: 0.85rem;">
-                                    <i class="bi bi-person-badge"></i> 角色
-                                </label>
-                                <select class="form-select" style="font-size: 0.85rem; padding: 0.4rem 0.75rem;"
-                                        id="registerRole" name="userType" required>
-                                    <option value="author">作者</option>
-                                    <option value="reviewer">审稿人</option>
-                                </select>
-                            </div>
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-primary" style="font-size: 0.85rem; padding: 0.4rem 1rem;">
-                                    <i class="bi bi-person-plus"></i> 注册
-                                </button>
-                            </div>
-                        </form>
-                        <div class="text-center mt-2">
-                            <small class="text-muted" style="font-size: 0.7rem;">
-                                注册成功后将自动登录
-                            </small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // 找回密码功能
-    function goToResetPage() {
-        const userName = document.getElementById("loginUserName").value.trim();
-        if (!userName) {
-            alert("请先输入用户名");
-            return;
-        }
-        window.location.href = "/passwordreset/mainpage?loginUserName=" + encodeURIComponent(userName);
-    }
-
-    // 处理URL参数（错误和成功消息）
-    (function() {
-        var urlParams = new URLSearchParams(window.location.search);
-        var error = urlParams.get('error');
-        var success = urlParams.get('success');
-
-        if (error) {
-            const errorAlert = document.getElementById('errorAlert');
-            const errorMessage = document.getElementById('errorMessage');
-            let message = '';
-
-            switch(error) {
-                case 'username':
-                    message = '用户名不存在，请检查后重试。';
-                    break;
-                case 'password':
-                    message = '密码错误，请检查后重试。';
-                    break;
-                case 'account_disabled':
-                    message = '您的账户已被禁用，请联系系统管理员。';
-                    break;
-                case 'invalid_role':
-                    message = '用户角色异常，请联系系统管理员。';
-                    break;
-                case 'username_exists':
-                    message = '用户名已存在，请选择其他用户名。';
-                    var registerTab = document.getElementById('register-tab');
-                    if (registerTab) registerTab.click();
-                    break;
-                case 'register_error':
-                    message = '注册失败，请重试。';
-                    var regTab = document.getElementById('register-tab');
-                    if (regTab) regTab.click();
-                    break;
-                default:
-                    message = '操作失败，请重试。';
-            }
-
-            if (errorAlert && errorMessage) {
-                errorMessage.textContent = message;
-                errorAlert.classList.remove('d-none');
-                if (error !== 'username_exists' && error !== 'register_error') {
-                    var loginTab = document.getElementById('login-tab');
-                    if (loginTab) loginTab.click();
-                }
-            }
-        }
-
-        if (success) {
-            const successAlert = document.getElementById('successAlert');
-            const successMessage = document.getElementById('successMessage');
-            let message = success === 'registered' ? '注册成功！正在跳转...' : '操作成功！';
-
-            if (successAlert && successMessage) {
-                successMessage.textContent = message;
-                successAlert.classList.remove('d-none');
-            }
-        }
-
-        // 清除URL参数
-        if (error || success) {
-            window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
-        }
-
-        // 处理锚点跳转（从其他页面跳转到首页的登录区域）
-        // 如果有错误参数或hash为#login，滚动到登录区域
-        if (window.location.hash === '#login' || error || success) {
-            setTimeout(function() {
-                var loginSection = document.getElementById('login');
-                if (loginSection) {
-                    loginSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            }, 100);
-        }
-    })();
 </script>
 </body>
 </html>

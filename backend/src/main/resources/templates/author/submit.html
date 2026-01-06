@@ -5,12 +5,18 @@
     <title>稿件投稿 - 投稿系统</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link href="https://unpkg.com/@wangeditor/editor@latest/dist/css/style.css" rel="stylesheet">
     <style>
         body { background-color: #f8f9fa; }
         .section-box { border: 1px solid #dee2e6; padding: 25px; border-radius: 12px; margin-bottom: 25px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .item-row { border-left: 4px solid #0d6efd; background: #f8f9fa; padding: 15px; margin-bottom: 15px; border-radius: 0 8px 8px 0; }
+        .item-row { border-left: 4px solid #0d6efd; background: #f8f9fa; padding: 15px; margin-bottom: 15px; border-radius: 0 8px 8px 0; position: relative; }
         h4 { color: #0d6efd; border-bottom: 2px solid #0d6efd; display: inline-block; margin-bottom: 20px; }
         .label-bold { font-weight: 600; color: #495057; }
+        .btn-remove { color: #dc3545; cursor: pointer; transition: 0.2s; }
+        .btn-remove:hover { color: #a71d2a; transform: scale(1.1); }
+        #editor-wrapper { border: 1px solid #ccc; border-radius: 8px; overflow: hidden; }
+        #toolbar-container { border-bottom: 1px solid #ccc; }
+        #editor-container { height: 300px; }
     </style>
 </head>
 <body class="bg-light d-flex flex-column h-100">
@@ -19,49 +25,16 @@
         <a class="navbar-brand fw-bold" th:href="@{/author/manuscript/list}">
             <i class="bi bi-journal-bookmark-fill me-2"></i>学术论文管理系统-作者端
         </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#authorNavbar">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="authorNavbar">
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item me-3">
-                    <a class="nav-link text-light position-relative" th:href="@{/author/message/list}" title="消息中心">
-                        <i class="bi bi-envelope-fill fs-5"></i>
-                        <span class="position-absolute top-2 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
-                            <span class="visually-hidden">新消息</span>
-                        </span>
-                    </a>
-                </li>
-
-                <li class="nav-item me-3 border-end pe-3">
-                    <a class="nav-link text-light" th:href="@{/author/profile}" title="账号设置">
-                        <i class="bi bi-gear-fill fs-5"></i>
-                    </a>
-                </li>
-
-                <li class="nav-item dropdown ms-2">
-                    <span class="navbar-text text-light me-3">
-                        <i class="bi bi-person-circle me-1"></i>
-                        <span th:text="${session.loginUser.userName}">作者姓名</span>
-                    </span>
-                    <a href="/author/logout" class="btn btn-outline-light btn-sm rounded-pill px-3">
-                        <i class="bi bi-box-arrow-right me-1"></i>退出登录
-                    </a>
-                </li>
-            </ul>
-        </div>
     </div>
 </nav>
+
 <main class="flex-grow-1">
     <div class="container py-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <small class="text-muted">欢迎您：<span th:text="${session.loginUser.userName}">作者</span></small>
                 <h2 class="mb-0 fw-bold" th:text="${manuscript.manuscriptId > 0 ? '编辑稿件' : '发起新投稿'}">发起新投稿</h2>
             </div>
-            <a th:href="@{/author/manuscript/list}" class="btn btn-outline-secondary rounded-pill">
-                <i class="bi bi-arrow-left"></i> 返回列表
-            </a>
+            <a th:href="@{/author/manuscript/list}" class="btn btn-outline-secondary rounded-pill">返回列表</a>
         </div>
 
         <form id="manuscriptForm" th:action="@{/author/manuscript/doSubmit}" th:object="${manuscript}" method="post" enctype="multipart/form-data">
@@ -72,7 +45,7 @@
                 <div class="row g-3">
                     <div class="col-md-12">
                         <label class="form-label label-bold">标题</label>
-                        <input type="text" th:field="*{title}" id="titleField" class="form-control" placeholder="请输入稿件标题">
+                        <input type="text" th:field="*{title}" id="titleField" class="form-control" placeholder="请输入完整标题">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label label-bold">研究主题</label>
@@ -83,8 +56,12 @@
                         <input type="text" th:field="*{keywords}" class="form-control" placeholder="用逗号分隔">
                     </div>
                     <div class="col-12">
-                        <label class="form-label label-bold">摘要</label>
-                        <textarea th:field="*{abstractText}" class="form-control" rows="4"></textarea>
+                        <label class="form-label label-bold">摘要 (Abstract)</label>
+                        <input type="hidden" th:field="*{abstractText}" id="abstractHidden">
+                        <div id="editor-wrapper">
+                            <div id="toolbar-container"></div>
+                            <div id="editor-container"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -92,28 +69,18 @@
             <div class="section-box">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4>2. 作者信息</h4>
-                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addAuthor()">
-                        <i class="bi bi-plus-lg"></i> 添加作者
-                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addAuthor()"><i class="bi bi-plus-lg"></i> 添加作者</button>
                 </div>
                 <div id="author-list">
                     <div class="item-row author-item" th:each="author, stat : *{authors}">
-                        <div class="row g-2">
-                            <div class="col-md-3">
-                                <input type="text" class="form-control" placeholder="姓名" th:field="*{authors[__${stat.index}__].name}">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-md-3"><input type="text" class="form-control" placeholder="姓名" th:field="*{authors[__${stat.index}__].name}"></div>
+                            <div class="col-md-3"><input type="text" class="form-control" placeholder="单位" th:field="*{authors[__${stat.index}__].institution}"></div>
+                            <div class="col-md-3"><input type="email" class="form-control" placeholder="邮箱" th:field="*{authors[__${stat.index}__].email}"></div>
+                            <div class="col-md-2">
+                                <div class="form-check"><input type="checkbox" class="form-check-input" th:field="*{authors[__${stat.index}__].corresponding}"><label class="form-check-label">通讯作者</label></div>
                             </div>
-                            <div class="col-md-4">
-                                <input type="text" class="form-control" placeholder="单位" th:field="*{authors[__${stat.index}__].institution}">
-                            </div>
-                            <div class="col-md-3">
-                                <input type="email" class="form-control" placeholder="邮箱" th:field="*{authors[__${stat.index}__].email}">
-                            </div>
-                            <div class="col-md-2 d-flex align-items-center">
-                                <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" th:field="*{authors[__${stat.index}__].corresponding}">
-                                    <label class="form-check-label">通讯作者</label>
-                                </div>
-                            </div>
+                            <div class="col-md-1 text-end"><i class="bi bi-trash3-fill btn-remove fs-5" onclick="removeItem(this, 'author-item', 'authors')"></i></div>
                         </div>
                     </div>
                 </div>
@@ -122,22 +89,15 @@
             <div class="section-box">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4>3. 资助信息</h4>
-                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addFunding()">
-                        <i class="bi bi-plus-lg"></i> 添加资助项目
-                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addFunding()"><i class="bi bi-plus-lg"></i> 添加资助</button>
                 </div>
                 <div id="funding-list">
                     <div class="item-row funding-item" th:each="f, stat : *{fundings}">
-                        <div class="row g-2">
-                            <div class="col-md-4">
-                                <input type="text" class="form-control" placeholder="资助项目名称" th:field="*{fundings[__${stat.index}__].grantName}">
-                            </div>
-                            <div class="col-md-4">
-                                <input type="text" class="form-control" placeholder="资助编号" th:field="*{fundings[__${stat.index}__].grantNumber}">
-                            </div>
-                            <div class="col-md-4">
-                                <input type="text" class="form-control" placeholder="资助机构" th:field="*{fundings[__${stat.index}__].organization}">
-                            </div>
+                        <div class="row g-2 align-items-center">
+                            <div class="col-md-4"><input type="text" class="form-control" placeholder="项目名称" th:field="*{fundings[__${stat.index}__].grantName}"></div>
+                            <div class="col-md-3"><input type="text" class="form-control" placeholder="编号" th:field="*{fundings[__${stat.index}__].grantNumber}"></div>
+                            <div class="col-md-4"><input type="text" class="form-control" placeholder="机构" th:field="*{fundings[__${stat.index}__].organization}"></div>
+                            <div class="col-md-1 text-end"><i class="bi bi-trash3-fill btn-remove fs-5" onclick="removeItem(this, 'funding-item', 'fundings')"></i></div>
                         </div>
                     </div>
                 </div>
@@ -146,95 +106,164 @@
             <div class="section-box">
                 <h4>4. 文件上传</h4>
                 <div class="mb-3">
-                    <label class="form-label label-bold">稿件正文 (PDF) <span class="text-danger">*</span></label>
-                    <input type="file" name="msFile" class="form-control" accept=".pdf">
+                    <label class="form-label label-bold">稿件正文 (仅限 PDF)</label>
+                    <div class="input-group">
+                        <input type="file" name="msFile" id="msFile" class="form-control" accept=".pdf" data-title="稿件正文" onchange="handleFileSelect(this)">
+                        <button class="btn btn-outline-primary" type="button" onclick="openPreviewModal('msFile')"><i class="bi bi-eye"></i> 预览稿件</button>
+                    </div>
                 </div>
                 <div class="mb-3">
                     <label class="form-label label-bold">附信 (Cover Letter)</label>
-                    <input type="file" name="clFile" class="form-control">
+                    <div class="input-group">
+                        <input type="file" name="clFile" id="clFile" class="form-control" data-title="附信 (Cover Letter)" onchange="handleFileSelect(this)">
+                        <button class="btn btn-outline-primary" type="button" onclick="openPreviewModal('clFile')"><i class="bi bi-eye"></i> 预览附信</button>
+                    </div>
                 </div>
             </div>
 
             <div class="section-box">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4>5. 推荐审稿人</h4>
-                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addReviewer()">
-                        <i class="bi bi-plus-lg"></i> 添加推荐人
-                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addReviewer()"><i class="bi bi-plus-lg"></i> 添加推荐人</button>
                 </div>
                 <div id="reviewer-list">
-                    <div class="row g-2 mb-2 reviewer-item" th:each="rev, stat : *{reviewers}">
-                        <div class="col-md-3"><input type="text" class="form-control" placeholder="姓名" th:field="*{reviewers[__${stat.index}__].name}"></div>
-                        <div class="col-md-3"><input type="email" class="form-control" placeholder="邮箱" th:field="*{reviewers[__${stat.index}__].email}"></div>
-                        <div class="col-md-6"><input type="text" class="form-control" placeholder="推荐理由" th:field="*{reviewers[__${stat.index}__].reason}"></div>
+                    <div class="item-row reviewer-item" th:each="rev, stat : *{reviewers}">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-md-2"><input type="text" class="form-control" placeholder="姓名" th:field="*{reviewers[__${stat.index}__].name}"></div>
+                            <div class="col-md-3"><input type="email" class="form-control" placeholder="邮箱" th:field="*{reviewers[__${stat.index}__].email}"></div>
+                            <div class="col-md-6"><input type="text" class="form-control" placeholder="理由" th:field="*{reviewers[__${stat.index}__].reason}"></div>
+                            <div class="col-md-1 text-end"><i class="bi bi-trash3-fill btn-remove fs-5" onclick="removeItem(this, 'reviewer-item', 'reviewers')"></i></div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="text-center pb-5">
                 <button type="submit" name="action" value="save" class="btn btn-secondary btn-lg px-5">保存草稿</button>
-                <button type="submit" name="action" value="submit" class="btn btn-primary btn-lg px-5 ms-3" onclick="return validateSubmit()">提交稿件</button>
+                <button type="submit" name="action" value="submit" class="btn btn-primary btn-lg px-5 ms-3" onclick="return validateSubmit()">正式提交</button>
             </div>
         </form>
     </div>
 </main>
 
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" style="height: 90vh;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="previewModalLabel">预览</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <iframe id="previewFrame" src="" width="100%" height="100%" frameborder="0"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/@wangeditor/editor@latest/dist/index.js"></script>
 <script>
-    function validateSubmit() {
-        const titleField = document.getElementById('titleField');
-        if (!titleField.value || titleField.value.trim() === "") {
-            alert("提交失败：正式投稿必须填写标题！");
-            titleField.focus();
-            return false;
-        }
-        return confirm('确认提交吗？提交后稿件将进入“待审查”状态，您将无法直接修改。');
+    /* 1. wangEditor 初始化 */
+    const { createEditor, createToolbar } = window.wangEditor;
+    const editorConfig = {
+        placeholder: '在此输入摘要...',
+        onChange(editor) { document.getElementById('abstractHidden').value = editor.getHtml(); }
+    };
+    const editor = createEditor({
+        selector: '#editor-container',
+        html: document.getElementById('abstractHidden').value || '',
+        config: editorConfig,
+        mode: 'simple'
+    });
+    createToolbar({ editor, selector: '#toolbar-container', mode: 'simple' });
+
+    /* 2. 动态增删逻辑 */
+    function removeItem(element, itemClass, listName) {
+        const row = element.closest('.' + itemClass);
+        const container = row.parentNode;
+        row.remove();
+        reindexItems(container, itemClass, listName);
     }
 
+    function reindexItems(container, itemClass, listName) {
+        const items = container.getElementsByClassName(itemClass);
+        for (let i = 0; i < items.length; i++) {
+            const inputs = items[i].querySelectorAll('input, select');
+            inputs.forEach(input => {
+                const oldName = input.getAttribute('name');
+                if (oldName) input.setAttribute('name', oldName.replace(/\[\d+\]/, `[${i}]`));
+            });
+        }
+    }
     function addAuthor() {
-        const container = document.getElementById('author-list');
-        const i = container.getElementsByClassName('author-item').length;
-        const html = `
-            <div class="item-row author-item">
-                <div class="row g-2">
-                    <div class="col-md-3"><input type="text" name="authors[${i}].name" class="form-control" placeholder="姓名"></div>
-                    <div class="col-md-4"><input type="text" name="authors[${i}].institution" class="form-control" placeholder="单位"></div>
-                    <div class="col-md-3"><input type="email" name="authors[${i}].email" class="form-control" placeholder="邮箱"></div>
-                    <div class="col-md-2 d-flex align-items-center">
-                        <div class="form-check">
-                            <input type="checkbox" name="authors[${i}].corresponding" class="form-check-input">
-                            <label class="form-check-label">通讯作者</label>
-                        </div>
-                    </div>
-                </div>
-            </div>`;
-        container.insertAdjacentHTML('beforeend', html);
+        const i = document.getElementById('author-list').getElementsByClassName('author-item').length;
+        const html = `<div class="item-row author-item"><div class="row g-2 align-items-center">
+            <div class="col-md-3"><input type="text" name="authors[${i}].name" class="form-control" placeholder="姓名"></div>
+            <div class="col-md-3"><input type="text" name="authors[${i}].institution" class="form-control" placeholder="单位"></div>
+            <div class="col-md-3"><input type="email" name="authors[${i}].email" class="form-control" placeholder="邮箱"></div>
+            <div class="col-md-2"><div class="form-check"><input type="checkbox" name="authors[${i}].corresponding" class="form-check-input"><label class="form-check-label">通讯作者</label></div></div>
+            <div class="col-md-1 text-end"><i class="bi bi-trash3-fill btn-remove fs-5" onclick="removeItem(this, 'author-item', 'authors')"></i></div>
+        </div></div>`;
+        document.getElementById('author-list').insertAdjacentHTML('beforeend', html);
     }
 
     function addFunding() {
-        const container = document.getElementById('funding-list');
-        const i = container.getElementsByClassName('funding-item').length;
-        const html = `
-            <div class="item-row funding-item">
-                <div class="row g-2">
-                    <div class="col-md-4"><input type="text" name="fundings[${i}].grantName" class="form-control" placeholder="资助项目名称"></div>
-                    <div class="col-md-4"><input type="text" name="fundings[${i}].grantNumber" class="form-control" placeholder="资助编号"></div>
-                    <div class="col-md-4"><input type="text" name="fundings[${i}].organization" class="form-control" placeholder="资助机构"></div>
-                </div>
-            </div>`;
-        container.insertAdjacentHTML('beforeend', html);
+        const i = document.getElementById('funding-list').getElementsByClassName('funding-item').length;
+        const html = `<div class="item-row funding-item"><div class="row g-2 align-items-center">
+            <div class="col-md-4"><input type="text" name="fundings[${i}].grantName" class="form-control" placeholder="项目名称"></div>
+            <div class="col-md-3"><input type="text" name="fundings[${i}].grantNumber" class="form-control" placeholder="编号"></div>
+            <div class="col-md-4"><input type="text" name="fundings[${i}].organization" class="form-control" placeholder="机构"></div>
+            <div class="col-md-1 text-end"><i class="bi bi-trash3-fill btn-remove fs-5" onclick="removeItem(this, 'funding-item', 'fundings')"></i></div>
+        </div></div>`;
+        document.getElementById('funding-list').insertAdjacentHTML('beforeend', html);
     }
 
     function addReviewer() {
-        const container = document.getElementById('reviewer-list');
-        const i = container.getElementsByClassName('reviewer-item').length;
-        const html = `
-            <div class="row g-2 mb-2 reviewer-item">
-                <div class="col-md-3"><input type="text" name="reviewers[${i}].name" class="form-control" placeholder="姓名"></div>
-                <div class="col-md-3"><input type="email" name="reviewers[${i}].email" class="form-control" placeholder="邮箱"></div>
-                <div class="col-md-6"><input type="text" name="reviewers[${i}].reason" class="form-control" placeholder="理由"></div>
-            </div>`;
-        container.insertAdjacentHTML('beforeend', html);
+        const i = document.getElementById('reviewer-list').getElementsByClassName('reviewer-item').length;
+        const html = `<div class="item-row reviewer-item"><div class="row g-2 align-items-center">
+            <div class="col-md-2"><input type="text" name="reviewers[${i}].name" class="form-control" placeholder="姓名"></div>
+            <div class="col-md-3"><input type="email" name="reviewers[${i}].email" class="form-control" placeholder="邮箱"></div>
+            <div class="col-md-6"><input type="text" name="reviewers[${i}].reason" class="form-control" placeholder="理由"></div>
+            <div class="col-md-1 text-end"><i class="bi bi-trash3-fill btn-remove fs-5" onclick="removeItem(this, 'reviewer-item', 'reviewers')"></i></div>
+        </div></div>`;
+        document.getElementById('reviewer-list').insertAdjacentHTML('beforeend', html);
+    }
+    let previewURLs = { msFile: null, clFile: null };
+
+    function handleFileSelect(input) {
+        const file = input.files[0];
+        const id = input.id;
+        if (file && file.type === "application/pdf") {
+            if (previewURLs[id]) URL.revokeObjectURL(previewURLs[id]);
+            previewURLs[id] = URL.createObjectURL(file);
+        } else {
+            if (previewURLs[id]) URL.revokeObjectURL(previewURLs[id]);
+            previewURLs[id] = null;
+        }
+    }
+
+    function openPreviewModal(id) {
+        const url = previewURLs[id];
+        const input = document.getElementById(id);
+        if (!input.files.length) return alert("请先选择文件！");
+        if (!url) return alert("预览仅支持 PDF。若是 Word 请直接提交，管理员将处理。");
+
+        document.getElementById('previewModalLabel').innerText = "预览：" + input.getAttribute('data-title');
+        document.getElementById('previewFrame').src = url;
+        new bootstrap.Modal(document.getElementById('previewModal')).show();
+    }
+    function validateSubmit() {
+        if (!document.getElementById('titleField').value.trim()) { alert("标题必填！"); return false; }
+        const authors = document.querySelectorAll('.author-item');
+        if (authors.length === 0) { alert("至少需添加一名作者！"); return false; }
+
+        let valid = true;
+        authors.forEach(el => { if(!el.querySelector('input[name*=".name"]').value.trim()) valid = false; });
+        if(!valid) { alert("作者姓名必填，或请删除空行。"); return false; }
+
+        if (!document.getElementById('msFile').files.length) { alert("稿件正文 (PDF) 必选！"); return false; }
+        return confirm('正式提交后不可自行撤回，确认吗？');
     }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

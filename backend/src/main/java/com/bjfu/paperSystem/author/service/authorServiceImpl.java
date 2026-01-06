@@ -35,7 +35,7 @@ public class authorServiceImpl implements authorService {
             case "Accepted" -> "录用";
             case "Need Revision" -> "需要返修";
             case "With A Decision" -> "已决议";
-            case "With Editor II"->"编辑再处理";
+            case "With Editor II"->"终审中";
             default -> status;
         };
     }
@@ -123,7 +123,7 @@ public class authorServiceImpl implements authorService {
         map.put("pendingAllocationList", all.stream().filter(m -> m.getStatus().equals("待初审")).collect(Collectors.toList()));
         map.put("pendingAllocationIIList", all.stream().filter(m -> m.getStatus().equals("待分配")).collect(Collectors.toList()));
         map.put("withEditorList", all.stream().filter(m -> m.getStatus().equals("编辑处理中")).collect(Collectors.toList()));
-        map.put("withEditorIIList", all.stream().filter(m -> m.getStatus().equals("编辑再处理")).collect(Collectors.toList()));
+        map.put("withEditorIIList", all.stream().filter(m -> m.getStatus().equals("终审中")).collect(Collectors.toList()));
         return map;
     }
     @Override

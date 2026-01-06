@@ -2,99 +2,97 @@
 <html xmlns:th="http://www.thymeleaf.org" class="h-100">
 <head>
   <meta charset="UTF-8">
-  <title>提交修回稿件</title>
+  <title>提交修回稿件 - 学术论文管理系统</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
   <link href="https://unpkg.com/@wangeditor/editor@latest/dist/css/style.css" rel="stylesheet">
   <style>
     body { background-color: #f8f9fa; }
-    .editor-container { border: 1px solid #ccc; margin-top: 10px; border-radius: 4px; overflow: hidden; }
-    .editor-toolbar { border-bottom: 1px solid #ccc; background: #f1f1f1; }
-    .editor-content { height: 400px; background: #fff; }
-    .card { border: none; border-radius: 12px; }
-    .card-header { border-radius: 12px 12px 0 0 !important; }
-    .section-title { border-left: 5px solid #0d6efd; padding-left: 15px; margin: 25px 0 15px 0; }
+    .editor-container { border: 1px solid #ccc; margin-top: 10px; border-radius: 8px; overflow: hidden; background: #fff; }
+    .editor-toolbar { border-bottom: 1px solid #ccc; background: #f8f9fa; }
+    .editor-content { height: 450px; }
+    .card { border: none; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
+    .section-title { border-left: 5px solid #198754; padding-left: 15px; margin: 30px 0 20px 0; font-weight: bold; color: #198754; }
+    .input-group-text { background-color: #f8f9fa; }
+    .file-hint { font-size: 0.85rem; color: #6c757d; margin-top: 5px; }
     #uploadProgressContainer { display: none; margin-top: 15px; }
   </style>
 </head>
 <body class="bg-light d-flex flex-column h-100">
+
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
   <div class="container">
     <a class="navbar-brand fw-bold" th:href="@{/author/manuscript/list}">
       <i class="bi bi-journal-bookmark-fill me-2"></i>学术论文管理系统-作者端
     </a>
-
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#authorNavbar">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse" id="authorNavbar">
+    <div class="collapse navbar-collapse">
       <ul class="navbar-nav ms-auto align-items-center">
-        <li class="nav-item me-3">
-          <a class="nav-link text-light position-relative" th:href="@{/author/message/list}" title="消息中心">
-            <i class="bi bi-envelope-fill fs-5"></i>
-            <span class="position-absolute top-2 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
-                            <span class="visually-hidden">新消息</span>
-                        </span>
-          </a>
+        <li class="nav-item me-3 text-light">
+          <i class="bi bi-person-circle me-1"></i>
+          <span th:text="${session.loginUser.userName}">作者姓名</span>
         </li>
-
-        <li class="nav-item me-3 border-end pe-3">
-          <a class="nav-link text-light" th:href="@{/author/profile}" title="账号设置">
-            <i class="bi bi-gear-fill fs-5"></i>
-          </a>
-        </li>
-
-        <li class="nav-item dropdown ms-2">
-                    <span class="navbar-text text-light me-3">
-                        <i class="bi bi-person-circle me-1"></i>
-                        <span th:text="${session.loginUser.userName}">作者姓名</span>
-                    </span>
-          <a href="/author/logout" class="btn btn-outline-light btn-sm rounded-pill px-3">
-            <i class="bi bi-box-arrow-right me-1"></i>退出登录
-          </a>
+        <li class="nav-item">
+          <a href="/author/logout" class="btn btn-outline-light btn-sm rounded-pill px-3">退出登录</a>
         </li>
       </ul>
     </div>
   </div>
 </nav>
+
 <main class="flex-grow-1">
   <div class="container py-5">
-    <div class="card shadow">
-      <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center py-3">
+    <div class="card">
+      <div class="card-header bg-success text-white d-flex justify-content-between align-items-center py-3">
         <h4 class="mb-0 fw-bold"><i class="bi bi-file-earmark-arrow-up"></i> 提交修回稿件 (Revision Submission)</h4>
-        <button type="button" class="btn btn-dark btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#msgModal">
+        <button type="button" class="btn btn-light btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#msgModal">
           <i class="bi bi-chat-dots-fill me-1"></i> 联系负责编辑
         </button>
       </div>
-      <div class="card-body p-4">
-        <div class="alert alert-info d-flex align-items-center" role="alert">
-          <i class="bi bi-person-circle me-2"></i>
-          <div>欢迎您，作者：<strong th:text="${session.loginUser.userName}">作者</strong> |
-            当前稿件 ID：<strong th:text="'#MS-' + ${manuscript.manuscriptId}">#101</strong></div>
+
+      <div class="card-body p-4 p-lg-5">
+        <div class="alert alert-secondary d-flex align-items-center border-0 shadow-sm" role="alert">
+          <i class="bi bi-info-circle-fill me-3 fs-4 text-primary"></i>
+          <div>
+            您正在针对稿件 <strong th:text="'#MS-' + ${manuscript.manuscriptId}">#101</strong> 提交修改稿。
+            请确保文件符合期刊格式要求。
+          </div>
         </div>
-        <form th:action="@{/author/manuscript/doRevise}" method="post" enctype="multipart/form-data">
+
+        <form th:action="@{/author/manuscript/doRevise}" method="post" enctype="multipart/form-data" onsubmit="return validateReviseSubmit()">
           <input type="hidden" name="manuscriptId" th:value="${manuscript.manuscriptId}">
 
-          <h5 class="section-title text-primary fw-bold">1. 上传修改后的文件</h5>
-          <div class="row g-3 mb-4">
+          <h5 class="section-title">1. 上传修改文件 (Upload Revised Files)</h5>
+
+          <div class="row g-4 mb-4">
             <div class="col-md-4">
               <label class="form-label fw-bold">Clean version (无标记版 PDF)</label>
-              <input type="file" name="cleanFile" class="form-control" accept=".pdf" required>
-              <div class="form-text">仅限 PDF 格式</div>
+              <div class="input-group shadow-sm">
+                <input type="file" name="cleanFile" id="cleanFile" class="form-control" accept=".pdf" required onchange="handleFileChange(this)">
+                <button class="btn btn-outline-success" type="button" onclick="openFilePreview('cleanFile', '无标记版 PDF')"><i class="bi bi-eye"></i></button>
+              </div>
+              <div class="file-hint">供排版使用，不包含修订记录。</div>
             </div>
+
             <div class="col-md-4">
-              <label class="form-label fw-bold">Marked version (标记修改版 PDF)</label>
-              <input type="file" name="markedFile" class="form-control" accept=".pdf" required>
-              <div class="form-text">请突出显示修改内容</div>
+              <label class="form-label fw-bold">Marked version (修订版 PDF)</label>
+              <div class="input-group shadow-sm">
+                <input type="file" name="markedFile" id="markedFile" class="form-control" accept=".pdf" required onchange="handleFileChange(this)">
+                <button class="btn btn-outline-success" type="button" onclick="openFilePreview('markedFile', '修订版 PDF')"><i class="bi bi-eye"></i></button>
+              </div>
+              <div class="file-hint">请用红色或高亮标出修改处。</div>
             </div>
+
             <div class="col-md-4">
-              <label class="form-label fw-bold">Reply Letter (回复信 Word)</label>
-              <input type="file" name="replyFile" class="form-control" accept=".doc,.docx" required>
-              <div class="form-text">支持 .doc 或 .docx</div>
+              <label class="form-label fw-bold">Reply Letter (回复信 Word/PDF)</label>
+              <div class="input-group shadow-sm">
+                <input type="file" name="replyFile" id="replyFile" class="form-control" accept=".doc,.docx,.pdf" required onchange="handleFileChange(this)">
+                <button class="btn btn-outline-success" type="button" onclick="openFilePreview('replyFile', '回复信')"><i class="bi bi-eye"></i></button>
+              </div>
+              <div class="file-hint">逐条回复审稿人意见的正式文件。</div>
             </div>
           </div>
-          <h5 class="section-title text-primary fw-bold">2. 逐点回复审稿意见 (Response Text)</h5>
+
+          <h5 class="section-title">2. 逐点回复审稿意见 (Point-by-Point Response)</h5>
           <div class="editor-container shadow-sm">
             <div id="toolbar-container" class="editor-toolbar"></div>
             <div id="editor-container" class="editor-content"></div>
@@ -102,10 +100,10 @@
           <input type="hidden" name="responseText" id="responseText">
 
           <div class="mt-5 d-flex justify-content-center gap-3">
-            <button type="submit" class="btn btn-success btn-lg px-5 shadow-sm">
-              <i class="bi bi-cloud-upload"></i> 提交修回
+            <button type="submit" class="btn btn-success btn-lg px-5 rounded-pill shadow">
+              <i class="bi bi-cloud-arrow-up-fill me-2"></i> 确认提交修回
             </button>
-            <a th:href="@{/author/manuscript/list}" class="btn btn-outline-secondary btn-lg px-5">取消</a>
+            <a th:href="@{/author/manuscript/list}" class="btn btn-outline-secondary btn-lg px-5 rounded-pill">取消返回</a>
           </div>
         </form>
       </div>
@@ -113,152 +111,147 @@
   </div>
 </main>
 
-<footer class="py-4 mt-auto">
-  <p class="text-center text-muted small mb-0">© 2025 学术论文管理系统 · 作者</p>
-</footer>
-
-<div class="modal fade" id="msgModal" tabindex="-1" aria-labelledby="msgModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow">
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title" id="msgModalLabel"><i class="bi bi-envelope-paper"></i> 向编辑咨询</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="modal fade" id="previewModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content" style="height: 90vh; border-radius: 12px; overflow: hidden;">
+      <div class="modal-header bg-dark text-white border-0">
+        <h5 class="modal-title" id="previewTitle">文件预览</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body p-4">
-        <div class="mb-3">
-          <label class="form-label fw-bold">选择收件人</label>
-          <select id="editorSelect" class="form-select border-primary-subtle">
-            <option th:each="ed : ${assignedEditors}" th:value="${ed.userId}"
-                    th:text="${ed.fullName + ' (负责编辑)'}"></option>
-            <option th:if="${#lists.isEmpty(assignedEditors)}" value="">系统管理员 (当前无分配编辑)</option>
-          </select>
+      <div class="modal-body p-0 bg-dark">
+        <iframe id="previewIframe" src="" width="100%" height="100%" frameborder="0" class="d-none"></iframe>
+        <div id="noPreviewNotice" class="text-white text-center p-5 d-none">
+          <i class="bi bi-file-earmark-word fs-1 text-info"></i>
+          <h4 class="mt-4">暂不支持在线预览 Word 格式</h4>
+          <p class="text-secondary">预览仅支持 PDF 格式。请确认您已选择正确的 Word 文件，系统将直接上传该原始文件。</p>
         </div>
-        <div class="mb-3">
-          <label class="form-label fw-bold">消息标题</label>
-          <input type="text" id="msgTitle" class="form-control" placeholder="关于修改截止日期的请求">
-        </div>
-        <div class="mb-3">
-          <label class="form-label fw-bold">沟通内容</label>
-          <textarea id="msgBody" class="form-control" rows="4" placeholder="请详细说明您的问题..."></textarea>
-        </div>
-        <div class="mb-2">
-          <label class="form-label fw-bold"><i class="bi bi-paperclip"></i> 附件证明 (可选)</label>
-          <input type="file" id="fakeFile" class="form-control form-control-sm">
-        </div>
-        <div id="uploadProgressContainer">
-          <div class="d-flex justify-content-between mb-1">
-            <span class="text-primary small fw-bold" id="progressStatus">正在上传附件...</span>
-            <span class="text-primary small fw-bold" id="progressPercent">0%</span>
-          </div>
-          <div class="progress" style="height: 6px;">
-            <div id="fakeProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer bg-light">
-        <button type="button" class="btn btn-secondary" id="btnCancel" data-bs-dismiss="modal">取消</button>
-        <button type="button" class="btn btn-primary px-4" id="btnSendMsg" onclick="submitFastMessage()">
-          <i class="bi bi-send"></i> 发送消息
-        </button>
       </div>
     </div>
   </div>
 </div>
 
+<div class="modal fade" id="msgModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title"><i class="bi bi-envelope-paper"></i> 向编辑咨询</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="mb-3">
+          <label class="form-label fw-bold">选择收件人</label>
+          <select id="editorSelect" class="form-select">
+            <option th:each="ed : ${assignedEditors}" th:value="${ed.userId}" th:text="${ed.fullName + ' (负责编辑)'}"></option>
+            <option th:if="${#lists.isEmpty(assignedEditors)}" value="">系统管理员</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">沟通内容</label>
+          <textarea id="msgBody" class="form-control" rows="5" placeholder="请简述您的问题..."></textarea>
+        </div>
+        <div id="uploadProgressContainer">
+          <div class="progress" style="height: 5px;"><div id="fakeProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div></div>
+        </div>
+      </div>
+      <div class="modal-footer bg-light">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-primary px-4" id="btnSendMsg" onclick="submitFastMessage()">发送消息</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="py-4 mt-auto">
+  <p class="text-center text-muted small">© 2025 学术论文管理系统 · 您的每一次修改都让科研更严谨</p>
+</footer>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/@wangeditor/editor@latest/dist/index.js"></script>
 <script th:inline="javascript">
+  /* --- 1. wangEditor 初始化 --- */
   const { createEditor, createToolbar } = window.wangEditor;
-  const editorConfig = {
-    placeholder: '请在此逐点回复审稿意见...',
-    onChange(editor) {
-      document.getElementById('responseText').value = editor.getHtml();
-    }
-  };
   const editor = createEditor({
     selector: '#editor-container',
     html: '',
-    config: editorConfig,
+    config: {
+      placeholder: '请在此逐条回复审稿意见。如果内容较多，建议在 Reply Letter 中详述并在此做简要说明。',
+      onChange(editor) { document.getElementById('responseText').value = editor.getHtml(); }
+    },
     mode: 'simple',
   });
-  const toolbar = createToolbar({
-    editor,
-    selector: '#toolbar-container',
-    mode: 'simple',
-  });
-  function submitFastMessage() {
-    const receiverId = document.getElementById('editorSelect').value;
-    const title = document.getElementById('msgTitle').value;
-    const body = document.getElementById('msgBody').value;
-    const fakeFile = document.getElementById('fakeFile').files[0];
-    const manuId = [[${manuscript.manuscriptId}]];
+  createToolbar({ editor, selector: '#toolbar-container', mode: 'simple' });
 
-    if(!receiverId || !body) {
-      alert("请选择收件编辑并输入沟通内容！");
-      return;
-    }
-    const btnSend = document.getElementById('btnSendMsg');
-    const btnCancel = document.getElementById('btnCancel');
-    const progressContainer = document.getElementById('uploadProgressContainer');
-    const progressBar = document.getElementById('fakeProgressBar');
-    const progressPercent = document.getElementById('progressPercent');
-    btnSend.disabled = true;
-    btnCancel.disabled = true;
-    if (fakeFile) {
-      progressContainer.style.display = 'block';
-      let width = 0;
-      const interval = setInterval(() => {
-        if (width >= 100) {
-          clearInterval(interval);
-          sendRealData();
-        } else {
-          width += Math.floor(Math.random() * 15) + 5;
-          if(width > 100) width = 100;
-          progressBar.style.width = width + '%';
-          progressPercent.innerText = width + '%';
-        }
-      }, 200);
-    } else {
-      sendRealData();
-    }
-    function sendRealData() {
-      const params = new URLSearchParams();
-      params.append('receiverId', receiverId);
-      params.append('manuId', manuId);
-      const fileNotice = fakeFile ? `\n(附件: ${fakeFile.name})` : "";
-      params.append('body', title ? `【${title}】${body}${fileNotice}` : `${body}${fileNotice}`);
-      fetch('/author/message/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: params
-      })
-              .then(response => {
-                if (response.ok) {
-                  alert("消息已成功发送至编辑！附件已同步加密传输。");
-                  const modal = bootstrap.Modal.getInstance(document.getElementById('msgModal'));
-                  modal.hide();
-                  resetModal();
-                } else {
-                  alert("发送失败，请重试。");
-                  btnSend.disabled = false;
-                  btnCancel.disabled = false;
-                }
-              })
-              .catch(error => {
-                alert("网络异常");
-                btnSend.disabled = false;
-                btnCancel.disabled = false;
-              });
+  /* --- 2. 预览核心逻辑 --- */
+  let fileUrls = { cleanFile: null, markedFile: null, replyFile: null };
+
+  function handleFileChange(input) {
+    const id = input.id;
+    const file = input.files[0];
+    if (file) {
+      if (fileUrls[id]) URL.revokeObjectURL(fileUrls[id]);
+      if (file.type === "application/pdf") {
+        fileUrls[id] = URL.createObjectURL(file);
+      } else {
+        fileUrls[id] = "WORD";
+      }
     }
   }
-  function resetModal() {
-    document.getElementById('msgTitle').value = '';
-    document.getElementById('msgBody').value = '';
-    document.getElementById('fakeFile').value = '';
-    document.getElementById('uploadProgressContainer').style.display = 'none';
-    document.getElementById('fakeProgressBar').style.width = '0%';
-    document.getElementById('btnSendMsg').disabled = false;
-    document.getElementById('btnCancel').disabled = false;
+
+  function openFilePreview(id, titleText) {
+    const input = document.getElementById(id);
+    if (!input.files.length) return alert("请先选择文件！");
+
+    const url = fileUrls[id];
+    const iframe = document.getElementById('previewIframe');
+    const notice = document.getElementById('noPreviewNotice');
+
+    document.getElementById('previewTitle').innerText = "预览内容：" + titleText;
+
+    if (url === "WORD") {
+      iframe.classList.add('d-none');
+      notice.classList.remove('d-none');
+    } else {
+      notice.classList.add('d-none');
+      iframe.classList.remove('d-none');
+      iframe.src = url;
+    }
+
+    new bootstrap.Modal(document.getElementById('previewModal')).show();
+  }
+
+  /* --- 3. 提交前校验 --- */
+  function validateReviseSubmit() {
+    const responseHtml = editor.getText().trim();
+    if (responseHtml === "") {
+      alert("请输入回复意见摘要（Response Text）！");
+      return false;
+    }
+    return confirm("确认提交修回稿件吗？提交后将进入编辑复审流程。");
+  }
+  function submitFastMessage() {
+    const receiverId = document.getElementById('editorSelect').value;
+    const body = document.getElementById('msgBody').value;
+    const manuId = [[${manuscript.manuscriptId}]];
+
+    if(!body) return alert("内容不能为空");
+
+    const btn = document.getElementById('btnSendMsg');
+    btn.disabled = true;
+    const params = new URLSearchParams();
+    params.append('receiverId', receiverId);
+    params.append('manuId', manuId);
+    params.append('body', body);
+    fetch('/author/message/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params
+    }).then(res => {
+      if(res.ok) {
+        alert("消息已发送！");
+        bootstrap.Modal.getInstance(document.getElementById('msgModal')).hide();
+        document.getElementById('msgBody').value = '';
+      }
+    }).finally(() => btn.disabled = false);
   }
 </script>
 </body>

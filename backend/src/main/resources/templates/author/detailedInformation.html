@@ -88,10 +88,6 @@
                     <div class="info-label">摘要</div>
                     <div class="info-value p-3 bg-light rounded" style="white-space: pre-wrap;" th:text="${manuscript.abstractText ?: '暂无摘要内容'}">摘要内容...</div>
                 </div>
-                <div class="col-12 mt-3">
-                    <div class="info-label">项目资助情况</div>
-                    <p class="info-value" th:text="${manuscript.fundingInfo ?: '无'}">资助信息</p>
-                </div>
             </div>
         </div>
 
@@ -117,9 +113,34 @@
                 </div>
             </div>
         </div>
-
         <div class="detail-card">
-            <h4 class="section-title">3. 提交文件</h4>
+            <h4 class="section-title">3. 资助项目信息</h4>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                    <tr>
+                        <th style="width: 35%">资助项目名称</th>
+                        <th style="width: 30%">资助编号</th>
+                        <th style="width: 35%">资助机构</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="f : ${manuscript.fundings}">
+                        <td class="fw-semibold" th:text="${f.grantName}">项目名称</td>
+                        <td>
+                            <span class="badge bg-light text-dark border" th:text="${f.grantNumber}">#12345</span>
+                        </td>
+                        <td th:text="${f.organization}">资助机构</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(manuscript.fundings)}">
+                        <td colspan="3" class="text-center text-muted py-3">未提交资助项目信息</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="detail-card">
+            <h4 class="section-title">4. 提交文件</h4>
             <div class="row text-center">
                 <div class="col-md-6">
                     <div class="p-3 border rounded">
@@ -141,7 +162,7 @@
         </div>
 
         <div class="detail-card">
-            <h4 class="section-title">4. 推荐审稿人</h4>
+            <h4 class="section-title">5. 推荐审稿人</h4>
             <div class="table-responsive">
                 <table class="table table-sm">
                     <thead class="table-light">
@@ -165,6 +186,7 @@
             </div>
         </div>
     </div>
+
 </main>
 <footer class="py-4 mt-auto">
     <p class="text-center text-muted small mb-0">© 2025 学术论文管理系统 · 作者</p>

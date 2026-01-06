@@ -22,10 +22,10 @@
                 <td>
                     <span th:with="uTime=${lastUpdateTimes != null ? lastUpdateTimes[p.manuscriptId] : null}">
                         <span th:if="${uTime != null}"
-                            th:text="${#temporals.format(uTime, 'yyyy-MM-dd HH:mm:ss')}">
+                              th:text="${#temporals.format(uTime, 'yyyy-MM-dd HH:mm:ss')}">
                         </span>
                         <span th:if="${uTime == null}"
-                            th:text="${p.submitTime != null ? #temporals.format(p.submitTime, 'yyyy-MM-dd HH:mm:ss') : '-'}">
+                              th:text="${p.submitTime != null ? #temporals.format(p.submitTime, 'yyyy-MM-dd HH:mm:ss') : '-'}">
                         </span>
                     </span>
                 </td>
@@ -42,7 +42,7 @@
                         <span th:case="'Pending Allocation'">待初审</span>
                         <span th:case="'Pending Allocation II'">待分配</span>
                         <span th:case="'With Editor'">编辑处理</span>
-                        <span th:case="'With Editor II'">编辑再处理</span>
+                        <span th:case="'With Editor II'">终审中</span>
                         <span th:case="'Under Review'">审稿中</span>
                         <span th:case="'Rejected'">拒稿</span>
                         <span th:case="'Accepted'">录用</span>
@@ -83,7 +83,7 @@
                             </a>
                         </th:block>
 
-                        <a th:if="${type == 'track'}"
+                        <a th:if="${type == 'track' or type == 'revise' or type == 'final'}"
                            th:href="@{/author/manuscript/track(id=${p.manuscriptId})}"
                            class="btn btn-sm btn-outline-info text-dark">
                             <i class="bi bi-eye"></i> 追踪状态
@@ -95,11 +95,11 @@
                             <i class="bi bi-arrow-repeat"></i> 提交修回
                         </a>
 
-                        <a th:if="${type == 'final'}"
-                           th:href="@{/author/manuscript/track(id=${p.manuscriptId})}"
-                           class="btn btn-sm btn-outline-dark">
-                            <i class="bi bi-file-earmark-text"></i> 查看决策
-                        </a>
+                        <th:block th:if="${type == 'final'}">
+                            <a th:href="@{/author/manuscript/detail(id=${p.manuscriptId})}" class="btn btn-sm btn-outline-dark">
+                                <i class="bi bi-card-text"></i> 详情
+                            </a>
+                        </th:block>
                     </div>
                 </td>
             </tr>

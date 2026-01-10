@@ -1,14 +1,17 @@
 package com.bjfu.paperSystem.chiefEditor.service;
 
+import com.bjfu.paperSystem.author.dao.LogsDao;
 import com.bjfu.paperSystem.author.dao.ManuscriptDao;
 import com.bjfu.paperSystem.editor.dao.DecisionHistoryDao; // 引入历史记录DAO
 import com.bjfu.paperSystem.javabeans.DecisionHistory;
+import com.bjfu.paperSystem.javabeans.Logs;
 import com.bjfu.paperSystem.javabeans.Manuscript;
 import com.bjfu.paperSystem.javabeans.User; // 引入User
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional; // 引入事务
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -19,7 +22,10 @@ public class FinalDecisionServiceImpl implements FinalDecisionService {
     private ManuscriptDao manuscriptDao;
 
     @Autowired
-    private DecisionHistoryDao decisionHistoryDao; // 注入历史记录DAO
+    private DecisionHistoryDao decisionHistoryDao;
+    
+    @Autowired
+    private LogsDao logsDao; // 注入历史记录DAO
 
     @Override
     public List<Manuscript> listPendingFinalDecisions() {
@@ -34,7 +40,7 @@ public class FinalDecisionServiceImpl implements FinalDecisionService {
 
     @Override
     @Transactional
-    public void makeFinalDecision(int manuscriptId, String decision, String comment) {
+    public void makeFinalDecision(int manuscriptId, String decision, String comment, int userId) {
         Manuscript m = manuscriptDao.findById(manuscriptId).orElse(null);
         if (m == null) return;
 
@@ -58,9 +64,23 @@ public class FinalDecisionServiceImpl implements FinalDecisionService {
         history.setFinalDecision(decision);
         history.setFinalDecisionComment(comment);
         history.setDecisionDate(new Date());
-        // 注意：这里没有传 chiefEditor 的 User 对象，如果需要记录是谁操作的，
-        // Controller 层需要把 session 中的 user 传进来，或者暂时设为 null
 
         decisionHistoryDao.save(history);
+        
+        // 3. 记录操作日志到 logs 表
+        Logs log = new Logs();
+        log.setOporId(userId);
+        log.setPaperId(manuscriptId);
+        log.setOpTime(LocalDateTime.now());
+        
+        // 根据决策类型设置操作类型
+        switch (decision) {
+            case "Accepted" -> log.setOpType("final accepted");
+            case "Need Revision" -> log.setOpType("need revision");
+            case "Rejected" -> log.setOpType("final rejected");
+            default -> log.setOpType("final decision");
+        }
+        
+        logsDao.save(log);
     }
 }

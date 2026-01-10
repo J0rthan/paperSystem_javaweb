@@ -13,5 +13,5 @@ public interface FinalDecisionService {
     Manuscript getManuscriptDetail(int manuscriptId);
 
     // 做出终审决策：ACCEPT / REJECT / NEED_REVISION
-    void makeFinalDecision(int manuscriptId, String decision, String comment);
+    void makeFinalDecision(int manuscriptId, String decision, String comment, int userId);
 }

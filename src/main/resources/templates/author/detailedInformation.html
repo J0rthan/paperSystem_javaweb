@@ -29,9 +29,6 @@
                 <li class="nav-item me-3">
                     <a class="nav-link text-light position-relative" th:href="@{/author/message/list}" title="消息中心">
                         <i class="bi bi-envelope-fill fs-5"></i>
-                        <span class="position-absolute top-2 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
-                            <span class="visually-hidden">新消息</span>
-                        </span>
                     </a>
                 </li>
 
@@ -85,7 +82,7 @@
                 </div>
                 <div class="col-12">
                     <div class="info-label">摘要</div>
-                    <div class="info-value p-3 bg-light rounded" style="white-space: pre-wrap;" th:text="${manuscript.abstractText ?: '暂无摘要内容'}">摘要内容...</div>
+                    <div class="info-value p-3 bg-light rounded" style="white-space: pre-wrap;" th:utext="${manuscript.abstractText ?: '暂无摘要内容'}">摘要内容...</div>
                 </div>
             </div>
         </div>

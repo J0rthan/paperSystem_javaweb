@@ -24,14 +24,32 @@
     <a class="navbar-brand fw-bold">
       <i class="bi bi-journal-bookmark-fill me-2"></i>学术论文管理系统-作者端
     </a>
-    <div class="collapse navbar-collapse">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#authorNavbar">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="authorNavbar">
       <ul class="navbar-nav ms-auto align-items-center">
-        <li class="nav-item me-3 text-light">
-          <i class="bi bi-person-circle me-1"></i>
-          <span th:text="${session.loginUser.userName}">作者姓名</span>
+        <li class="nav-item me-3">
+          <a class="nav-link text-light position-relative" th:href="@{/author/message/list}" title="消息中心">
+            <i class="bi bi-envelope-fill fs-5"></i>
+          </a>
         </li>
-        <li class="nav-item">
-          <a href="/author/logout" class="btn btn-outline-light btn-sm rounded-pill px-3">退出登录</a>
+
+        <li class="nav-item me-3 border-end pe-3">
+          <a class="nav-link text-light" th:href="@{/author/profile}" title="账号设置">
+            <i class="bi bi-gear-fill fs-5"></i>
+          </a>
+        </li>
+
+        <li class="nav-item dropdown ms-2">
+                    <span class="navbar-text text-light me-3">
+                        <i class="bi bi-person-circle me-1"></i>
+                        <span th:text="${session.loginUser.userName}">作者姓名</span>
+                    </span>
+          <a href="/author/logout" class="btn btn-outline-light btn-sm rounded-pill px-3">
+            <i class="bi bi-box-arrow-right me-1"></i>退出登录
+          </a>
         </li>
       </ul>
     </div>

@@ -80,7 +80,7 @@ public class AssignEditorServiceImpl implements AssignEditorService {
             recordAllocationDao.save(record); // 保存到新表
 
             // --- 3. 记录系统日志 ---
-            String logDescription = "分配编辑 (编辑ID: " + editorId + ", 理由: " + reason + ")";
+            String logDescription = "assign editor";
             logService.record(0, logDescription, manuscriptId);
         }
     }

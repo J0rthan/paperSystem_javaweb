@@ -54,4 +54,6 @@ public class DecisionHistory {
     public void setDecider(User decider) { this.decider = decider;}
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+    public void setManuscript(Manuscript manu) {this.manuscript = manu;}
+    public Manuscript getManuscript() {return this.manuscript;}
 }

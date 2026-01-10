@@ -241,7 +241,7 @@
             <tr th:each="m : ${manuscripts}">
                 <td th:text="${m.manuscriptId}">1</td>
                 <td th:text="${m.title}">标题</td>
-                <td th:text="${m.abstractText}">摘要</td>
+                <td th:utext="${m.abstractText}">摘要</td>
                 <td th:text="${m.authorId}">作者Id</td>
                 <td th:text="${#temporals.format(m.submitTime, 'yyyy-MM-dd HH:mm')}">时间</td>
                 <td>

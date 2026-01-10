@@ -3,6 +3,7 @@ package com.bjfu.paperSystem.reviewer.service;
 import com.bjfu.paperSystem.Login.dao.UserDao;
 import com.bjfu.paperSystem.author.dao.LogsDao;
 import com.bjfu.paperSystem.author.dao.ManuscriptDao;
+import com.bjfu.paperSystem.editor.service.EditorProcessService;
 import com.bjfu.paperSystem.javabeans.Logs;
 import com.bjfu.paperSystem.javabeans.Manuscript;
 import com.bjfu.paperSystem.javabeans.Review;
@@ -26,6 +27,9 @@ public class reviewerServiceImpl implements reviewerService{
     @Autowired
     private LogsDao logsDao;
 
+    @Autowired
+    private EditorProcessService editorProcessService;
+
     // 通过时间范围筛选稿件
     @Override
     public List<Review> filterByTime(LocalDateTime startTime, LocalDateTime endTime, int reviewer_id) {
@@ -46,6 +50,9 @@ public class reviewerServiceImpl implements reviewerService{
     public String acceptManu(int review_id, int manu_id) {
         Review review = revDao.findByReviewIdAndManuId(review_id, manu_id);
         review.setStatus("accepted");
+        Integer manuId = review.getManuId();
+
+        editorProcessService.checkAndUpdateManuscriptStatus(manuId);
 
         return "审稿任务已接受，截止日期：" + LocalDateTime.now();
     }

@@ -1,10 +1,12 @@
 package com.bjfu.paperSystem.editor.service;
 
+import com.bjfu.paperSystem.author.dao.LogsDao;
 import com.bjfu.paperSystem.javabeans.*;
 import com.bjfu.paperSystem.editor.dao.*;
 import com.bjfu.paperSystem.author.service.logService;
 import com.bjfu.paperSystem.mailUtils.MailUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.bjfu.paperSystem.editor.dao.DecisionHistoryDao; // 确保引用路径正确
@@ -25,6 +27,7 @@ public class EditorProcessServiceImpl implements EditorProcessService {
     @Autowired private logService logService;
     @Autowired private MailUtil mailUtil;
     @Autowired private DecisionHistoryDao decisionHistoryRepository;
+    @Autowired private LogsDao logsDao;
 
     @Override
     public Manuscript getManuscriptDetail(int id, int editorId) {
@@ -130,11 +133,9 @@ public class EditorProcessServiceImpl implements EditorProcessService {
     public void checkAndUpdateManuscriptStatus(int manuscriptId) {
         // 1. 获取该稿件所有的审稿记录
         List<Review> reviews = reviewDao.findByManuId(manuscriptId);
-        // 2. 统计状态为 审稿中 或 已完成 的人数
+        // 2. 统计状态为已接受的人数
         long validReviewerCount = reviews.stream()
-                .filter(r -> "accepted".equalsIgnoreCase(r.getStatus())
-                        || "finished".equalsIgnoreCase(r.getStatus()))
-                .count();
+                .filter(r -> "accepted".equalsIgnoreCase(r.getStatus())).count();
 
         // 3. 获取稿件当前信息
         Manuscript manuscript = manuscriptDao.findById(manuscriptId).orElse(null);
@@ -142,6 +143,16 @@ public class EditorProcessServiceImpl implements EditorProcessService {
         if (manuscript != null && validReviewerCount >= 3 && "With Editor".equalsIgnoreCase(manuscript.getStatus())) {
             manuscript.setStatus("Under Review");
             manuscriptDao.save(manuscript);
+
+            int editorId = manuscript.getEditorId();
+            String action = "editor completed";
+
+            Logs log = new Logs();
+            log.setOporId(editorId);
+            log.setPaperId(manuscriptId);
+            log.setOpTime(LocalDateTime.now());
+            log.setOpType(action);
+            logsDao.save(log);
         }
     }
 

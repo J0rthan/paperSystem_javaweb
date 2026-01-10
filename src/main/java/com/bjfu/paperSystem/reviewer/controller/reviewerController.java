@@ -7,6 +7,8 @@ import com.bjfu.paperSystem.mailUtils.Service.mailService;
 import com.bjfu.paperSystem.mailUtils.MailUtil;
 import com.bjfu.paperSystem.reviewer.service.reviewerService;
 import com.bjfu.paperSystem.superAdmin.service.superAdminService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
@@ -14,8 +16,11 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -107,26 +112,23 @@ public class reviewerController {
     }
 
     @GetMapping("submitOpinionPage/{reviewId}")
-    public String tpSubmitOpinionPage(@PathVariable int reviewId, Model model) {
-        System.out.println(reviewId);
+    public String tpSubmitOpinionPage(@PathVariable int reviewId, Model model, RedirectAttributes ra) throws IOException {
         Review review = revService.findByRevId(reviewId);
         if (review == null) {
-            System.out.println("null");
-        }
-        else {
-            System.out.println("not null");
+            ra.addFlashAttribute("msg", "审稿任务不存在");
+            return "redirect:/reviewer/reviewJobs";
         }
 
-        System.out.println(review.getManuScript().getTitle());
+        Manuscript manu = review.getManuScript();
+        String status = manu.getStatus();
+
+        if ("With Editor".equals(status)) {
+            ra.addFlashAttribute("msg", "该稿件处于编辑处理中，请等待");
+            return "redirect:/reviewer/reviewJobs";
+        }
+
         model.addAttribute("review", review);
-        model.addAttribute("editors",
-                suService.findUserByType("editor"));
-        if (suService.findUserByType("editor").isEmpty()) {
-            System.out.println("it's empty");
-        }
-        else {
-            System.out.println("it's not empty");
-        }
+        model.addAttribute("editors", suService.findUserByType("editor"));
         return "/reviewer/submitOpinionPage";
     }
 

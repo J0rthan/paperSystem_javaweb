@@ -633,4 +633,8 @@
 </script>
 
 </body>
+
+<script th:if="${msg != null}" th:inline="javascript">
+    alert(/*[[${msg}]]*/ '');
+</script>
 </html>

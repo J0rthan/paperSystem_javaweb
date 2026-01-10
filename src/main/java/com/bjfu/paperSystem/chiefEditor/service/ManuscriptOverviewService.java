@@ -10,4 +10,7 @@ public interface ManuscriptOverviewService {
     // tabType: all, pending, under_review, decision, revision
     // keyword: 搜索标题或作者
     List<Manuscript> getManuscriptsByTabAndKeyword(String tabType, String keyword);
+    
+    // 直接根据状态过滤稿件
+    List<Manuscript> getManuscriptsByStatus(String status, String keyword);
 }

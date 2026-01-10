@@ -29,15 +29,15 @@ public class ManuscriptOverviewController {
     // 1. 页面展示与筛选
     @GetMapping("/manuscripts")
     public String manuscriptsOverview(
-            @RequestParam(value = "tab", defaultValue = "all") String tab,
+            @RequestParam(value = "status", defaultValue = "all") String status,
             @RequestParam(value = "keyword", required = false) String keyword,
             HttpSession session, Model model) {
 
-        // 调用 Service 根据 Tab 和 关键字 筛选
-        List<Manuscript> list = service.getManuscriptsByTabAndKeyword(tab, keyword);
+        // 调用 Service 根据状态和关键字筛选
+        List<Manuscript> list = service.getManuscriptsByStatus(status, keyword);
 
         model.addAttribute("manuscripts", list);
-        model.addAttribute("currentTab", tab); // 回显当前选中的 Tab
+        model.addAttribute("currentStatus", status); // 回显当前选中的状态
         model.addAttribute("keyword", keyword); // 回显搜索关键字
 
         return "chiefeditor/manuscripts";

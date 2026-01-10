@@ -8,6 +8,9 @@ import com.bjfu.paperSystem.optionAdmin.dao.optionAdminDao;
 import com.bjfu.paperSystem.author.dao.ManuscriptDao;
 import com.bjfu.paperSystem.author.dao.LogsDao;
 import com.bjfu.paperSystem.author.dao.EmailMessageDao;
+import com.bjfu.paperSystem.author.dao.ManuscriptAuthorDao;
+import com.bjfu.paperSystem.author.dao.RecommendedReviewerDao;
+import com.bjfu.paperSystem.author.dao.ManuscriptFundingDao;
 import com.bjfu.paperSystem.mailUtils.MailUtil;
 import com.bjfu.paperSystem.mailUtils.Service.mailService;
 import com.bjfu.paperSystem.javabeans.Manuscript;
@@ -35,6 +38,15 @@ public class optionAdminServiceImpl implements optionAdminService {
     private EmailMessageDao emailMessageDao;
     
     @Autowired
+    private ManuscriptAuthorDao manuscriptAuthorDao;
+    
+    @Autowired
+    private RecommendedReviewerDao recommendedReviewerDao;
+    
+    @Autowired
+    private ManuscriptFundingDao manuscriptFundingDao;
+    
+    @Autowired
     private MailUtil mailUtil;
     
     @Autowired
@@ -48,7 +60,13 @@ public class optionAdminServiceImpl implements optionAdminService {
 
     @Override
     public Manuscript getManuscriptById(Integer manuscriptId) {
-        return manuscriptDao.findById(manuscriptId).orElse(null);
+        Manuscript manuscript = manuscriptDao.findById(manuscriptId).orElse(null);
+        if (manuscript != null) {
+            manuscript.setAuthors(manuscriptAuthorDao.findByManuscriptId(manuscriptId));
+            manuscript.setReviewers(recommendedReviewerDao.findByManuscriptId(manuscriptId));
+            manuscript.setFundings(manuscriptFundingDao.findByManuscriptId(manuscriptId));
+        }
+        return manuscript;
     }
 
     @Override

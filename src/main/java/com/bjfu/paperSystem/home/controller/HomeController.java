@@ -1,4 +1,4 @@
-package com.bjfu.paperSystem;
+package com.bjfu.paperSystem.home.controller;
 
 import com.bjfu.paperSystem.javabeans.Editorial_Board;
 import com.bjfu.paperSystem.javabeans.Journal;
@@ -6,7 +6,7 @@ import com.bjfu.paperSystem.javabeans.Manuscript;
 import com.bjfu.paperSystem.javabeans.News;
 import com.bjfu.paperSystem.optionAdmin.service.JournalService;
 import com.bjfu.paperSystem.optionAdmin.service.NewsService;
-import com.bjfu.paperSystem.service.PublicService;
+import com.bjfu.paperSystem.home.service.PublicService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

@@ -1,4 +1,4 @@
-package com.bjfu.paperSystem.controller;
+package com.bjfu.paperSystem.home.controller;
 
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;

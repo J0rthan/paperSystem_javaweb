@@ -1,4 +1,4 @@
-package com.bjfu.paperSystem.service;
+package com.bjfu.paperSystem.home.service;
 
 import com.bjfu.paperSystem.javabeans.Editorial_Board;
 import com.bjfu.paperSystem.javabeans.Journal;

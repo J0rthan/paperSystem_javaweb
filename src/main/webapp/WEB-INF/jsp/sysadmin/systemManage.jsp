@@ -177,7 +177,7 @@
 
     <!-- 查询表单 -->
     <div class="card">
-        <form action="${pageContext.request.contextPath}/superadmin/systemManage/queryLogs" method="get">
+        <form action="${pageContext.request.contextPath}/sysadmin/systemManage/queryLogs" method="get">
             <fieldset>
                 <legend>日志查询条件</legend>
 

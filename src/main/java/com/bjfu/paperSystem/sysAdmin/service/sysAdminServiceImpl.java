@@ -74,9 +74,10 @@ public class sysAdminServiceImpl implements sysAdminService {
     public void modifyUser(User user) {
         User dbUser = sysDao.findById(user.getUserId()).orElse(null);
         dbUser.setUserName(user.getUserName());
-        // 密码留空则不修改
-        if (!user.getPassword().equals("")) {
-            dbUser.setPassword(user.getPassword());
+        // 密码：null/空白 => 不修改；有值 => 才更新
+        String pwd = user.getPassword();
+        if (pwd != null && !pwd.isBlank()) {
+            dbUser.setPassword(pwd);
         }
         dbUser.setFullName(user.getFullName());
         dbUser.setEmail(user.getEmail());

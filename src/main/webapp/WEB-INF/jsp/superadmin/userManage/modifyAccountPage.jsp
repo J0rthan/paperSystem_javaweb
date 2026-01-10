@@ -92,7 +92,7 @@
     </tr>
 
     <c:forEach var="user" items="${userList}">
-        <tr>
+        <tr class="user-row">
             <td>${user.userName}</td>
             <td>${user.fullName}</td>
             <td>${user.email}</td>
@@ -108,5 +108,87 @@
 
 </table>
 
+<div style="margin-top:14px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;">
+    <button type="button" id="prevBtn">上一页</button>
+    <span id="pageInfo"></span>
+    <button type="button" id="nextBtn">下一页</button>
+
+    <span style="margin-left:10px;">每页</span>
+    <select id="pageSizeSelect">
+        <option value="5">5</option>
+        <option value="10" selected>10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+    </select>
+    <span>条</span>
+
+    <span style="margin-left:10px;">跳转到</span>
+    <input id="gotoInput" type="number" min="1" style="width:70px;">
+    <button type="button" id="gotoBtn">GO</button>
+</div>
+
 </body>
+
+<script>
+    (function () {
+        const rows = Array.from(document.querySelectorAll(".user-row"));
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
+        const pageInfo = document.getElementById("pageInfo");
+        const pageSizeSelect = document.getElementById("pageSizeSelect");
+        const gotoInput = document.getElementById("gotoInput");
+        const gotoBtn = document.getElementById("gotoBtn");
+
+        let pageSize = parseInt(pageSizeSelect.value, 10);
+        let currentPage = 1;
+
+        function totalPages() {
+            return Math.max(1, Math.ceil(rows.length / pageSize));
+        }
+
+        function render() {
+            const tp = totalPages();
+            if (currentPage > tp) currentPage = tp;
+            if (currentPage < 1) currentPage = 1;
+
+            const start = (currentPage - 1) * pageSize;
+            const end = start + pageSize;
+
+            rows.forEach((tr, idx) => {
+                tr.style.display = (idx >= start && idx < end) ? "" : "none";
+            });
+
+            pageInfo.textContent = "共 " + rows.length + " 条，第 " + currentPage + " / " + tp + " 页";
+
+            prevBtn.disabled = (currentPage === 1);
+            nextBtn.disabled = (currentPage === tp);
+        }
+
+        prevBtn.addEventListener("click", function () {
+            currentPage--;
+            render();
+        });
+
+        nextBtn.addEventListener("click", function () {
+            currentPage++;
+            render();
+        });
+
+        pageSizeSelect.addEventListener("change", function () {
+            pageSize = parseInt(pageSizeSelect.value, 10);
+            currentPage = 1;
+            render();
+        });
+
+        gotoBtn.addEventListener("click", function () {
+            const p = parseInt(gotoInput.value, 10);
+            if (!isNaN(p)) {
+                currentPage = p;
+                render();
+            }
+        });
+
+        render();
+    })();
+</script>
 </html>

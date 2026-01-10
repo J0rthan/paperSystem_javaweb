@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -6,58 +6,94 @@
     <title>创建账号页</title>
 
     <style>
+        body {
+            margin: 0;
+            font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+            background-color: #f6f7fb;
+            color: #333;
+            text-align: center;
+        }
+
         .tab-button {
-            margin-right: 10px;
+            display: inline-block;
+            margin: 20px 10px;
+            padding: 8px 18px;
             text-decoration: none;
-            padding: 6px 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            color: #333;
+            background-color: #fff;
+        }
+
+        .tab-button:hover { background-color: #f2f2f2; }
+
+        .tab-button.active {
+            background-color: #eaeaea;
+            font-weight: bold;
+        }
+
+        h2 {
+            margin-top: 20px;
+        }
+
+        form {
+            width: 420px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            text-align: left;
+            box-shadow: 0 6px 18px rgba(0,0,0,.06);
+        }
+
+        form div {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: inline-block;
+            width: 90px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 240px;
+            padding: 6px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            color: #333;
         }
-        .tab-button.active {
-            background-color: #e5e7eb;
-            font-weight: 600;
+
+        button {
+            padding: 6px 16px;
+            margin-right: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            cursor: pointer;
         }
-        form div {
-            margin: 8px 0;
+
+        button:hover {
+            background-color: #eaeaea;
         }
     </style>
 </head>
 
 <body>
 
-<!-- 顶部功能切换 -->
-<a href="${pageContext.request.contextPath}/sysadmin/userManage/createAccountPage"
-   class="tab-button active">创建账号</a>
-
-<a href="${pageContext.request.contextPath}/sysadmin/userManage/deleteAccountPage"
-   class="tab-button">删除账号</a>
-
-<a href="${pageContext.request.contextPath}/sysadmin/userManage/modifyAccountPage"
-   class="tab-button">修改账号</a>
-
 <h2>创建账号</h2>
 
-<!-- 创建账号表单 -->
 <form action="${pageContext.request.contextPath}/sysadmin/userManage/createAccount"
       method="post">
 
     <div>
         <label for="userName">账号名：</label>
-        <input id="userName"
-               name="userName"
-               type="text"
-               placeholder="请输入账号名"
-               required>
+        <input id="userName" name="userName" type="text" placeholder="请输入账号名" required>
     </div>
 
     <div>
         <label for="password">初始密码：</label>
-        <input id="password"
-               name="password"
-               type="password"
-               placeholder="请输入初始密码"
-               required>
+        <input id="password" name="password" type="password" placeholder="请输入初始密码" required>
     </div>
 
     <div>
@@ -108,7 +144,7 @@
                required>
     </div>
 
-    <div style="margin-top: 10px;">
+    <div style="margin-top: 10px; text-align: center;">
         <button type="submit">创建用户</button>
         <button type="reset">重置</button>
     </div>

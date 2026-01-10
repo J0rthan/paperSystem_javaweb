@@ -99,7 +99,7 @@ public class userManageServlet extends HttpServlet {
              case "/deleteAccount": {
                  Integer userId = Integer.valueOf(request.getParameter("userId"));
                  suAdminService.deleteUser(userId);
-                 forward(request, response, "/WEB-INF/jsp/superadmin/userManage/deleteAccountPage.jsp");
+                 response.sendRedirect(request.getContextPath() + "/superadmin/userManage/deleteAccountPage");
                  break;
              }
              case "/createAccount": {

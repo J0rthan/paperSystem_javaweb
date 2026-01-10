@@ -4,7 +4,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <title>删除账号页</title>
+    <title>修改账号</title>
     <meta charset="UTF-8">
     <style>
         body {
@@ -17,18 +17,22 @@
 
         .tab-button {
             display: inline-block;
-            margin: 20px 10px;
-            padding: 8px 18px;
-            text-decoration: none;
+            margin: 20px 8px 10px;
+            padding: 6px 18px;
             border: 1px solid #ccc;
-            border-radius: 6px;
+            border-radius: 4px;
+            text-decoration: none;
             color: #333;
             background-color: #fff;
         }
 
+        .tab-button:hover {
+            background-color: #f2f2f2;
+        }
+
         .tab-button.active {
-            background-color: #eaeaea;
             font-weight: bold;
+            border-color: #999;
         }
 
         h2 {
@@ -39,30 +43,56 @@
             margin: 0 auto 30px;
             border-collapse: collapse;
             background-color: #fff;
-            min-width: 600px;
+            min-width: 760px;
+            box-shadow: 0 6px 18px rgba(0,0,0,.06);
         }
 
         th, td {
-            padding: 10px 16px;
             border: 1px solid #ddd;
+            padding: 10px 14px;
             text-align: center;
+            font-size: 14px;
         }
 
         th {
-            background-color: #f0f2f5;
+            background-color: #f3f4f6;
             font-weight: bold;
         }
 
-        input[type="submit"] {
-            padding: 4px 12px;
+        tr:hover td {
+            background-color: #fafafa;
+        }
+
+        td a {
+            text-decoration: none;
+            color: #333;
+            padding: 4px 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            background-color: #fff;
+        }
+
+        td a:hover {
+            background-color: #f2f2f2;
+        }
+
+        .pager button {
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            background: #fff;
+            border-radius: 4px;
             cursor: pointer;
         }
 
-        input[type="submit"]:hover {
-            background-color: #f2f2f2;
+        .pager button:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+        .pager select, .pager input {
+            padding: 6px 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: #fff;
         }
     </style>
 </head>
@@ -71,44 +101,35 @@
 
 <h2>用户列表</h2>
 
-<table id="userTable" style="width:100%;border-collapse:collapse;background:#fff;">
-    <thead>
+<table>
     <tr>
-        <th style="border:1px solid #ddd;padding:8px;">ID</th>
-        <th style="border:1px solid #ddd;padding:8px;">账号名</th>
-        <th style="border:1px solid #ddd;padding:8px;">角色</th>
-        <th style="border:1px solid #ddd;padding:8px;">邮箱</th>
-        <th style="border:1px solid #ddd;padding:8px;">全名</th>
-        <th style="border:1px solid #ddd;padding:8px;">公司</th>
-        <th style="border:1px solid #ddd;padding:8px;">就业方向</th>
-        <th style="border:1px solid #ddd;padding:8px;">操作</th>
+        <th>账号</th>
+        <th>姓名</th>
+        <th>邮箱</th>
+        <th>账号类型</th>
+        <th>状态</th>
+        <th>操作</th>
     </tr>
-    </thead>
 
-    <tbody id="userTbody">
-    <c:forEach items="${userList}" var="u">
+    <c:forEach var="user" items="${userList}">
         <tr class="user-row">
-            <td style="border:1px solid #ddd;padding:8px;">${u.userId}</td>
-            <td style="border:1px solid #ddd;padding:8px;">${u.userName}</td>
-            <td style="border:1px solid #ddd;padding:8px;">${u.userType}</td>
-            <td style="border:1px solid #ddd;padding:8px;">${u.email}</td>
-            <td style="border:1px solid #ddd;padding:8px;">${u.fullName}</td>
-            <td style="border:1px solid #ddd;padding:8px;">${u.company}</td>
-            <td style="border:1px solid #ddd;padding:8px;">${u.investigationDirection}</td>
-            <td style="border:1px solid #ddd;padding:8px;">
-                <!-- delete 页面保留删除按钮；modify 页面保留编辑链接 -->
-                <form action="<%=request.getContextPath()%>/superadmin/userManage/deleteAccount" method="post" style="display:inline;">
-                    <input type="hidden" name="userId" value="${u.userId}">
-                    <button type="submit" onclick="return confirm('确认删除？');">删除</button>
-                </form>
+            <td><c:out value="${user.userName}"/></td>
+            <td><c:out value="${user.fullName}"/></td>
+            <td><c:out value="${user.email}"/></td>
+            <td><c:out value="${user.userType}"/></td>
+            <td><c:out value="${user.status}"/></td>
+            <td>
+                <a href="${pageContext.request.contextPath}/sysadmin/userManage/edit?userId=${user.userId}">
+                    编辑
+                </a>
             </td>
         </tr>
     </c:forEach>
-    </tbody>
 </table>
 
-<!-- 分页控制区 -->
-<div style="margin-top:14px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;">
+<!-- 前端分页控件（与你给的风格一致） -->
+<div class="pager"
+     style="margin-top:14px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;">
     <button type="button" id="prevBtn">上一页</button>
     <span id="pageInfo"></span>
     <button type="button" id="nextBtn">下一页</button>
@@ -126,8 +147,6 @@
     <input id="gotoInput" type="number" min="1" style="width:70px;">
     <button type="button" id="gotoBtn">GO</button>
 </div>
-
-</body>
 
 <script>
     (function () {
@@ -158,7 +177,6 @@
                 tr.style.display = (idx >= start && idx < end) ? "" : "none";
             });
 
-            // 关键：不要出现
             pageInfo.textContent = "共 " + rows.length + " 条，第 " + currentPage + " / " + tp + " 页";
             prevBtn.disabled = (currentPage === 1);
             nextBtn.disabled = (currentPage === tp);
@@ -191,4 +209,6 @@
         render();
     })();
 </script>
+
+</body>
 </html>

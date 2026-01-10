@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>账号管理</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            margin: 0;
+            font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+            background-color: #f6f7fb;
+            color: #333;
+            text-align: center;
+        }
+
+        /* 顶部按钮区域 */
+        .tab-button {
+            display: inline-block;
+            margin: 20px 8px 10px;
+            padding: 6px 18px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #333;
+            background-color: #fff;
+        }
+
+        .tab-button:hover {
+            background-color: #f2f2f2;
+        }
+
+        .tab-button.active {
+            font-weight: bold;
+            border-color: #999;
+        }
+
+        h2 {
+            margin: 20px 0;
+        }
+
+        /* 表格样式 */
+        table {
+            margin: 0 auto 30px;
+            border-collapse: collapse;
+            background-color: #fff;
+            min-width: 760px;
+            box-shadow: 0 6px 18px rgba(0,0,0,.06);
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px 14px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #f3f4f6;
+            font-weight: bold;
+        }
+
+        tr:hover td {
+            background-color: #fafafa;
+        }
+
+        /* 编辑链接 */
+        td a {
+            text-decoration: none;
+            color: #333;
+            padding: 4px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        td a:hover {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+
+<body>
+
+<a href="/superadmin/userManage/createAccountPage" class="tab-button active">创建账号</a>
+<a href="/superadmin/userManage/deleteAccountPage" class="tab-button">删除账号</a>
+<a href="/superadmin/userManage/modifyAccountPage" class="tab-button">修改账号</a>
+
+<h2>用户列表</h2>
+
+<table>
+    <tr>
+        <th>账号</th>
+        <th>姓名</th>
+        <th>邮箱</th>
+        <th>账号类型</th>
+        <th>状态</th>
+        <th>操作</th>
+    </tr>
+
+    <tr th:each="user : ${userList}">
+        <td th:text="${user.getUserName()}"></td>
+        <td th:text="${user.getFullName()}"></td>
+        <td th:text="${user.getEmail()}"></td>
+        <td th:text="${user.getUserType()}"></td>
+        <td th:text="${user.getStatus()}"></td>
+        <td>
+            <a th:href="@{/superadmin/userManage/edit(userId=${user.getUserId})}">编辑</a>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

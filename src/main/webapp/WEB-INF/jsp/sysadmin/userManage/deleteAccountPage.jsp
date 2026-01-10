@@ -26,26 +26,28 @@
             background-color: #fff;
         }
 
+        .tab-button:hover { background-color: #f2f2f2; }
+
         .tab-button.active {
             background-color: #eaeaea;
             font-weight: bold;
         }
 
-        h2 {
-            margin: 20px 0;
-        }
+        h2 { margin: 20px 0; }
 
         table {
             margin: 0 auto 30px;
             border-collapse: collapse;
             background-color: #fff;
-            min-width: 600px;
+            min-width: 900px;
+            box-shadow: 0 6px 18px rgba(0,0,0,.06);
         }
 
         th, td {
             padding: 10px 16px;
             border: 1px solid #ddd;
             text-align: center;
+            font-size: 14px;
         }
 
         th {
@@ -53,7 +55,9 @@
             font-weight: bold;
         }
 
-        input[type="submit"] {
+        tr:hover td { background-color: #fafafa; }
+
+        button[type="submit"] {
             padding: 4px 12px;
             border: 1px solid #ccc;
             border-radius: 4px;
@@ -61,8 +65,28 @@
             cursor: pointer;
         }
 
-        input[type="submit"]:hover {
+        button[type="submit"]:hover {
             background-color: #f2f2f2;
+        }
+
+        .pager button {
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            background: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .pager button:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+        .pager select, .pager input {
+            padding: 6px 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: #fff;
         }
     </style>
 </head>
@@ -71,35 +95,37 @@
 
 <h2>用户列表</h2>
 
-<table id="userTable" style="width:100%;border-collapse:collapse;background:#fff;">
+<table id="userTable">
     <thead>
     <tr>
-        <th style="border:1px solid #ddd;padding:8px;">ID</th>
-        <th style="border:1px solid #ddd;padding:8px;">账号名</th>
-        <th style="border:1px solid #ddd;padding:8px;">角色</th>
-        <th style="border:1px solid #ddd;padding:8px;">邮箱</th>
-        <th style="border:1px solid #ddd;padding:8px;">全名</th>
-        <th style="border:1px solid #ddd;padding:8px;">公司</th>
-        <th style="border:1px solid #ddd;padding:8px;">就业方向</th>
-        <th style="border:1px solid #ddd;padding:8px;">操作</th>
+        <th>ID</th>
+        <th>账号名</th>
+        <th>角色</th>
+        <th>邮箱</th>
+        <th>全名</th>
+        <th>公司</th>
+        <th>就业方向</th>
+        <th>操作</th>
     </tr>
     </thead>
 
     <tbody id="userTbody">
     <c:forEach items="${userList}" var="u">
         <tr class="user-row">
-            <td style="border:1px solid #ddd;padding:8px;">${u.userId}</td>
-            <td style="border:1px solid #ddd;padding:8px;">${u.userName}</td>
-            <td style="border:1px solid #ddd;padding:8px;">${u.userType}</td>
-            <td style="border:1px solid #ddd;padding:8px;">${u.email}</td>
-            <td style="border:1px solid #ddd;padding:8px;">${u.fullName}</td>
-            <td style="border:1px solid #ddd;padding:8px;">${u.company}</td>
-            <td style="border:1px solid #ddd;padding:8px;">${u.investigationDirection}</td>
-            <td style="border:1px solid #ddd;padding:8px;">
-                <!-- delete 页面保留删除按钮；modify 页面保留编辑链接 -->
-                <form action="<%=request.getContextPath()%>/superadmin/userManage/deleteAccount" method="post" style="display:inline;">
+            <td><c:out value="${u.userId}"/></td>
+            <td><c:out value="${u.userName}"/></td>
+            <td><c:out value="${u.userType}"/></td>
+            <td><c:out value="${u.email}"/></td>
+            <td><c:out value="${u.fullName}"/></td>
+            <td><c:out value="${u.company}"/></td>
+            <td><c:out value="${u.investigationDirection}"/></td>
+            <td>
+                <form action="${pageContext.request.contextPath}/sysadmin/userManage/deleteAccount"
+                      method="post"
+                      style="display:inline;"
+                      onsubmit="return confirm('确认删除该用户？此操作不可恢复');">
                     <input type="hidden" name="userId" value="${u.userId}">
-                    <button type="submit" onclick="return confirm('确认删除？');">删除</button>
+                    <button type="submit">删除</button>
                 </form>
             </td>
         </tr>
@@ -108,7 +134,8 @@
 </table>
 
 <!-- 分页控制区 -->
-<div style="margin-top:14px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;">
+<div class="pager"
+     style="margin-top:14px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;">
     <button type="button" id="prevBtn">上一页</button>
     <span id="pageInfo"></span>
     <button type="button" id="nextBtn">下一页</button>
@@ -126,8 +153,6 @@
     <input id="gotoInput" type="number" min="1" style="width:70px;">
     <button type="button" id="gotoBtn">GO</button>
 </div>
-
-</body>
 
 <script>
     (function () {
@@ -158,7 +183,6 @@
                 tr.style.display = (idx >= start && idx < end) ? "" : "none";
             });
 
-            // 关键：不要出现
             pageInfo.textContent = "共 " + rows.length + " 条，第 " + currentPage + " / " + tp + " 页";
             prevBtn.disabled = (currentPage === 1);
             nextBtn.disabled = (currentPage === tp);
@@ -188,7 +212,14 @@
             }
         });
 
+        // 可选：回车触发跳转
+        gotoInput.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") gotoBtn.click();
+        });
+
         render();
     })();
 </script>
+
+</body>
 </html>

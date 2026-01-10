@@ -48,6 +48,12 @@
             border-radius: 4px;
         }
 
+        /* 可选：注册时间通常不建议编辑 */
+        input[readonly] {
+            background-color: #f9fafb;
+            color: #6b7280;
+        }
+
         hr {
             margin: 20px 0;
             border: none;
@@ -82,7 +88,7 @@
 
 <h2>修改账号</h2>
 
-<form action="${pageContext.request.contextPath}/superadmin/userManage/modifyAccount"
+<form action="${pageContext.request.contextPath}/sysadmin/userManage/modifyAccount"
       method="post"
       onsubmit="return confirm('确认保存修改？');">
 
@@ -108,7 +114,6 @@
         <div>
             <label>用户类型：</label>
             <select name="userType" required>
-                <option value="sys_admin" <c:if test="${userInfo.userType eq 'sys_admin'}">selected</c:if>>系统管理员</option>
                 <option value="option_admin" <c:if test="${userInfo.userType eq 'option_admin'}">selected</c:if>>编辑部管理员</option>
                 <option value="chief_editor" <c:if test="${userInfo.userType eq 'chief_editor'}">selected</c:if>>主编</option>
                 <option value="editor" <c:if test="${userInfo.userType eq 'editor'}">selected</c:if>>编辑</option>
@@ -152,7 +157,7 @@
 
     <div style="margin-top: 16px; text-align: center;">
         <input type="submit" value="保存修改"/>
-        <a href="${pageContext.request.contextPath}/superadmin/userManage/modifyAccountPage">返回列表</a>
+        <a href="${pageContext.request.contextPath}/sysadmin/userManage/modifyAccountPage">返回列表</a>
     </div>
 
 </form>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <title>系统管理 - 操作日志</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+            background-color: #f6f7fb;
+            color: #333;
+        }
+
+        header {
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* 查询表单 */
+        form {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border: 1px solid #ddd;
+        }
+
+        fieldset {
+            border: 1px solid #ccc;
+            padding: 16px;
+        }
+
+        legend {
+            padding: 0 10px;
+            font-weight: bold;
+        }
+
+        fieldset > div {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: inline-block;
+            width: 100px;
+        }
+
+        input {
+            padding: 6px;
+            width: 220px;
+        }
+
+        button {
+            padding: 6px 14px;
+            margin-right: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #eaeaea;
+        }
+
+        /* 表格 */
+        table {
+            width: 100%;
+            background-color: #ffffff;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: #f0f0f0;
+        }
+
+        th, td {
+            text-align: center;
+            padding: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>系统管理</h1>
+    <p>查看操作日志，支持按时间范围、用户及操作关键字筛选，用于故障排查与审计追溯</p>
+</header>
+
+<div class="container">
+
+    <!-- 查询表单 -->
+    <form action="/superadmin/systemManage/queryLogs" method="get">
+
+        <fieldset>
+            <legend>日志查询条件</legend>
+
+            <div>
+                <label>操作时间：</label>
+                <input type="datetime-local" name="opTime" step="1">
+            </div>
+
+            <div>
+                <label>操作人ID：</label>
+                <input type="text" name="oporId" placeholder="输入操作人ID">
+            </div>
+
+            <div>
+                <label>操作类型：</label>
+                <input type="text" name="opType" placeholder="输入操作类型">
+            </div>
+
+            <div>
+                <label>稿件ID：</label>
+                <input type="text" name="paperId" placeholder="请输入稿件Id">
+            </div>
+
+            <div>
+                <button type="submit">查询</button>
+                <button type="reset">重置</button>
+            </div>
+
+        </fieldset>
+
+    </form>
+
+    <!-- 查询结果表格 -->
+    <table border="1" cellspacing="0" cellpadding="6">
+        <thead>
+        <tr>
+            <th>操作时间</th>
+            <th>操作人ID</th>
+            <th>操作类型</th>
+            <th>稿件ID</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="log : ${session.logList}">
+            <td th:text="${log.getOpTime()}"></td>
+            <td th:text="${log.getOporId()}"></td>
+            <td th:text="${log.getOpType()}"></td>
+            <td th:text="${log.getPaperId()}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>
+
+</body>
+</html>

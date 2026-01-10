@@ -136,15 +136,14 @@ public class HomeController {
             model.addAttribute("newsList", new ArrayList<>());
         }
 
-        return "about-journal";
+        return "home/about-journal";
     }
 
     // 论文发表页面
     @GetMapping("/submit")
     public String submit() {
-        return "submit";
+        return "home/submit";
     }
-
     // 文章与专刊页面
     @GetMapping("/articles")
     public String articles(Model model) {
@@ -158,7 +157,7 @@ public class HomeController {
             model.addAttribute("specialIssues", new ArrayList<>());
             model.addAttribute("allIssues", new ArrayList<>());
         }
-        return "articles";
+        return "home/articles";
     }
 
     // 用户指南页面
@@ -172,7 +171,7 @@ public class HomeController {
         } catch (Exception e) {
             model.addAttribute("journal", null);
         }
-        return "guide";
+        return "home/guide";
     }
 
     // 公开的新闻详情页面（用于主页显示）

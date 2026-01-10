@@ -115,13 +115,13 @@ public class UserController {
     // 显示登录页面
     @GetMapping("/login")
     public String loginPage() {
-        return "login";
+        return "home/login";
     }
 
     // 显示注册页面
     @GetMapping("/register")
     public String registerPage() {
-        return "register";
+        return "home/register";
     }
 
     // 显示登录错误页面
@@ -155,7 +155,7 @@ public class UserController {
         
         model.addAttribute("errorTitle", errorTitle);
         model.addAttribute("errorMessage", errorMessage);
-        return "login-error";
+        return "home/login-error";
     }
     
     // 处理注册请求

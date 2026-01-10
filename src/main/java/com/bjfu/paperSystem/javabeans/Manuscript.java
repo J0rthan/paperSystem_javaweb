@@ -70,6 +70,20 @@ public class Manuscript {
     @Transient
     private List<ManuscriptFunding> fundings = new ArrayList<>();
 
+    // 字数统计相关字段（临时存储，不持久化）
+    @Transient
+    private int wordCount; // 稿件字数
+    
+    @Transient
+    private boolean isWordCountExceeded; // 是否字数超限（超过8000字）
+    
+    // 查重相关字段（临时存储，不持久化）
+    @Transient
+    private double plagiarismRate; // 查重率（百分比）
+    
+    @Transient
+    private boolean isHighSimilarity; // 是否高相似度（超过20%）
+
     // --- Getter and Setter ---
     public int getManuscriptId() { return manuscriptId; }
     public void setManuscriptId(int manuscriptId) { this.manuscriptId = manuscriptId; }
@@ -130,4 +144,18 @@ public class Manuscript {
 
     public List<ManuscriptFunding> getFundings() { return fundings; }
     public void setFundings(List<ManuscriptFunding> fundings) { this.fundings = fundings; }
+
+    // 字数统计相关的getter和setter
+    public int getWordCount() { return wordCount; }
+    public void setWordCount(int wordCount) { this.wordCount = wordCount; }
+    
+    public boolean isWordCountExceeded() { return isWordCountExceeded; }
+    public void setWordCountExceeded(boolean isWordCountExceeded) { this.isWordCountExceeded = isWordCountExceeded; }
+    
+    // 查重相关的getter和setter
+    public double getPlagiarismRate() { return plagiarismRate; }
+    public void setPlagiarismRate(double plagiarismRate) { this.plagiarismRate = plagiarismRate; }
+    
+    public boolean isHighSimilarity() { return isHighSimilarity; }
+    public void setHighSimilarity(boolean isHighSimilarity) { this.isHighSimilarity = isHighSimilarity; }
 }

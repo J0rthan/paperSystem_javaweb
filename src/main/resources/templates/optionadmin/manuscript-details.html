@@ -281,6 +281,30 @@
                 <div class="info-label">提交时间</div>
                 <p class="info-value" th:text="${#temporals.format(manuscript.submitTime, 'yyyy-MM-dd HH:mm')}">2026-01-01</p>
             </div>
+            <div class="col-md-6">
+                <div class="info-label">稿件字数</div>
+                <p class="info-value">
+                    <span th:text="${manuscript.wordCount}">5000</span>
+                    <span th:if="${manuscript.wordCountExceeded}" class="badge bg-danger ms-2">
+                        <i class="bi bi-exclamation-triangle"></i> 字数超限
+                    </span>
+                    <span th:unless="${manuscript.wordCountExceeded}" class="badge bg-success ms-2">
+                        <i class="bi bi-check-circle"></i> 字数正常
+                    </span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <div class="info-label">查重率</div>
+                <p class="info-value">
+                    <span th:text="${manuscript.plagiarismRate}">15.5</span>%
+                    <span th:if="${manuscript.isHighSimilarity}" class="badge bg-danger ms-2">
+                        <i class="bi bi-exclamation-triangle"></i> 高相似度
+                    </span>
+                    <span th:unless="${manuscript.isHighSimilarity}" class="badge bg-success ms-2">
+                        <i class="bi bi-check-circle"></i> 相似度正常
+                    </span>
+                </p>
+            </div>
         </div>
     </div>
 

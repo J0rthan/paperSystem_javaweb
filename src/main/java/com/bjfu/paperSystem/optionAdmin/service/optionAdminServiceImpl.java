@@ -17,6 +17,8 @@ import com.bjfu.paperSystem.javabeans.Manuscript;
 import com.bjfu.paperSystem.javabeans.User;
 import com.bjfu.paperSystem.javabeans.Logs;
 import com.bjfu.paperSystem.javabeans.EmailMessage;
+import com.bjfu.paperSystem.utils.PdfProcessingUtil;
+import com.bjfu.paperSystem.utils.PlagiarismCheckUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -51,6 +53,12 @@ public class optionAdminServiceImpl implements optionAdminService {
     
     @Autowired
     private mailService mailService;
+    
+    @Autowired
+    private PdfProcessingUtil pdfProcessingUtil;
+    
+    @Autowired
+    private PlagiarismCheckUtil plagiarismCheckUtil;
 
     // 稿件管理相关方法实现
     @Override
@@ -65,6 +73,34 @@ public class optionAdminServiceImpl implements optionAdminService {
             manuscript.setAuthors(manuscriptAuthorDao.findByManuscriptId(manuscriptId));
             manuscript.setReviewers(recommendedReviewerDao.findByManuscriptId(manuscriptId));
             manuscript.setFundings(manuscriptFundingDao.findByManuscriptId(manuscriptId));
+            
+            // 计算字数
+            if (manuscript.getManuscriptPath() != null) {
+                try {
+                    String textContent = pdfProcessingUtil.extractTextFromPdf(manuscript.getManuscriptPath());
+                    int wordCount = pdfProcessingUtil.countWords(textContent);
+                    manuscript.setWordCount(wordCount);
+                    manuscript.setWordCountExceeded(wordCount > 8000);
+                    
+                    // 模拟查重
+                    double plagiarismRate = plagiarismCheckUtil.checkPlagiarism(manuscriptId, textContent);
+                    manuscript.setPlagiarismRate(plagiarismRate);
+                    manuscript.setHighSimilarity(plagiarismCheckUtil.isHighSimilarity(plagiarismRate));
+                } catch (Exception e) {
+                    // 如果PDF处理失败，设置默认值
+                    manuscript.setWordCount(0);
+                    manuscript.setWordCountExceeded(false);
+                    manuscript.setPlagiarismRate(0.0);
+                    manuscript.setHighSimilarity(false);
+                    e.printStackTrace();
+                }
+            } else {
+                // 如果没有PDF文件，设置默认值
+                manuscript.setWordCount(0);
+                manuscript.setWordCountExceeded(false);
+                manuscript.setPlagiarismRate(0.0);
+                manuscript.setHighSimilarity(false);
+            }
         }
         return manuscript;
     }

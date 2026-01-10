@@ -91,7 +91,7 @@ public class UserController {
                 }
                 //如果是编辑部管理员(option_admin)
                 else if ("option_admin".equalsIgnoreCase(userType)) {
-                    return "redirect:/optionadmin";
+                    return "redirect:/optionadmin/manuscripts";
                 }
                 //如果是审稿人(reviewer)
                 else if ("reviewer".equalsIgnoreCase(userType)) {

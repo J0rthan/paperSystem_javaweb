@@ -170,16 +170,7 @@ public class UserController {
         if (newUser == null) {
             return "redirect:/register?error=register_error";
         }
-        // 注册成功后自动登录
-        session.setAttribute("loginUser", newUser);
-        // 根据角色重定向
-        String userType = newUser.getUserType();
-        if ("author".equalsIgnoreCase(userType)) {
-            return "redirect:/author";
-        } else if ("reviewer".equalsIgnoreCase(userType)) {
-            return "redirect:/reviewer";
-        } else {
-            return "redirect:/register?error=register_error";
-        }
+        // 注册成功，重定向到注册页面显示成功消息
+        return "redirect:/register?success=registered";
     }
 }

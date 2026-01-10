@@ -269,11 +269,7 @@
             <p>已有账户？ <a href="/login">立即登录</a></p>
         </div>
 
-        <div class="text-center mt-3">
-            <small class="text-muted">
-                注册成功后将自动登录
-            </small>
-        </div>
+        
     </div>
 </div>
 
@@ -308,13 +304,11 @@
         }
 
         if (success) {
-            const successAlert = document.getElementById('successAlert');
-            const successMessage = document.getElementById('successMessage');
-            let message = success === 'registered' ? '注册成功！正在跳转...' : '操作成功！';
-
-            if (successAlert && successMessage) {
-                successMessage.textContent = message;
-                successAlert.classList.remove('d-none');
+            // 使用confirm对话框替换成功提示框
+            const confirmed = confirm('注册成功，点击确认跳转回主页');
+            if (confirmed) {
+                // 点击确认后跳转回主页
+                window.location.href = '/index';
             }
         }
 

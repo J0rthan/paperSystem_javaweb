@@ -1,105 +1,737 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>待审稿件</title>
+
+    <style>
+        :root{
+            --bg: #f6f7fb;
+            --card: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --header: #f3f4f6;
+            --hover: #f9fafb;
+
+            --primary: #2563eb;
+            --primary-weak: rgba(37,99,235,.10);
+
+            --danger: #dc2626;
+            --danger-weak: rgba(220,38,38,.10);
+
+            --shadow: 0 10px 30px rgba(17,24,39,.08);
+            --radius: 12px;
+        }
+
+        *{ box-sizing: border-box; }
+        html, body{ height: 100%; }
+
+        body{
+            margin: 0;
+            padding: 16px;
+            font-family: "PingFang SC","Microsoft YaHei", Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .page-title{
+            margin: 0 0 12px 0;
+            font-size: 18px;
+            font-weight: 800;
+            color: #111827;
+        }
+
+        .card{
+            width: 100%;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .filter-card{
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        fieldset{
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px 22px 16px;
+            margin: 0;
+        }
+
+        legend{
+            padding: 0 10px;
+            font-weight: 800;
+            color: #111827;
+            font-size: 14px;
+        }
+
+        /* ✅ 更贴近截图：标签列固定更宽，“到：”更窄，输入框左右均衡 */
+        .filter-grid{
+            display: grid;
+            grid-template-columns: 140px minmax(320px, 1fr) 48px minmax(320px, 1fr);
+            gap: 14px 18px;
+            margin-top: 12px;
+            align-items: center;
+        }
+
+        .filter-grid label{
+            font-weight: 700;
+            color: #374151;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        input[type="datetime-local"]{
+            width: 100%;
+            height: 40px;
+            padding: 0 12px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: #fff;
+            color: #111827;
+            outline: none;
+            transition: box-shadow .12s ease, border-color .12s ease;
+        }
+
+        input[type="datetime-local"]:focus{
+            border-color: rgba(37,99,235,.45);
+            box-shadow: 0 0 0 4px rgba(37,99,235,.18);
+        }
+
+        /* ✅ 按钮区：整体居中；查询为按钮；重置为“文字链接”样式 */
+        .actions{
+            margin-top: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .btn{
+            height: 38px;
+            padding: 0 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: #fff;
+            color: #111827;
+            cursor: pointer;
+            font-weight: 800;
+            box-shadow: 0 2px 10px rgba(17,24,39,.06);
+            transition: transform .12s ease, background .12s ease, box-shadow .12s ease, border-color .12s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn:hover{
+            background: var(--hover);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 22px rgba(17,24,39,.08);
+        }
+
+        .btn-primary{
+            border-color: rgba(37,99,235,.25);
+            background: var(--primary-weak);
+            color: var(--primary);
+        }
+
+        .btn-primary:hover{
+            background: rgba(37,99,235,.16);
+            border-color: rgba(37,99,235,.35);
+        }
+
+        /* ✅ 重置改成“文字链接”效果（更像截图） */
+        .link-reset{
+            color: #374151;
+            font-weight: 800;
+            text-decoration: none;
+            padding: 6px 8px;
+            border-radius: 10px;
+        }
+        .link-reset:hover{
+            background: rgba(17,24,39,.05);
+        }
+
+        .table-card{
+            padding: 14px 14px 10px;
+        }
+
+        .table-title{
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            font-weight: 800;
+            color: #111827;
+        }
+
+        .table-wrap{
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table{
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+
+            table-layout: fixed;
+        }
+
+        thead th{
+            background: var(--header);
+            font-weight: 800;
+            color: #374151;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border);
+            padding: 12px 14px;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        tbody td{
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+            font-size: 14px;
+            color: #111827;
+            vertical-align: top;
+        }
+
+        tbody tr:last-child td{
+            border-bottom: none;
+        }
+
+        tbody tr:hover td{
+            background: var(--hover);
+        }
+
+        .abstract{
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
+            text-align: left;
+            color: #374151;
+            line-height: 1.55;
+
+            /* 多行省略 */
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+
+            /* ✅ 关键：强制断词 */
+            word-break: break-word;     /* 优先在合理位置断 */
+            overflow-wrap: anywhere;    /* 没地方断也强制断 */
+        }
+
+        .title-cell{
+            text-align: left;
+            font-weight: 800;
+            color: #111827;
+            white-space: nowrap;
+        }
+
+        .op{
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .status{
+            font-weight: 800;
+            padding: 5px 12px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid var(--border);
+            background: #fff;
+            color: #374151;
+            white-space: nowrap;
+        }
+        .status.ok{
+            border-color: rgba(16,185,129,.25);
+            background: rgba(16,185,129,.10);
+            color: #059669;
+        }
+        .status.bad{
+            border-color: rgba(220,38,38,.25);
+            background: rgba(220,38,38,.10);
+            color: #dc2626;
+        }
+        .status.done{
+            border-color: rgba(245,158,11,.25);
+            background: rgba(245,158,11,.12);
+            color: #b45309;
+        }
+
+        .btn-danger{
+            border-color: rgba(220,38,38,.25);
+            background: var(--danger-weak);
+            color: var(--danger);
+        }
+        .btn-danger:hover{
+            background: rgba(220,38,38,.16);
+            border-color: rgba(220,38,38,.35);
+        }
+
+        .abstract-cell{
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            justify-content: space-between;
+        }
+
+        .abstract{
+            flex: 1 1 auto;
+            min-width: 0;                 /* 关键：允许被压缩，否则省略不生效 */
+            text-align: left;
+            color: #374151;
+            line-height: 1.55;
+
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            overflow: hidden;
+
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
+
+        /* “展开”按钮：默认隐藏，只有溢出时显示（JS 控制） */
+        .btn-more{
+            flex: 0 0 auto;
+            display: none;
+            padding: 0;
+            border: none;
+            background: transparent;
+            color: gray;
+            font-weight: 800;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .btn-more:hover{
+            text-decoration: underline;
+        }
+
+        /* 原生 dialog 弹窗样式 */
+        .abs-dialog{
+            width: min(720px, calc(100vw - 40px));
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: 0 18px 60px rgba(17,24,39,.18);
+            padding: 0;
+            overflow: hidden;
+        }
+        .abs-dialog::backdrop{
+            background: rgba(17,24,39,.35);
+        }
+
+        .abs-dialog .dlg-head{
+            padding: 14px 16px;
+            background: var(--header);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .abs-dialog .dlg-title{
+            font-size: 14px;
+            font-weight: 900;
+            color: #111827;
+        }
+        .abs-dialog .dlg-close{
+            height: 32px;
+            padding: 0 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: #fff;
+            cursor: pointer;
+            font-weight: 800;
+        }
+        .abs-dialog .dlg-close:hover{
+            background: var(--hover);
+        }
+
+        .abs-dialog .dlg-body{
+            padding: 14px 16px 16px;
+            max-height: min(55vh, 520px);
+            overflow: auto;
+            color: #111827;
+            line-height: 1.7;
+            /* 弹窗里也要断词，避免同样撑破 */
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            white-space: pre-wrap; /* 保留换行（如果摘要里有换行） */
+        }
+
+        /* 分页控件 */
+        .pager{
+            margin-top: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .pager-btn{
+            height: 36px;
+            padding: 0 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: #fff;
+            cursor: pointer;
+            font-weight: 800;
+            box-shadow: 0 2px 10px rgba(17,24,39,.06);
+            transition: transform .12s ease, background .12s ease, box-shadow .12s ease;
+        }
+        .pager-btn:hover{
+            background: var(--hover);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 22px rgba(17,24,39,.08);
+        }
+        .pager-btn:disabled{
+            opacity: .5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .page-info{
+            color: var(--muted);
+            font-weight: 700;
+            padding: 0 6px;
+        }
+
+        .pager-select, .pager-input{
+            height: 36px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 0 10px;
+            background: #fff;
+            color: #111827;
+            outline: none;
+        }
+        .pager-input{
+            width: 90px;
+        }
+
+        .pager-text{
+            color: #374151;
+            font-weight: 800;
+        }
+
+        .pager-split{
+            width: 1px;
+            height: 22px;
+            background: var(--border);
+            margin: 0 2px;
+        }
+    </style>
 </head>
+
 <body>
 
 <section aria-label="待处理邀请列表">
-    <h2>待处理邀请列表</h2>
+    <div class="card filter-card">
+        <form th:action="@{/reviewer/filter}" method="get">
+            <fieldset>
+                <legend>筛选</legend>
 
-    <form th:action="@{/reviewer/filter}" method="get">
-        <fieldset>
-            <legend>筛选</legend>
+                <div class="filter-grid">
+                    <label for="fromDate">邀请时间从：</label>
+                    <input id="fromDate"
+                           name="startTime"
+                           type="datetime-local"
+                           th:value="${startTime == null ? '' : #temporals.format(startTime, 'yyyy-MM-dd''T''HH:mm')}" />
 
-            <label for="fromDate">邀请时间从：</label>
-            <input id="fromDate"
-                   name="startTime"
-                   type="datetime-local"
-                   th:value="${startTime == null ? '' : #temporals.format(startTime, 'yyyy-MM-dd''T''HH:mm')}" />
-
-            <label for="toDate">到：</label>
-            <input id="toDate"
-                   name="endTime"
-                   type="datetime-local"
-                   th:value="${endTime == null ? '' : #temporals.format(endTime, 'yyyy-MM-dd''T''HH:mm')}" />
-
-            <button type="submit">查询</button>
-            <a th:href="@{/reviewer/pendingView}">重置</a>
-        </fieldset>
-    </form>
-
-    <table border="1" cellpadding="6" cellspacing="0">
-        <caption>待处理邀请列表（每条包含：稿件标题、摘要、邀请时间）</caption>
-        <thead>
-        <tr>
-            <th scope="col">稿件标题</th>
-            <th scope="col">摘要</th>
-            <th scope="col">邀请时间</th>
-            <th scope="col">操作</th>
-        </tr>
-        </thead>
-
-        <tbody>
-        <tr th:if="${reviewList == null or #lists.isEmpty(reviewList)}">
-            <td colspan="4">暂无数据</td>
-        </tr>
-
-        <tr th:each="r : ${reviewList}">
-            <td th:text="${r.getManuScript().getTitle()}"></td>
-            <td th:text="${r.getManuScript().getAbstractText()}"></td>
-
-            <td th:text="${r.getInvitationTime() == null ? '' : #temporals.format(r.getInvitationTime(), 'yyyy-MM-dd HH:mm')}">
-            </td>
-
-            <td>
-                <div th:if="${r.getStatus().equals('pending')}">
-                    <a th:href="@{'/reviewer/getManuSummary/' + ${r.getManuId()}}">查看详情</a>
-                    |
-                    <form th:action="@{'/reviewer/invitations/accept'}"
-                          method="post"
-                          style="display:inline;">
-                        <input type="hidden" name="manuId" th:value="${r.getManuId()}"/>
-                        <input type="hidden" name="reviewId" th:value="${r.getReviewId()}"/>
-                        <button type="submit">接受</button>
-                    </form>
-
-                    <form th:action="@{'/reviewer/invitations/reject'}"
-                          method="post"
-                          style="display:inline;">
-                        <input type="hidden" name="manuId" th:value="${r.getManuId()}"/>
-                        <input type="hidden" name="reviewId" th:value="${r.getReviewId()}"/>
-                        <button type="submit">拒绝</button>
-                    </form>
+                    <label for="toDate">到：</label>
+                    <input id="toDate"
+                           name="endTime"
+                           type="datetime-local"
+                           th:value="${endTime == null ? '' : #temporals.format(endTime, 'yyyy-MM-dd''T''HH:mm')}" />
                 </div>
 
-                <!-- 已接受 -->
-                <span th:if="${r.getStatus().equals('accepted')}"
-                      style="color: green;">
-                        <a th:href="@{'/reviewer/getManuSummary/' + ${r.getManuId()}}">查看详情</a>
-                    | 已接受
-                </span>
+                <div class="actions">
+                    <button class="btn btn-primary" type="submit">查询</button>
+                    <a class="link-reset" th:href="@{/reviewer/pendingView}">重置</a>
+                </div>
+            </fieldset>
+        </form>
+    </div>
 
-                <!-- 已拒绝 -->
-                <span th:if="${r.getStatus().equals('rejected')}"
-                      style="color: red;">
-                        <a th:href="@{'/reviewer/getManuSummary/' + ${r.getManuId()}}">查看详情</a>
-                    | 已拒绝
-                </span>
+    <div class="card table-card">
+        <div class="table-title">待处理邀请（稿件标题 / 摘要 / 邀请时间 / 操作）</div>
 
-                <!-- 已完成 -->
-                <span th:if="${r.getStatus().equals('finished')}"
-                      style="color: red;">
-                        <a th:href="@{'/reviewer/getManuSummary/' + ${r.getManuId()}}">查看详情</a>
-                    | 已完成
-                </span>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th scope="col">稿件标题</th>
+                    <th scope="col">摘要</th>
+                    <th scope="col">邀请时间</th>
+                    <th scope="col">操作</th>
+                </tr>
+                </thead>
 
+                <tbody>
+                <tr th:if="${reviewList == null or #lists.isEmpty(reviewList)}">
+                    <td colspan="4" style="color: var(--muted); padding: 18px;">暂无数据</td>
+                </tr>
+
+                <tr th:each="r : ${reviewList}">
+                    <td class="title-cell" th:text="${r.getManuScript().getTitle()}"></td>
+
+                    <td>
+                        <div class="abstract-cell">
+                            <div class="abstract" th:utext="${r.getManuScript().getAbstractText()}"></div>
+                            <button type="button" class="btn-more" aria-label="展开摘要">展开</button>
+                        </div>
+                    </td>
+
+                    <td th:text="${r.getInvitationTime() == null ? '' : #temporals.format(r.getInvitationTime(), 'yyyy-MM-dd HH:mm')}"></td>
+
+                    <td>
+                        <div class="op" th:if="${r.getStatus().equals('pending')}">
+                            <a class="link-reset"
+                               th:href="@{'/reviewer/getManuSummary/' + ${r.getManuId()}}">查看详情</a>
+
+                            <form th:action="@{'/reviewer/invitations/accept'}" method="post" style="display:inline;">
+                                <input type="hidden" name="manuId" th:value="${r.getManuId()}"/>
+                                <input type="hidden" name="reviewId" th:value="${r.getReviewId()}"/>
+                                <button class="btn btn-primary" type="submit">接受</button>
+                            </form>
+
+                            <form th:action="@{'/reviewer/invitations/reject'}" method="post" style="display:inline;">
+                                <input type="hidden" name="manuId" th:value="${r.getManuId()}"/>
+                                <input type="hidden" name="reviewId" th:value="${r.getReviewId()}"/>
+                                <button class="btn btn-danger" type="submit">拒绝</button>
+                            </form>
+                        </div>
+
+                        <div class="op" th:if="${r.getStatus().equals('accepted')}">
+                            <a class="link-reset"
+                               th:href="@{'/reviewer/getManuSummary/' + ${r.getManuId()}}">查看详情</a>
+                            <span class="status ok">已接受</span>
+                        </div>
+
+                        <div class="op" th:if="${r.getStatus().equals('rejected')}">
+                            <a class="link-reset"
+                               th:href="@{'/reviewer/getManuSummary/' + ${r.getManuId()}}">查看详情</a>
+                            <span class="status bad">已拒绝</span>
+                        </div>
+
+                        <div class="op" th:if="${r.getStatus().equals('finished')}">
+                            <a class="link-reset"
+                               th:href="@{'/reviewer/getManuSummary/' + ${r.getManuId()}}">查看详情</a>
+                            <span class="status done">已完成</span>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+
+            </table>
+        </div>
+    </div>
 </section>
+<dialog id="absDialog" class="abs-dialog">
+    <div class="dlg-head">
+        <div class="dlg-title">摘要</div>
+        <button type="button" class="dlg-close" id="absCloseBtn">关闭</button>
+    </div>
+    <div class="dlg-body" id="absDialogBody"></div>
+</dialog>
+<!-- 分页控件 -->
+<div class="pager">
+    <button type="button" class="pager-btn" id="prevBtn">上一页</button>
+    <span class="page-info" id="pageInfo"></span>
+    <button type="button" class="pager-btn" id="nextBtn">下一页</button>
 
+    <div class="pager-split"></div>
+
+    <span class="pager-text">每页</span>
+    <select id="pageSizeSelect" class="pager-select">
+        <option value="10" selected>10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+    </select>
+    <span class="pager-text">条</span>
+
+    <div class="pager-split"></div>
+
+    <span class="pager-text">跳转到</span>
+    <input id="gotoInput" class="pager-input" type="number" min="1" placeholder="页码">
+    <button type="button" class="pager-btn" id="gotoBtn">GO</button>
+</div>
 </body>
+<script>
+    (function () {
+        const dialog = document.getElementById("absDialog");
+        const closeBtn = document.getElementById("absCloseBtn");
+        const bodyEl = document.getElementById("absDialogBody");
+
+        // 关闭
+        closeBtn.addEventListener("click", () => dialog.close());
+        dialog.addEventListener("click", (e) => {
+            // 点击遮罩区域关闭（点击内容区不关闭）
+            const rect = dialog.getBoundingClientRect();
+            const inDialog = (
+                e.clientX >= rect.left && e.clientX <= rect.right &&
+                e.clientY >= rect.top && e.clientY <= rect.bottom
+            );
+            if (!inDialog) dialog.close();
+        });
+
+        // 判断一个元素是否被 line-clamp 截断（溢出）
+        function isClamped(el) {
+            // scrollHeight > clientHeight 通常意味着内容被截断
+            return el.scrollHeight > el.clientHeight + 1;
+        }
+
+        function initAbstractMore() {
+            const cells = document.querySelectorAll(".abstract-cell");
+            cells.forEach(cell => {
+                const abs = cell.querySelector(".abstract");
+                const btn = cell.querySelector(".btn-more");
+                if (!abs || !btn) return;
+
+                // 只在溢出时显示“展开”
+                if (isClamped(abs)) {
+                    btn.style.display = "inline";
+                } else {
+                    btn.style.display = "none";
+                }
+
+                btn.addEventListener("click", () => {
+                    // 用 innerText 获取纯文本（更安全、不会注入 HTML）
+                    bodyEl.textContent = abs.innerText || "";
+                    dialog.showModal();
+                });
+            });
+        }
+
+        // 初次渲染后执行一次；如果字体加载导致高度变化，再执行一次
+        window.addEventListener("load", initAbstractMore);
+        window.addEventListener("resize", () => {
+            // resize 重新判断溢出
+            initAbstractMore();
+        });
+        /* =========================
+      2) 前端分页
+   ========================= */
+        const tbody = document.querySelector("table tbody");
+        const allRows = tbody ? Array.from(tbody.querySelectorAll("tr")).filter(tr => !tr.querySelector("td[colspan]")) : [];
+
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
+        const pageInfo = document.getElementById("pageInfo");
+        const pageSizeSelect = document.getElementById("pageSizeSelect");
+        const gotoInput = document.getElementById("gotoInput");
+        const gotoBtn = document.getElementById("gotoBtn");
+
+        let pageSize = pageSizeSelect ? parseInt(pageSizeSelect.value, 10) : 10;
+        let currentPage = 1;
+
+        function totalPages() {
+            return Math.max(1, Math.ceil(allRows.length / pageSize));
+        }
+
+        function renderPage() {
+            // 没数据：禁用分页控件
+            if (allRows.length === 0) {
+                if (pageInfo) pageInfo.textContent = "";
+                if (prevBtn) prevBtn.disabled = true;
+                if (nextBtn) nextBtn.disabled = true;
+                if (gotoBtn) gotoBtn.disabled = true;
+                if (gotoInput) gotoInput.disabled = true;
+                if (pageSizeSelect) pageSizeSelect.disabled = true;
+                return;
+            }
+
+            const tp = totalPages();
+            if (currentPage > tp) currentPage = tp;
+            if (currentPage < 1) currentPage = 1;
+
+            const start = (currentPage - 1) * pageSize;
+            const end = start + pageSize;
+
+            allRows.forEach((tr, idx) => {
+                tr.style.display = (idx >= start && idx < end) ? "" : "none";
+            });
+
+            if (pageInfo) pageInfo.textContent = `第 ${currentPage} / ${tp} 页，共 ${allRows.length} 条`;
+            if (prevBtn) prevBtn.disabled = (currentPage === 1);
+            if (nextBtn) nextBtn.disabled = (currentPage === tp);
+
+            // ✅ 关键：分页切换后，摘要高度会变，重新判断“展开”是否显示
+            initAbstractMore();
+        }
+
+        if (prevBtn) {
+            prevBtn.addEventListener("click", () => {
+                currentPage--;
+                renderPage();
+            });
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener("click", () => {
+                currentPage++;
+                renderPage();
+            });
+        }
+
+        if (pageSizeSelect) {
+            pageSizeSelect.addEventListener("change", () => {
+                pageSize = parseInt(pageSizeSelect.value, 10);
+                currentPage = 1;
+                renderPage();
+            });
+        }
+
+        if (gotoBtn) {
+            gotoBtn.addEventListener("click", () => {
+                const p = parseInt(gotoInput.value, 10);
+                if (!isNaN(p)) {
+                    currentPage = p;
+                    renderPage();
+                }
+            });
+        }
+
+        if (gotoInput) {
+            gotoInput.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    gotoBtn && gotoBtn.click();
+                }
+            });
+        }
+
+        /* =========================
+           3) 初始化
+        ========================= */
+        window.addEventListener("load", () => {
+            // 先分页渲染，再初始化摘要展开（renderPage 内也会调用）
+            renderPage();
+        });
+
+        window.addEventListener("resize", () => {
+            // resize 会影响 clamped 判断
+            initAbstractMore();
+        });
+    })();
+
+</script>
 </html>

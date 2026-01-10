@@ -1,79 +1,636 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>我的审稿任务</title>
+
+    <style>
+        :root{
+            --bg: #f6f7fb;
+            --card: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --header: #f3f4f6;
+            --hover: #f9fafb;
+
+            --primary: #2563eb;
+            --primary-weak: rgba(37,99,235,.10);
+
+            --danger: #dc2626;
+            --danger-weak: rgba(220,38,38,.10);
+
+            --shadow: 0 10px 30px rgba(17,24,39,.08);
+            --radius: 12px;
+        }
+
+        *{ box-sizing: border-box; }
+        html, body{ height: 100%; }
+
+        body{
+            margin: 0;
+            padding: 16px;
+            font-family: "PingFang SC","Microsoft YaHei", Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .page-title{
+            margin: 0 0 12px 0;
+            font-size: 18px;
+            font-weight: 800;
+            color: #111827;
+        }
+
+        .card{
+            width: 100%;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .table-card{
+            padding: 14px 14px 10px;
+        }
+
+        .table-title{
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            font-weight: 800;
+            color: #111827;
+        }
+
+        .table-wrap{
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table{
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            table-layout: fixed; /* 关键：摘要列才能稳定省略 */
+        }
+
+        thead th{
+            background: var(--header);
+            font-weight: 800;
+            color: #374151;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border);
+            padding: 12px 14px;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        tbody td{
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+            font-size: 14px;
+            color: #111827;
+            vertical-align: top;
+        }
+
+        tbody tr:last-child td{ border-bottom: none; }
+        tbody tr:hover td{ background: var(--hover); }
+
+        /* 标题列更像后台：左对齐 + 不换行 */
+        .title-cell{
+            text-align: left;
+            font-weight: 800;
+            color: #111827;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* 摘要单元：两行省略 + 末尾“展开” */
+        .abstract-cell{
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            justify-content: space-between;
+        }
+
+        .abstract{
+            flex: 1 1 auto;
+            min-width: 0; /* 关键：允许被压缩，否则省略不生效 */
+            text-align: left;
+            color: #374151;
+            line-height: 1.55;
+
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            overflow: hidden;
+
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
+
+        .btn-more{
+            flex: 0 0 auto;
+            display: none; /* JS 判断溢出后再显示 */
+            padding: 0;
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            font-weight: 800;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .btn-more:hover{ text-decoration: underline; }
+
+        /* 操作区 */
+        .op{
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .link-reset{
+            color: #374151;
+            font-weight: 800;
+            text-decoration: none;
+            padding: 6px 8px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+        .link-reset:hover{
+            background: rgba(17,24,39,.05);
+        }
+
+        .btn{
+            height: 38px;
+            padding: 0 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: #fff;
+            color: #111827;
+            cursor: pointer;
+            font-weight: 800;
+            box-shadow: 0 2px 10px rgba(17,24,39,.06);
+            transition: transform .12s ease, background .12s ease, box-shadow .12s ease, border-color .12s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+        .btn:hover{
+            background: var(--hover);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 22px rgba(17,24,39,.08);
+        }
+
+        .btn-primary{
+            border-color: rgba(37,99,235,.25);
+            background: var(--primary-weak);
+            color: var(--primary);
+        }
+        .btn-primary:hover{
+            background: rgba(37,99,235,.16);
+            border-color: rgba(37,99,235,.35);
+        }
+
+        /* 下载 form 内控件样式 */
+        .dl-form{
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .select{
+            height: 38px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 0 10px;
+            background: #fff;
+            color: #111827;
+            outline: none;
+            min-width: 200px;
+        }
+
+        /* 状态标签（可选） */
+        .status{
+            font-weight: 800;
+            padding: 5px 12px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid var(--border);
+            background: #fff;
+            color: #374151;
+            white-space: nowrap;
+        }
+        .status.ok{
+            border-color: rgba(16,185,129,.25);
+            background: rgba(16,185,129,.10);
+            color: #059669;
+        }
+        .status.bad{
+            border-color: rgba(220,38,38,.25);
+            background: rgba(220,38,38,.10);
+            color: #dc2626;
+        }
+        .status.done{
+            border-color: rgba(245,158,11,.25);
+            background: rgba(245,158,11,.12);
+            color: #b45309;
+        }
+
+        /* 分页控件 */
+        .pager{
+            margin-top: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .pager-btn{
+            height: 36px;
+            padding: 0 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: #fff;
+            cursor: pointer;
+            font-weight: 800;
+            box-shadow: 0 2px 10px rgba(17,24,39,.06);
+            transition: transform .12s ease, background .12s ease, box-shadow .12s ease;
+        }
+        .pager-btn:hover{
+            background: var(--hover);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 22px rgba(17,24,39,.08);
+        }
+        .pager-btn:disabled{
+            opacity: .5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .page-info{
+            color: var(--muted);
+            font-weight: 700;
+            padding: 0 6px;
+        }
+
+        .pager-select, .pager-input{
+            height: 36px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 0 10px;
+            background: #fff;
+            color: #111827;
+            outline: none;
+        }
+        .pager-input{ width: 90px; }
+
+        .pager-text{
+            color: #374151;
+            font-weight: 800;
+        }
+
+        .pager-split{
+            width: 1px;
+            height: 22px;
+            background: var(--border);
+            margin: 0 2px;
+        }
+
+        /* 原生 dialog 弹窗 */
+        .abs-dialog{
+            width: min(720px, calc(100vw - 40px));
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: 0 18px 60px rgba(17,24,39,.18);
+            padding: 0;
+            overflow: hidden;
+        }
+        .abs-dialog::backdrop{
+            background: rgba(17,24,39,.35);
+        }
+
+        .abs-dialog .dlg-head{
+            padding: 14px 16px;
+            background: var(--header);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .abs-dialog .dlg-title{
+            font-size: 14px;
+            font-weight: 900;
+            color: #111827;
+        }
+        .abs-dialog .dlg-close{
+            height: 32px;
+            padding: 0 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: #fff;
+            cursor: pointer;
+            font-weight: 800;
+        }
+        .abs-dialog .dlg-close:hover{
+            background: var(--hover);
+        }
+
+        .abs-dialog .dlg-body{
+            padding: 14px 16px 16px;
+            max-height: min(55vh, 520px);
+            overflow: auto;
+            color: #111827;
+            line-height: 1.7;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            white-space: pre-wrap;
+        }
+
+        @media (max-width: 900px){
+            table{ min-width: 980px; } /* 小屏保持可横滑 */
+        }
+    </style>
 </head>
+
 <body>
 
-<h2>我的审稿任务</h2>
+<h2 class="page-title">我的审稿任务</h2>
 
-<table border="1" cellpadding="6" cellspacing="0">
-    <thead>
-    <tr>
-        <th>稿件标题</th>
-        <th>摘要</th>
-        <th>邀请时间</th>
-        <th>截止时间</th>
-        <th>当前状态</th>
-        <th>操作</th>
-    </tr>
-    </thead>
+<div class="card table-card">
+    <div class="table-title">任务列表（标题 / 摘要 / 邀请时间 / 截止时间 / 状态 / 操作）</div>
 
-    <tbody>
-    <!-- 没有任务时 -->
-    <tr th:if="${jobList == null or #lists.isEmpty(jobList)}">
-        <td colspan="6">暂无审稿任务</td>
-    </tr>
+    <div class="table-wrap">
+        <table>
+            <thead>
+            <tr>
+                <th style="width: 18%;">稿件标题</th>
+                <th style="width: 28%;">摘要</th>
+                <th style="width: 14%;">邀请时间</th>
+                <th style="width: 14%;">截止时间</th>
+                <th style="width: 10%;">当前状态</th>
+                <th style="width: 16%;">操作</th>
+            </tr>
+            </thead>
 
-    <!-- 有任务时 -->
-    <tr th:each="r : ${jobList}">
-        <td th:text="${r.getManuScript().getTitle()}">标题</td>
-        <td th:text="${r.getManuScript().getAbstractText()}">摘要</td>
+            <tbody id="jobTbody">
+            <tr th:if="${jobList == null or #lists.isEmpty(jobList)}">
+                <td colspan="6" style="color: var(--muted); padding: 18px;">暂无审稿任务</td>
+            </tr>
 
-        <td th:text="${r.invitationTime == null ? '' :
-                #temporals.format(r.getInvitationTime(), 'yyyy-MM-dd HH:mm')}">
-        </td>
+            <tr th:each="r : ${jobList}" class="job-row">
+                <td class="title-cell" th:text="${r.getManuScript().getTitle()}">标题</td>
 
-        <td th:text="${r.deadline == null ? '' :
-                #temporals.format(r.deadline, 'yyyy-MM-dd HH:mm')}">
-        </td>
+                <td>
+                    <div class="abstract-cell">
+                        <div class="abstract" th:utext="${r.getManuScript().getAbstractText()}">摘要</div>
+                        <button type="button" class="btn-more" aria-label="展开摘要">展开</button>
+                    </div>
+                </td>
 
-        <td th:text="${r.getStatus()}">ACCEPTED</td>
+                <td th:text="${r.invitationTime == null ? '' : #temporals.format(r.getInvitationTime(), 'yyyy-MM-dd HH:mm')}"></td>
 
-        <td>
-            <a th:href="@{/reviewer/getManuSummary/{id}(id=${r.getManuScript().getManuscriptId()})}">
-                查看稿件
-            </a>
-            |
-            <a th:href="@{/reviewer/submitOpinionPage/{id}(id=${r.getReviewId()})}">
-                提交评审意见
-            </a>
-            |
-            <form th:action="@{/reviewer/download}" method="get" style="display:inline;">
-                <!-- 可选：带上 reviewId 方便你后端做权限校验（不影响下载） -->
-                <input type="hidden" name="reviewId" th:value="${r.reviewId}" />
+                <td th:text="${r.deadline == null ? '' : #temporals.format(r.deadline, 'yyyy-MM-dd HH:mm')}"></td>
 
-                <select name="path" required>
-                    <option value="" disabled selected>请选择要下载的文件</option>
+                <td>
+                    <!-- 你也可以只显示文本；这里做一个“可选状态标签”展示 -->
+                    <span class="status"
+                          th:classappend="${r.getStatus() == 'accepted' ? ' ok' : (r.getStatus() == 'rejected' ? ' bad' : (r.getStatus() == 'finished' ? ' done' : ''))}"
+                          th:text="${r.getStatus()}">ACCEPTED</span>
+                </td>
 
-                    <!-- 主稿 -->
-                    <option th:value="${r.manuScript.manuscriptPath}">
-                        主稿（PDF）
-                    </option>
+                <td>
+                    <div class="op">
+                        <a class="link-reset"
+                           th:href="@{/reviewer/getManuSummary/{id}(id=${r.getManuScript().getManuscriptId()})}">
+                            查看稿件
+                        </a>
 
-                    <!-- 补充材料列表：需要你在 model 里给每个 Review 对应的附件列表 -->
-                    <option th:value="${r.manuScript.coverLetterPath}">
-                        投稿信(Cover Letter)
-                    </option>
-                </select>
+                        <a class="link-reset"
+                           th:href="@{/reviewer/submitOpinionPage/{id}(id=${r.getReviewId()})}">
+                            提交评审意见
+                        </a>
 
-                <button type="submit">下载</button>
-            </form>
-        </td>
-    </tr>
-    </tbody>
-</table>
+                        <form class="dl-form" th:action="@{/reviewer/download}" method="get">
+                            <input type="hidden" name="reviewId" th:value="${r.reviewId}" />
+
+                            <select class="select" name="path" required>
+                                <option value="" disabled selected>请选择要下载的文件</option>
+                                <option th:value="${r.manuScript.manuscriptPath}">主稿（PDF）</option>
+                                <option th:value="${r.manuScript.coverLetterPath}">投稿信(Cover Letter)</option>
+                            </select>
+
+                            <button type="submit" class="btn btn-primary">下载</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ✅ 分页控件 -->
+    <div class="pager">
+        <button type="button" class="pager-btn" id="prevBtn">上一页</button>
+        <span class="page-info" id="pageInfo"></span>
+        <button type="button" class="pager-btn" id="nextBtn">下一页</button>
+
+        <div class="pager-split"></div>
+
+        <span class="pager-text">每页</span>
+        <select id="pageSizeSelect" class="pager-select">
+            <option value="10" selected>10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+        </select>
+        <span class="pager-text">条</span>
+
+        <div class="pager-split"></div>
+
+        <span class="pager-text">跳转到</span>
+        <input id="gotoInput" class="pager-input" type="number" min="1" placeholder="页码">
+        <button type="button" class="pager-btn" id="gotoBtn">GO</button>
+    </div>
+</div>
+
+<!-- ✅ 摘要弹窗 -->
+<dialog id="absDialog" class="abs-dialog">
+    <div class="dlg-head">
+        <div class="dlg-title">摘要</div>
+        <button type="button" class="dlg-close" id="absCloseBtn">关闭</button>
+    </div>
+    <div class="dlg-body" id="absDialogBody"></div>
+</dialog>
+
+<script>
+    (function () {
+        /* =========================
+           1) 摘要弹窗（dialog）
+        ========================= */
+        const dialog = document.getElementById("absDialog");
+        const closeBtn = document.getElementById("absCloseBtn");
+        const bodyEl = document.getElementById("absDialogBody");
+
+        if (closeBtn && dialog) {
+            closeBtn.addEventListener("click", () => dialog.close());
+
+            dialog.addEventListener("click", (e) => {
+                const rect = dialog.getBoundingClientRect();
+                const inDialog = (
+                    e.clientX >= rect.left && e.clientX <= rect.right &&
+                    e.clientY >= rect.top && e.clientY <= rect.bottom
+                );
+                if (!inDialog) dialog.close();
+            });
+        }
+
+        function isClamped(el) {
+            return el.scrollHeight > el.clientHeight + 1;
+        }
+
+        function initAbstractMore() {
+            const cells = document.querySelectorAll(".abstract-cell");
+            cells.forEach(cell => {
+                const abs = cell.querySelector(".abstract");
+                const btn = cell.querySelector(".btn-more");
+                if (!abs || !btn) return;
+
+                // 防止重复绑定
+                btn.onclick = null;
+
+                // 只在溢出时显示
+                if (isClamped(abs)) btn.style.display = "inline";
+                else btn.style.display = "none";
+
+                btn.onclick = () => {
+                    bodyEl.textContent = abs.innerText || "";
+                    dialog.showModal();
+                };
+            });
+        }
+
+        /* =========================
+           2) 前端分页（针对 job-row）
+        ========================= */
+        const tbody = document.getElementById("jobTbody");
+        const allRows = tbody ? Array.from(tbody.querySelectorAll("tr.job-row")) : [];
+
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
+        const pageInfo = document.getElementById("pageInfo");
+        const pageSizeSelect = document.getElementById("pageSizeSelect");
+        const gotoInput = document.getElementById("gotoInput");
+        const gotoBtn = document.getElementById("gotoBtn");
+
+        let pageSize = pageSizeSelect ? parseInt(pageSizeSelect.value, 10) : 10;
+        let currentPage = 1;
+
+        function totalPages() {
+            return Math.max(1, Math.ceil(allRows.length / pageSize));
+        }
+
+        function renderPage() {
+            // 无数据：禁用分页控件
+            if (allRows.length === 0) {
+                if (pageInfo) pageInfo.textContent = "";
+                if (prevBtn) prevBtn.disabled = true;
+                if (nextBtn) nextBtn.disabled = true;
+                if (gotoBtn) gotoBtn.disabled = true;
+                if (gotoInput) gotoInput.disabled = true;
+                if (pageSizeSelect) pageSizeSelect.disabled = true;
+                return;
+            }
+
+            const tp = totalPages();
+            if (currentPage > tp) currentPage = tp;
+            if (currentPage < 1) currentPage = 1;
+
+            const start = (currentPage - 1) * pageSize;
+            const end = start + pageSize;
+
+            allRows.forEach((tr, idx) => {
+                tr.style.display = (idx >= start && idx < end) ? "" : "none";
+            });
+
+            if (pageInfo) pageInfo.textContent = `第 ${currentPage} / ${tp} 页，共 ${allRows.length} 条`;
+            if (prevBtn) prevBtn.disabled = (currentPage === 1);
+            if (nextBtn) nextBtn.disabled = (currentPage === tp);
+
+            // ✅ 分页改变后重新判断摘要是否溢出
+            initAbstractMore();
+        }
+
+        if (prevBtn) {
+            prevBtn.addEventListener("click", () => {
+                currentPage--;
+                renderPage();
+            });
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener("click", () => {
+                currentPage++;
+                renderPage();
+            });
+        }
+
+        if (pageSizeSelect) {
+            pageSizeSelect.addEventListener("change", () => {
+                pageSize = parseInt(pageSizeSelect.value, 10);
+                currentPage = 1;
+                renderPage();
+            });
+        }
+
+        if (gotoBtn) {
+            gotoBtn.addEventListener("click", () => {
+                const p = parseInt(gotoInput.value, 10);
+                if (!isNaN(p)) {
+                    currentPage = p;
+                    renderPage();
+                }
+            });
+        }
+
+        if (gotoInput) {
+            gotoInput.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    gotoBtn && gotoBtn.click();
+                }
+            });
+        }
+
+        /* =========================
+           3) 初始化
+        ========================= */
+        window.addEventListener("load", () => {
+            renderPage(); // 内部会调用 initAbstractMore()
+        });
+
+        window.addEventListener("resize", () => {
+            initAbstractMore();
+        });
+    })();
+</script>
 
 </body>
 </html>

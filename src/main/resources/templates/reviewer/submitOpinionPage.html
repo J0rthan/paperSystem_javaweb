@@ -1,36 +1,341 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>提交审稿意见</title>
     <meta charset="UTF-8">
+
     <link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
+
+    <style>
+        :root{
+            --bg: #f6f7fb;
+            --card: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --header: #f3f4f6;
+            --hover: #f9fafb;
+
+            --primary: #2563eb;
+            --primary-weak: rgba(37,99,235,.10);
+
+            --shadow: 0 10px 30px rgba(17,24,39,.08);
+            --radius: 12px;
+        }
+
+        *{ box-sizing: border-box; }
+        html, body{ height: 100%; }
+
+        body{
+            margin: 0;
+            padding: 16px;
+            font-family: "PingFang SC","Microsoft YaHei", Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .page-title{
+            margin: 0 0 12px;
+            font-size: 18px;
+            font-weight: 900;
+            color: #111827;
+        }
+
+        .card{
+            width: 100%;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .info-card{
+            padding: 14px 16px;
+            margin-bottom: 14px;
+        }
+        .info-grid{
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 8px 12px;
+            align-items: baseline;
+        }
+        .info-k{
+            color: #374151;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+        .info-v{
+            color: #111827;
+            font-weight: 700;
+        }
+
+        form{ margin: 0; }
+
+        fieldset{
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px 18px 16px;
+            margin: 0 0 14px;
+            background: #fff;
+        }
+        legend{
+            padding: 0 10px;
+            font-weight: 900;
+            color: #111827;
+            font-size: 14px;
+        }
+
+        .section-tip{
+            margin: 8px 0 0;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .row{
+            margin-top: 12px;
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            gap: 12px;
+            align-items: center;
+        }
+
+        label{
+            font-weight: 800;
+            color: #374151;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        select, input[type="text"]{
+            height: 40px;
+            width: 100%;
+            padding: 0 12px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: #fff;
+            color: #111827;
+            outline: none;
+            transition: box-shadow .12s ease, border-color .12s ease;
+        }
+
+        select:focus, input[type="text"]:focus{
+            border-color: rgba(37,99,235,.45);
+            box-shadow: 0 0 0 4px rgba(37,99,235,.18);
+        }
+
+        /* label + 问号按钮 */
+        .label-with-help{
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .help-btn{
+            width: 22px;
+            height: 22px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: #fff;
+            color: #6b7280;
+            font-weight: 900;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            padding: 0;
+            transition: background .12s ease, transform .12s ease, box-shadow .12s ease;
+        }
+        .help-btn:hover{
+            background: var(--hover);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 18px rgba(17,24,39,.08);
+        }
+
+        /* Quill 容器统一样式 */
+        .editor-wrap{
+            grid-column: 2 / -1;
+        }
+
+        .editor-shell{
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        /* Quill 自带的 .ql-toolbar/.ql-container */
+        .editor-shell .ql-toolbar.ql-snow{
+            border: none;
+            border-bottom: 1px solid var(--border);
+            background: #fff;
+        }
+        .editor-shell .ql-container.ql-snow{
+            border: none;
+        }
+        .editor-shell .ql-editor{
+            min-height: 160px;
+            line-height: 1.7;
+            color: #111827;
+        }
+        /* 第二个编辑器更高 */
+        .editor-shell.editor-large .ql-editor{
+            min-height: 220px;
+        }
+
+        .actions{
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .btn{
+            height: 40px;
+            padding: 0 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: #fff;
+            color: #111827;
+            cursor: pointer;
+            font-weight: 900;
+            box-shadow: 0 2px 10px rgba(17,24,39,.06);
+            transition: transform .12s ease, background .12s ease, box-shadow .12s ease, border-color .12s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn:hover{
+            background: var(--hover);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 22px rgba(17,24,39,.08);
+        }
+
+        .btn-primary{
+            border-color: rgba(37,99,235,.25);
+            background: var(--primary-weak);
+            color: var(--primary);
+        }
+        .btn-primary:hover{
+            background: rgba(37,99,235,.16);
+            border-color: rgba(37,99,235,.35);
+        }
+
+        .link-reset{
+            color: #374151;
+            font-weight: 900;
+            text-decoration: none;
+            padding: 8px 10px;
+            border-radius: 10px;
+        }
+        .link-reset:hover{
+            background: rgba(17,24,39,.05);
+        }
+
+        /* dialog 说明弹窗 */
+        .dlg{
+            width: min(720px, calc(100vw - 40px));
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: 0 18px 60px rgba(17,24,39,.18);
+            padding: 0;
+            overflow: hidden;
+            background: #fff;
+        }
+        .dlg::backdrop{
+            background: rgba(17,24,39,.35);
+        }
+
+        .dlg-head{
+            padding: 14px 16px;
+            background: var(--header);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .dlg-title{
+            font-size: 14px;
+            font-weight: 900;
+            color: #111827;
+        }
+        .dlg-close{
+            height: 34px;
+            padding: 0 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: #fff;
+            cursor: pointer;
+            font-weight: 900;
+        }
+        .dlg-close:hover{ background: var(--hover); }
+
+        .dlg-body{
+            padding: 14px 16px 16px;
+            max-height: min(60vh, 560px);
+            overflow: auto;
+            line-height: 1.75;
+            color: #111827;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
+
+        .dlg-body h4{
+            margin: 0 0 8px 0;
+            font-size: 14px;
+            font-weight: 900;
+            color: #111827;
+        }
+        .dlg-body p{
+            margin: 0 0 10px 0;
+            color: #374151;
+        }
+        .dlg-body ul{
+            margin: 0 0 10px 18px;
+            color: #374151;
+        }
+
+        @media (max-width: 900px){
+            .row{ grid-template-columns: 1fr; }
+            label{ text-align: left; }
+            .label-with-help{ justify-content: flex-start; }
+            .editor-wrap{ grid-column: 1 / -1; }
+        }
+    </style>
 </head>
+
 <body>
 
-<h2>提交审稿意见</h2>
+<h2 class="page-title">提交审稿意见</h2>
 
 <!-- 基本信息 -->
-<div style="margin-bottom: 12px;">
-    <p>
-        <strong>稿件：</strong>
-        <span th:text="${review.getManuScript().getTitle()}"></span>
-    </p>
-    <p>
-        <strong>审稿任务ID：</strong>
-        <span th:text="${review.getReviewId()}"></span>
-    </p>
+<div class="card info-card">
+    <div class="info-grid">
+        <div class="info-k">稿件：</div>
+        <div class="info-v" th:text="${review.getManuScript().getTitle()}"></div>
+
+        <div class="info-k">审稿任务ID：</div>
+        <div class="info-v" th:text="${review.getReviewId()}"></div>
+    </div>
 </div>
 
-<form th:action="@{/reviewer/submitOpinion}" method="post">
-    <!-- 必须带回 reviewId，用于后端定位审稿任务 -->
+<form th:action="@{/reviewer/submitOpinion}" method="post" class="card" style="padding:14px;">
     <input type="hidden" name="reviewId" th:value="${review.getReviewId()}"/>
 
     <!-- Confidential to Editor -->
-    <fieldset style="margin-bottom: 16px;">
-        <legend><strong>给编辑的保密意见（Confidential to Editor）</strong></legend>
-        <div style="margin: 10px 0;">
-            <label for="editorId"><strong>指定编辑：</strong></label>
+    <fieldset>
+        <legend>给编辑的保密意见（Confidential to Editor）</legend>
+        <p class="section-tip">此部分仅编辑可见，用于给出总体判断与关键问题定位。</p>
+
+        <div class="row">
+            <label for="editorId">指定编辑：</label>
             <select id="editorId" name="editorId" required>
                 <option value="">请选择编辑</option>
                 <option th:each="editor : ${editors}"
@@ -40,10 +345,13 @@
             </select>
         </div>
 
-        <p style="margin: 6px 0;"><strong>打分表（1~5 分）</strong></p>
-
-        <div style="margin-bottom: 8px;">
-            <label for="scoreNovelty">创新性：</label>
+        <div class="row">
+            <label>
+                <span class="label-with-help">
+                    创新性
+                    <button type="button" class="help-btn" data-help="novelty" aria-label="创新性说明">?</button>
+                </span>
+            </label>
             <select id="scoreNovelty" name="scoreNovelty" required>
                 <option value="">请选择</option>
                 <option value="1">1/5</option>
@@ -54,8 +362,13 @@
             </select>
         </div>
 
-        <div style="margin-bottom: 8px;">
-            <label for="scoreMethod">方法论：</label>
+        <div class="row">
+            <label>
+                <span class="label-with-help">
+                    方法论
+                    <button type="button" class="help-btn" data-help="method" aria-label="方法论说明">?</button>
+                </span>
+            </label>
             <select id="scoreMethod" name="scoreMethod" required>
                 <option value="">请选择</option>
                 <option value="1">1/5</option>
@@ -66,8 +379,13 @@
             </select>
         </div>
 
-        <div style="margin-bottom: 8px;">
-            <label for="scoreQuality">整体质量：</label>
+        <div class="row">
+            <label>
+                <span class="label-with-help">
+                    整体质量
+                    <button type="button" class="help-btn" data-help="quality" aria-label="整体质量说明">?</button>
+                </span>
+            </label>
             <select id="scoreQuality" name="scoreQuality" required>
                 <option value="">请选择</option>
                 <option value="1">1/5</option>
@@ -78,15 +396,18 @@
             </select>
         </div>
 
-        <div style="margin: 10px 0;">
-            <label for="keyComments"><strong>关键评价：</strong></label><br/>
-            <input type="hidden" id="keyComments" name="keyComments"/>
-
-            <div id="keyCommentsEditor" style="background:#fff; border:1px solid #ccc; min-height:140px;"></div>
+        <div class="row" style="align-items:start;">
+            <label for="keyComments">关键评价：</label>
+            <div class="editor-wrap">
+                <input type="hidden" id="keyComments" name="keyComments"/>
+                <div class="editor-shell">
+                    <div id="keyCommentsEditor"></div>
+                </div>
+            </div>
         </div>
 
-        <div style="margin: 10px 0;">
-            <label for="recommendation"><strong>总体建议：</strong></label>
+        <div class="row">
+            <label for="recommendation">总体建议：</label>
             <select id="recommendation" name="recommendation" required>
                 <option value="">请选择</option>
                 <option value="REJECT">拒稿</option>
@@ -98,23 +419,36 @@
     </fieldset>
 
     <!-- Comments to Author -->
-    <fieldset style="margin-bottom: 16px;">
-        <legend><strong>给作者的公开意见（Comments to Author）</strong></legend>
+    <fieldset>
+        <legend>给作者的公开意见（Comments to Author）</legend>
+        <p class="section-tip">此部分将提供给作者。建议按“优点 / 主要问题 / 次要问题 / 建议修改”结构组织。</p>
 
-        <div style="margin: 10px 0;">
-            <label for="commentsToAuthor"><strong>具体修改建议：</strong></label><br/>
-            <input type="hidden" id="commentsToAuthor" name="commentsToAuthor"/>
-            <div id="commentsToAuthorEditor" style="background:#fff; border:1px solid #ccc; min-height:180px;"></div>
+        <div class="row" style="align-items:start;">
+            <label for="commentsToAuthor">具体修改建议：</label>
+            <div class="editor-wrap">
+                <input type="hidden" id="commentsToAuthor" name="commentsToAuthor"/>
+                <div class="editor-shell editor-large">
+                    <div id="commentsToAuthorEditor"></div>
+                </div>
+            </div>
         </div>
     </fieldset>
 
     <!-- 提交按钮 -->
-    <div>
-        <button type="submit">提交意见</button>
-        <a th:href="@{/reviewer/reviewJobs}" style="margin-left: 10px;">返回我的审稿任务</a>
+    <div class="actions">
+        <button class="btn btn-primary" type="submit">提交意见</button>
+        <a class="link-reset" th:href="@{/reviewer/reviewJobs}">返回我的审稿任务</a>
     </div>
 </form>
-</body>
+
+<!-- ✅ 评分帮助 dialog -->
+<dialog id="helpDialog" class="dlg">
+    <div class="dlg-head">
+        <div class="dlg-title" id="helpTitle">说明</div>
+        <button type="button" class="dlg-close" id="helpCloseBtn">关闭</button>
+    </div>
+    <div class="dlg-body" id="helpBody"></div>
+</dialog>
 
 <script>
     // 初始化两个编辑器
@@ -156,5 +490,95 @@
             alert("请填写关键评价和给作者的修改建议（不能为空）");
         }
     });
+
+    /* ==========================
+       评分帮助 dialog：? 按钮
+    ========================== */
+    const helpDialog = document.getElementById("helpDialog");
+    const helpTitle = document.getElementById("helpTitle");
+    const helpBody = document.getElementById("helpBody");
+    const helpCloseBtn = document.getElementById("helpCloseBtn");
+
+    const HELP_CONTENT = {
+        novelty: {
+            title: "创新性（Novelty）如何理解？",
+            html: `
+                <h4>关注点</h4>
+                <ul>
+                    <li>是否提出新问题、新视角或新假设？</li>
+                    <li>方法/模型/实验设计是否有实质性新意？</li>
+                    <li>相对已有工作，增量是否明确且有价值？</li>
+                </ul>
+                <h4>打分参考（1~5）</h4>
+                <ul>
+                    <li><b>5</b>：明显突破或强新意，贡献突出</li>
+                    <li><b>3</b>：有一定新点，但增量一般</li>
+                    <li><b>1</b>：缺乏新意，主要是重复或简单组合</li>
+                </ul>
+            `
+        },
+        method: {
+            title: "方法论（Methodology）如何理解？",
+            html: `
+                <h4>关注点</h4>
+                <ul>
+                    <li>研究设计是否合理：数据/样本、对照、变量控制是否充分？</li>
+                    <li>方法选择是否恰当：理论推导是否严谨，实验流程是否可复现？</li>
+                    <li>评估是否完整：指标选择、消融/对比实验、统计显著性是否到位？</li>
+                    <li>是否存在明显漏洞：数据泄漏、偏差、过拟合、错误的因果结论等</li>
+                </ul>
+                <h4>打分参考（1~5）</h4>
+                <ul>
+                    <li><b>5</b>：设计严谨、论证充分、复现要素完整</li>
+                    <li><b>3</b>：基本合理，但存在可改进点（对比不足/控制不充分）</li>
+                    <li><b>1</b>：方法不可靠或关键步骤缺失，结论支撑不足</li>
+                </ul>
+            `
+        },
+        quality: {
+            title: "整体质量（Overall Quality）如何理解？",
+            html: `
+                <h4>关注点</h4>
+                <ul>
+                    <li>论文结构清晰度：写作、图表、逻辑链条是否顺畅</li>
+                    <li>贡献与证据匹配：结论是否被数据/实验充分支撑</li>
+                    <li>可读性与严谨性：是否有关键定义不清、实验描述不完整等问题</li>
+                    <li>实际影响：对领域是否有参考意义、可推广性如何</li>
+                </ul>
+                <h4>打分参考（1~5）</h4>
+                <ul>
+                    <li><b>5</b>：整体成熟，几乎可直接接收</li>
+                    <li><b>3</b>：中等水平，可通过修改提升</li>
+                    <li><b>1</b>：整体薄弱，问题多且难以修复</li>
+                </ul>
+            `
+        }
+    };
+
+    function openHelp(key){
+        const item = HELP_CONTENT[key];
+        if (!item) return;
+        helpTitle.textContent = item.title;
+        helpBody.innerHTML = item.html;
+        helpDialog.showModal();
+    }
+
+    // 绑定 ? 按钮
+    document.querySelectorAll(".help-btn").forEach(btn => {
+        btn.addEventListener("click", () => openHelp(btn.dataset.help));
+    });
+
+    // 关闭
+    helpCloseBtn.addEventListener("click", () => helpDialog.close());
+    helpDialog.addEventListener("click", (e) => {
+        const rect = helpDialog.getBoundingClientRect();
+        const inDialog = (
+            e.clientX >= rect.left && e.clientX <= rect.right &&
+            e.clientY >= rect.top && e.clientY <= rect.bottom
+        );
+        if (!inDialog) helpDialog.close();
+    });
 </script>
+
+</body>
 </html>

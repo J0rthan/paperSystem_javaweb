@@ -253,7 +253,7 @@
     <div class="card">
         <form action="${pageContext.request.contextPath}/superadmin/systemManage/queryLogs" method="get">
             <fieldset>
-                <legend>日志查询条件</legend>
+                <legend>日志查询</legend>
 
                 <div class="form-grid">
                     <div class="form-item">

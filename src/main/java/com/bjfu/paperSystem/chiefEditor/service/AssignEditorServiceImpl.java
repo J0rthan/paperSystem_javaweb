@@ -52,11 +52,8 @@ public class AssignEditorServiceImpl implements AssignEditorService {
         // 获取稿件
         Manuscript paper = manuscriptDao.findById(manuscriptId).orElse(null);
 
-        // 获取编委 (注意：这里用的是 editorId，实际上是 User 表的 ID，我们需要确认前端传的是 User ID 还是 Editorial_Board 的 member_id)
-        // 根据 Controller 代码：name="editorId" value="${e.user.userId}"
-        // 所以这里的 editorId 是 User 的 userId。
-        // 但如果前端改成了传 member_id，这里需要对应调整。
-        // 假设这里 editorId 指的是具体的 User ID (即编辑本人)。
+        // editorId 是当前登录用户的 User ID（来自 Controller）
+        // 现在总是将稿件分配给当前登录用户
 
         if (paper != null) {
             // --- 1. 更新 Manuscript 表 (维护当前状态) ---
@@ -73,7 +70,7 @@ public class AssignEditorServiceImpl implements AssignEditorService {
             // --- 2. 插入 Record_Allocation 表 (记录分配详情) ---
             Record_Allocation record = new Record_Allocation();
             record.setManuscriptId(manuscriptId);
-            record.setEditorId(editorId); // 记录指派给了谁
+            record.setEditorId(editorId); // 记录指派给了谁（当前登录用户）
             record.setAssignReason(reason);
             record.setAssignTime(LocalDateTime.now());
 
@@ -81,7 +78,7 @@ public class AssignEditorServiceImpl implements AssignEditorService {
 
             // --- 3. 记录系统日志 ---
             String logDescription = "assign editor";
-            logService.record(0, logDescription, manuscriptId);
+            logService.record(editorId, logDescription, manuscriptId); // 使用当前用户ID记录日志
         }
     }
 }

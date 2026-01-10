@@ -3,6 +3,8 @@ package com.bjfu.paperSystem.chiefEditor.controller;
 import com.bjfu.paperSystem.chiefEditor.service.AssignEditorService;
 import com.bjfu.paperSystem.javabeans.Editorial_Board;
 import com.bjfu.paperSystem.javabeans.Manuscript;
+import com.bjfu.paperSystem.javabeans.User;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -35,9 +37,18 @@ public class AssignEditorController {
     // 提交指派
     @PostMapping("/assign-editor/do")
     public String doAssign(@RequestParam int manuscriptId,
-                           @RequestParam int editorId,
-                           @RequestParam String reason) {
-        assignEditorService.assignEditor(manuscriptId, editorId, reason);
+                           @RequestParam int editorId, // 保留参数但不使用
+                           @RequestParam String reason,
+                           HttpSession session) {
+        // 获取当前登录用户
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser == null) {
+            return "redirect:/Login.html";
+        }
+        int userId = loginUser.getUserId();
+        
+        // 使用当前登录用户的ID作为editorId
+        assignEditorService.assignEditor(manuscriptId, userId, reason);
         return "redirect:/chiefeditor/assign-editor";
     }
 }

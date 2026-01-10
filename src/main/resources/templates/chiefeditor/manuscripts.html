@@ -354,13 +354,16 @@
                                 <span th:case="'Started Submission'">开始投稿</span>
                                 <span th:case="'Incomplete Submission'">尚未提交的草稿</span>
                                 <span th:case="'Pending Review'">待审查</span>
-                                <span th:case="'Pending Allocation'">待分配</span>
-                                <span th:case="'With Editor'">编辑处理中</span>
+                                <span th:case="'Pending Allocation'">待初审</span>
+                                <span th:case="'Pending Allocation II'">待分配</span>
+                                <span th:case="'With Editor'">编辑处理</span>
+                                <span th:case="'With Editor II'">终审中</span>
                                 <span th:case="'Under Review'">审稿中</span>
                                 <span th:case="'Rejected'">拒稿</span>
                                 <span th:case="'Accepted'">录用</span>
                                 <span th:case="'Need Revision'">需要返修</span>
-                                <span th:case="*" th:text="${m.status}">未知状态</span>
+                                <span th:case="'With A Decision'">已决议</span>
+                                <span th:case="*" th:text="${m.status}"></span>
                             </span>
                         </span>
                     </td>

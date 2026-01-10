@@ -315,19 +315,21 @@
         new bootstrap.Modal(document.getElementById('previewModal')).show();
     }
     function validateSubmit() {
-        if (!document.getElementById('titleField').value.trim()) { alert("论文标题不能为空！"); return false; }
+        if (!document.getElementById('titleField').value.trim()) {
+            alert("论文标题不能为空！");
+            return false;
+        }
         const authors = document.querySelectorAll('.author-item');
-        if (authors.length === 0) { alert("至少需要添加一名作者信息！"); return false; }
-
-        let authorNameValid = true;
-        authors.forEach(el => { if(!el.querySelector('input[name*=".name"]').value.trim()) authorNameValid = false; });
-        if(!authorNameValid) { alert("所有作者姓名均为必填项，请检查！"); return false; }
-
-        if (!document.getElementById('msFile').files.length && ![[${manuscript.manuscriptId > 0}]] ) {
+        if (authors.length === 0) {
+            alert("至少需要添加一名作者信息！");
+            return false;
+        }
+        const msFileInput = document.getElementById('msFile');
+        const newFileSelected = msFileInput.files.length > 0;
+        if (!newFileSelected && !hasOldFile) {
             alert("请上传稿件正文 PDF 文件！");
             return false;
         }
-
         return confirm('正式提交后，稿件将进入审稿流程，您将无法再修改内容。确认提交吗？');
     }
 </script>

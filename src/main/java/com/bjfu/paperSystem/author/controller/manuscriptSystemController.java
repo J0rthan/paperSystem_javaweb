@@ -67,13 +67,29 @@ public class manuscriptSystemController {
                            RedirectAttributes redirectAttributes) {
 
         User loginUser = (User) session.getAttribute("loginUser");
-        if (loginUser == null) return "redirect:/login";
+        if (loginUser == null) return "redirect:/index";
         try {
-            if (msFile != null && !msFile.isEmpty()) {
-                manuscript.setManuscriptPath(saveFile(msFile, "manuscripts"));
-            }
-            if (clFile != null && !clFile.isEmpty()) {
-                manuscript.setCoverLetterPath(saveFile(clFile, "covers"));
+            if (manuscript.getManuscriptId() > 0) {
+                Manuscript oldManuscript = manuscriptDao.findById(manuscript.getManuscriptId()).orElse(null);
+                if (oldManuscript != null) {
+                    if (msFile != null && !msFile.isEmpty()) {
+                        manuscript.setManuscriptPath(saveFile(msFile, "manuscripts"));
+                    } else {
+                        manuscript.setManuscriptPath(oldManuscript.getManuscriptPath());
+                    }
+                    if (clFile != null && !clFile.isEmpty()) {
+                        manuscript.setCoverLetterPath(saveFile(clFile, "covers"));
+                    } else {
+                        manuscript.setCoverLetterPath(oldManuscript.getCoverLetterPath());
+                    }
+                }
+            } else {
+                if (msFile != null && !msFile.isEmpty()) {
+                    manuscript.setManuscriptPath(saveFile(msFile, "manuscripts"));
+                }
+                if (clFile != null && !clFile.isEmpty()) {
+                    manuscript.setCoverLetterPath(saveFile(clFile, "covers"));
+                }
             }
             authorService.fullSubmit(manuscript, action, loginUser);
             String msg = "save".equals(action) ? "草稿保存成功" : "稿件提交成功";

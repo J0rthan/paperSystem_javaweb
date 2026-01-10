@@ -43,7 +43,7 @@ public class optionAdminServiceImpl implements optionAdminService {
     // 稿件管理相关方法实现
     @Override
     public List<Manuscript> getAllManuscripts() {
-        return manuscriptDao.findAll();
+        return manuscriptDao.findAllByOrderBySubmitTimeDesc();
     }
 
     @Override

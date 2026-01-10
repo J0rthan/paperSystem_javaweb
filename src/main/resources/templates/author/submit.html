@@ -7,29 +7,30 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link href="https://unpkg.com/@wangeditor/editor@latest/dist/css/style.css" rel="stylesheet">
     <style>
-        body { background-color: #f8f9fa; }
-        .section-box { border: 1px solid #dee2e6; padding: 25px; border-radius: 12px; margin-bottom: 25px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .item-row { border-left: 4px solid #0d6efd; background: #f8f9fa; padding: 15px; margin-bottom: 15px; border-radius: 0 8px 8px 0; position: relative; }
-        h4 { color: #0d6efd; border-bottom: 2px solid #0d6efd; display: inline-block; margin-bottom: 20px; }
-        .label-bold { font-weight: 600; color: #495057; }
+        body { background-color: #f4f7f6; }
+        .section-box { border: none; padding: 25px; border-radius: 15px; margin-bottom: 25px; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .item-row { border-left: 5px solid #0d6efd; background: #f8f9fa; padding: 20px; margin-bottom: 20px; border-radius: 0 12px 12px 0; position: relative; transition: all 0.3s; }
+        .item-row:hover { background: #f1f4f9; shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        h4 { color: #0d6efd; font-weight: bold; border-bottom: 2px solid #0d6efd; display: inline-block; margin-bottom: 25px; padding-bottom: 5px; }
+        .label-bold { font-weight: 600; color: #495057; margin-bottom: 8px; display: block; }
         .btn-remove { color: #dc3545; cursor: pointer; transition: 0.2s; }
-        .btn-remove:hover { color: #a71d2a; transform: scale(1.1); }
-        #editor-wrapper { border: 1px solid #ccc; border-radius: 8px; overflow: hidden; }
-        #toolbar-container { border-bottom: 1px solid #ccc; }
+        .btn-remove:hover { color: #a71d2a; transform: scale(1.2); }
+        #editor-wrapper { border: 1px solid #dee2e6; border-radius: 10px; overflow: hidden; }
+        #toolbar-container { border-bottom: 1px solid #dee2e6; background: #f8f9fa; }
         #editor-container { height: 300px; }
+        .form-control, .form-select { border-radius: 8px; border: 1px solid #ced4da; }
+        .form-control:focus { border-color: #0d6efd; box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1); }
     </style>
 </head>
 <body class="bg-light d-flex flex-column h-100">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
     <div class="container">
-        <a class="navbar-brand fw-bold" th:href="@{/author/manuscript/list}">
+        <a class="navbar-brand fw-bold">
             <i class="bi bi-journal-bookmark-fill me-2"></i>学术论文管理系统-作者端
         </a>
-
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#authorNavbar">
             <span class="navbar-toggler-icon"></span>
         </button>
-
         <div class="collapse navbar-collapse" id="authorNavbar">
             <ul class="navbar-nav ms-auto align-items-center">
                 <li class="nav-item me-3">
@@ -37,16 +38,14 @@
                         <i class="bi bi-envelope-fill fs-5"></i>
                         <span class="position-absolute top-2 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
                             <span class="visually-hidden">新消息</span>
-                        </span>
+            </span>
                     </a>
                 </li>
-
                 <li class="nav-item me-3 border-end pe-3">
                     <a class="nav-link text-light" th:href="@{/author/profile}" title="账号设置">
                         <i class="bi bi-gear-fill fs-5"></i>
                     </a>
                 </li>
-
                 <li class="nav-item dropdown ms-2">
                     <span class="navbar-text text-light me-3">
                         <i class="bi bi-person-circle me-1"></i>
@@ -65,32 +64,30 @@
     <div class="container py-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <small class="text-muted">欢迎您：<span th:text="${session.loginUser.userName}">作者</span></small>
-            <div>
-                <h2 class="mb-0 fw-bold" th:text="${manuscript.manuscriptId > 0 ? '编辑稿件' : '发起新投稿'}">发起新投稿</h2>
-            </div>
-            <a th:href="@{/author/manuscript/list}" class="btn btn-outline-secondary rounded-pill">返回列表</a>
+            <h2 class="fw-bold text-dark" th:text="${manuscript.manuscriptId > 0 ? '编辑稿件信息' : '发起新投稿申请'}">发起新投稿</h2>
+            <a th:href="@{/author/manuscript/list}" class="btn btn-outline-secondary rounded-pill shadow-sm">返回列表</a>
         </div>
 
         <form id="manuscriptForm" th:action="@{/author/manuscript/doSubmit}" th:object="${manuscript}" method="post" enctype="multipart/form-data">
             <input type="hidden" th:field="*{manuscriptId}">
 
             <div class="section-box">
-                <h4>1. 稿件基本信息</h4>
+                <h4><i class="bi bi-info-circle me-2"></i>1. 稿件基本信息</h4>
                 <div class="row g-3">
                     <div class="col-md-12">
-                        <label class="form-label label-bold">标题</label>
-                        <input type="text" th:field="*{title}" id="titleField" class="form-control" placeholder="请输入完整标题">
+                        <label class="label-bold">论文标题</label>
+                        <input type="text" th:field="*{title}" id="titleField" class="form-control form-control-lg" placeholder="请输入论文完整标题">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label label-bold">研究主题</label>
-                        <input type="text" th:field="*{subjectArea}" class="form-control">
+                        <label class="label-bold">研究主题 / 学科领域</label>
+                        <input type="text" th:field="*{subjectArea}" class="form-control" placeholder="如：人工智能, 环境工程">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label label-bold">关键词</label>
-                        <input type="text" th:field="*{keywords}" class="form-control" placeholder="用逗号分隔">
+                        <label class="label-bold">关键词</label>
+                        <input type="text" th:field="*{keywords}" class="form-control" placeholder="用英文逗号分隔，如：AI, Big Data">
                     </div>
                     <div class="col-12">
-                        <label class="form-label label-bold">摘要 (Abstract)</label>
+                        <label class="label-bold">摘要 (Abstract)</label>
                         <input type="hidden" th:field="*{abstractText}" id="abstractHidden">
                         <div id="editor-wrapper">
                             <div id="toolbar-container"></div>
@@ -102,19 +99,35 @@
 
             <div class="section-box">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h4>2. 作者信息</h4>
-                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addAuthor()"><i class="bi bi-plus-lg"></i> 添加作者</button>
+                    <h4><i class="bi bi-people me-2"></i>2. 作者详细信息</h4>
+                    <button type="button" class="btn btn-sm btn-primary rounded-pill px-3" onclick="addAuthor()"><i class="bi bi-plus-lg"></i> 添加作者</button>
                 </div>
                 <div id="author-list">
                     <div class="item-row author-item" th:each="author, stat : *{authors}">
-                        <div class="row g-2 align-items-center">
-                            <div class="col-md-3"><input type="text" class="form-control" placeholder="姓名" th:field="*{authors[__${stat.index}__].name}"></div>
-                            <div class="col-md-3"><input type="text" class="form-control" placeholder="单位" th:field="*{authors[__${stat.index}__].institution}"></div>
-                            <div class="col-md-3"><input type="email" class="form-control" placeholder="邮箱" th:field="*{authors[__${stat.index}__].email}"></div>
-                            <div class="col-md-2">
-                                <div class="form-check"><input type="checkbox" class="form-check-input" th:field="*{authors[__${stat.index}__].corresponding}"><label class="form-check-label">通讯作者</label></div>
+                        <div class="row g-2 align-items-center mb-3">
+                            <div class="col-md-3"><label class="small text-muted">姓名</label><input type="text" class="form-control" placeholder="姓名" th:field="*{authors[__${stat.index}__].name}"></div>
+                            <div class="col-md-3"><label class="small text-muted">单位</label><input type="text" class="form-control" placeholder="所在机构/学校" th:field="*{authors[__${stat.index}__].institution}"></div>
+                            <div class="col-md-3"><label class="small text-muted">邮箱</label><input type="email" class="form-control" placeholder="电子邮箱" th:field="*{authors[__${stat.index}__].email}"></div>
+                            <div class="col-md-2 text-center pt-4">
+                                <div class="form-check d-inline-block">
+                                    <input type="checkbox" class="form-check-input" th:field="*{authors[__${stat.index}__].corresponding}">
+                                    <label class="form-check-label fw-bold">通讯作者</label>
+                                </div>
                             </div>
-                            <div class="col-md-1 text-end"><i class="bi bi-trash3-fill btn-remove fs-5" onclick="removeItem(this, 'author-item', 'authors')"></i></div>
+                            <div class="col-md-1 text-end pt-4"><i class="bi bi-trash3-fill btn-remove fs-5" onclick="removeItem(this, 'author-item', 'authors')"></i></div>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-md-4">
+                                <select class="form-select" th:field="*{authors[__${stat.index}__].degree}">
+                                    <option value="">-- 选择最高学历 --</option>
+                                    <option value="学士">学士</option>
+                                    <option value="硕士">硕士</option>
+                                    <option value="博士">博士</option>
+                                    <option value="其他">其他</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4"><input type="text" class="form-control" placeholder="职称 (如: 教授, 高级工程师)" th:field="*{authors[__${stat.index}__].professionalTitle}"></div>
+                            <div class="col-md-4"><input type="text" class="form-control" placeholder="职位 (如: 系主任, 研究员)" th:field="*{authors[__${stat.index}__].position}"></div>
                         </div>
                     </div>
                 </div>
@@ -122,15 +135,15 @@
 
             <div class="section-box">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h4>3. 资助信息</h4>
-                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addFunding()"><i class="bi bi-plus-lg"></i> 添加资助</button>
+                    <h4><i class="bi bi-coin me-2"></i>3. 资助项目信息</h4>
+                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="addFunding()"><i class="bi bi-plus-lg"></i> 添加资助</button>
                 </div>
                 <div id="funding-list">
                     <div class="item-row funding-item" th:each="f, stat : *{fundings}">
                         <div class="row g-2 align-items-center">
-                            <div class="col-md-4"><input type="text" class="form-control" placeholder="项目名称" th:field="*{fundings[__${stat.index}__].grantName}"></div>
-                            <div class="col-md-3"><input type="text" class="form-control" placeholder="编号" th:field="*{fundings[__${stat.index}__].grantNumber}"></div>
-                            <div class="col-md-4"><input type="text" class="form-control" placeholder="机构" th:field="*{fundings[__${stat.index}__].organization}"></div>
+                            <div class="col-md-4"><input type="text" class="form-control" placeholder="项目/基金名称" th:field="*{fundings[__${stat.index}__].grantName}"></div>
+                            <div class="col-md-3"><input type="text" class="form-control" placeholder="项目编号" th:field="*{fundings[__${stat.index}__].grantNumber}"></div>
+                            <div class="col-md-4"><input type="text" class="form-control" placeholder="资助机构" th:field="*{fundings[__${stat.index}__].organization}"></div>
                             <div class="col-md-1 text-end"><i class="bi bi-trash3-fill btn-remove fs-5" onclick="removeItem(this, 'funding-item', 'fundings')"></i></div>
                         </div>
                     </div>
@@ -138,43 +151,45 @@
             </div>
 
             <div class="section-box">
-                <h4>4. 文件上传</h4>
-                <div class="mb-3">
-                    <label class="form-label label-bold">稿件正文 (仅限 PDF)</label>
-                    <div class="input-group">
-                        <input type="file" name="msFile" id="msFile" class="form-control" accept=".pdf" data-title="稿件正文" onchange="handleFileSelect(this)">
-                        <button class="btn btn-outline-primary" type="button" onclick="openPreviewModal('msFile')"><i class="bi bi-eye"></i> 预览稿件</button>
+                <h4><i class="bi bi-cloud-arrow-up me-2"></i>4. 文件上传</h4>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="label-bold">稿件正文 (仅限 PDF)</label>
+                        <div class="input-group">
+                            <input type="file" name="msFile" id="msFile" class="form-control" accept=".pdf" onchange="handleFileSelect(this)">
+                            <button class="btn btn-outline-primary" type="button" onclick="openPreviewModal('msFile')"><i class="bi bi-eye"></i></button>
+                        </div>
                     </div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label label-bold">附信 (Cover Letter)</label>
-                    <div class="input-group">
-                        <input type="file" name="clFile" id="clFile" class="form-control" data-title="附信 (Cover Letter)" onchange="handleFileSelect(this)">
-                        <button class="btn btn-outline-primary" type="button" onclick="openPreviewModal('clFile')"><i class="bi bi-eye"></i> 预览附信</button>
+                    <div class="col-md-6 mb-3">
+                        <label class="label-bold">附信 (Cover Letter)</label>
+                        <div class="input-group">
+                            <input type="file" name="clFile" id="clFile" class="form-control" onchange="handleFileSelect(this)">
+                            <button class="btn btn-outline-primary" type="button" onclick="openPreviewModal('clFile')"><i class="bi bi-eye"></i></button>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="section-box">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h4>5. 推荐审稿人</h4>
-                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addReviewer()"><i class="bi bi-plus-lg"></i> 添加推荐人</button>
+                    <h4><i class="bi bi-person-check me-2"></i>5. 推荐审稿人</h4>
+                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="addReviewer()"><i class="bi bi-plus-lg"></i> 添加推荐人</button>
                 </div>
                 <div id="reviewer-list">
                     <div class="item-row reviewer-item" th:each="rev, stat : *{reviewers}">
                         <div class="row g-2 align-items-center">
                             <div class="col-md-2"><input type="text" class="form-control" placeholder="姓名" th:field="*{reviewers[__${stat.index}__].name}"></div>
-                            <div class="col-md-3"><input type="email" class="form-control" placeholder="邮箱" th:field="*{reviewers[__${stat.index}__].email}"></div>
-                            <div class="col-md-6"><input type="text" class="form-control" placeholder="理由" th:field="*{reviewers[__${stat.index}__].reason}"></div>
+                            <div class="col-md-3"><input type="email" class="form-control" placeholder="电子邮箱" th:field="*{reviewers[__${stat.index}__].email}"></div>
+                            <div class="col-md-6"><input type="text" class="form-control" placeholder="推荐理由/研究背景一致性说明" th:field="*{reviewers[__${stat.index}__].reason}"></div>
                             <div class="col-md-1 text-end"><i class="bi bi-trash3-fill btn-remove fs-5" onclick="removeItem(this, 'reviewer-item', 'reviewers')"></i></div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="text-center pb-5">
-                <button type="submit" name="action" value="save" class="btn btn-secondary btn-lg px-5">保存草稿</button>
-                <button type="submit" name="action" value="submit" class="btn btn-primary btn-lg px-5 ms-3" onclick="return validateSubmit()">正式提交</button>
+            <div class="text-center pb-5 mt-4">
+                <button type="submit" name="action" value="save" class="btn btn-outline-secondary btn-lg px-5 rounded-pill me-3 shadow-sm">暂时保存草稿</button>
+                <button type="submit" name="action" value="submit" class="btn btn-primary btn-lg px-5 rounded-pill shadow" onclick="return validateSubmit()">确认正式提交</button>
             </div>
         </form>
     </div>
@@ -184,7 +199,7 @@
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content" style="height: 90vh;">
             <div class="modal-header">
-                <h5 class="modal-title" id="previewModalLabel">预览</h5>
+                <h5 class="modal-title" id="previewModalLabel">文件预览</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-0">
@@ -199,7 +214,7 @@
     /* 1. wangEditor 初始化 */
     const { createEditor, createToolbar } = window.wangEditor;
     const editorConfig = {
-        placeholder: '在此输入摘要...',
+        placeholder: '在此输入或粘贴您的论文摘要...',
         onChange(editor) { document.getElementById('abstractHidden').value = editor.getHtml(); }
     };
     const editor = createEditor({
@@ -209,37 +224,58 @@
         mode: 'simple'
     });
     createToolbar({ editor, selector: '#toolbar-container', mode: 'simple' });
-
-    /* 2. 动态增删逻辑 */
     function removeItem(element, itemClass, listName) {
-        const row = element.closest('.' + itemClass);
-        const container = row.parentNode;
-        row.remove();
-        reindexItems(container, itemClass, listName);
+        if(confirm("确定要移除该项吗？")) {
+            const row = element.closest('.' + itemClass);
+            const container = row.parentNode;
+            row.remove();
+            reindexItems(container, itemClass, listName);
+        }
     }
-
     function reindexItems(container, itemClass, listName) {
         const items = container.getElementsByClassName(itemClass);
         for (let i = 0; i < items.length; i++) {
-            const inputs = items[i].querySelectorAll('input, select');
+            const inputs = items[i].querySelectorAll('input, select, textarea');
             inputs.forEach(input => {
                 const oldName = input.getAttribute('name');
-                if (oldName) input.setAttribute('name', oldName.replace(/\[\d+\]/, `[${i}]`));
+                if (oldName) {
+                    input.setAttribute('name', oldName.replace(/\[\d+\]/, `[${i}]`));
+                }
             });
         }
     }
     function addAuthor() {
         const i = document.getElementById('author-list').getElementsByClassName('author-item').length;
-        const html = `<div class="item-row author-item"><div class="row g-2 align-items-center">
-            <div class="col-md-3"><input type="text" name="authors[${i}].name" class="form-control" placeholder="姓名"></div>
-            <div class="col-md-3"><input type="text" name="authors[${i}].institution" class="form-control" placeholder="单位"></div>
-            <div class="col-md-3"><input type="email" name="authors[${i}].email" class="form-control" placeholder="邮箱"></div>
-            <div class="col-md-2"><div class="form-check"><input type="checkbox" name="authors[${i}].corresponding" class="form-check-input"><label class="form-check-label">通讯作者</label></div></div>
-            <div class="col-md-1 text-end"><i class="bi bi-trash3-fill btn-remove fs-5" onclick="removeItem(this, 'author-item', 'authors')"></i></div>
-        </div></div>`;
+        const html = `
+        <div class="item-row author-item">
+            <div class="row g-2 align-items-center mb-3">
+                <div class="col-md-3"><input type="text" name="authors[${i}].name" class="form-control" placeholder="姓名"></div>
+                <div class="col-md-3"><input type="text" name="authors[${i}].institution" class="form-control" placeholder="单位"></div>
+                <div class="col-md-3"><input type="email" name="authors[${i}].email" class="form-control" placeholder="邮箱"></div>
+                <div class="col-md-2 text-center pt-2">
+                    <div class="form-check d-inline-block">
+                        <input type="checkbox" name="authors[${i}].corresponding" class="form-check-input">
+                        <label class="form-check-label fw-bold">通讯作者</label>
+                    </div>
+                </div>
+                <div class="col-md-1 text-end"><i class="bi bi-trash3-fill btn-remove fs-5" onclick="removeItem(this, 'author-item', 'authors')"></i></div>
+            </div>
+            <div class="row g-2">
+                <div class="col-md-4">
+                    <select name="authors[${i}].degree" class="form-select">
+                        <option value="">-- 选择最高学历 --</option>
+                        <option value="学士">学士</option>
+                        <option value="硕士">硕士</option>
+                        <option value="博士">博士</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+                <div class="col-md-4"><input type="text" name="authors[${i}].professionalTitle" class="form-control" placeholder="职称 (如: 教授)"></div>
+                <div class="col-md-4"><input type="text" name="authors[${i}].position" class="form-control" placeholder="职位 (如: 系主任)"></div>
+            </div>
+        </div>`;
         document.getElementById('author-list').insertAdjacentHTML('beforeend', html);
     }
-
     function addFunding() {
         const i = document.getElementById('funding-list').getElementsByClassName('funding-item').length;
         const html = `<div class="item-row funding-item"><div class="row g-2 align-items-center">
@@ -250,7 +286,6 @@
         </div></div>`;
         document.getElementById('funding-list').insertAdjacentHTML('beforeend', html);
     }
-
     function addReviewer() {
         const i = document.getElementById('reviewer-list').getElementsByClassName('reviewer-item').length;
         const html = `<div class="item-row reviewer-item"><div class="row g-2 align-items-center">
@@ -262,7 +297,6 @@
         document.getElementById('reviewer-list').insertAdjacentHTML('beforeend', html);
     }
     let previewURLs = { msFile: null, clFile: null };
-
     function handleFileSelect(input) {
         const file = input.files[0];
         const id = input.id;
@@ -274,28 +308,30 @@
             previewURLs[id] = null;
         }
     }
-
     function openPreviewModal(id) {
         const url = previewURLs[id];
         const input = document.getElementById(id);
-        if (!input.files.length) return alert("请先选择文件！");
-        if (!url) return alert("预览仅支持 PDF。若是 Word 请直接提交，管理员将处理。");
+        if (!input.files.length) return alert("请先选择一个 PDF 文件进行预览！");
+        if (!url) return alert("目前仅支持预览 PDF 格式。");
 
-        document.getElementById('previewModalLabel').innerText = "预览：" + input.getAttribute('data-title');
         document.getElementById('previewFrame').src = url;
         new bootstrap.Modal(document.getElementById('previewModal')).show();
     }
     function validateSubmit() {
-        if (!document.getElementById('titleField').value.trim()) { alert("标题必填！"); return false; }
+        if (!document.getElementById('titleField').value.trim()) { alert("论文标题不能为空！"); return false; }
         const authors = document.querySelectorAll('.author-item');
-        if (authors.length === 0) { alert("至少需添加一名作者！"); return false; }
+        if (authors.length === 0) { alert("至少需要添加一名作者信息！"); return false; }
 
-        let valid = true;
-        authors.forEach(el => { if(!el.querySelector('input[name*=".name"]').value.trim()) valid = false; });
-        if(!valid) { alert("作者姓名必填，或请删除空行。"); return false; }
+        let authorNameValid = true;
+        authors.forEach(el => { if(!el.querySelector('input[name*=".name"]').value.trim()) authorNameValid = false; });
+        if(!authorNameValid) { alert("所有作者姓名均为必填项，请检查！"); return false; }
 
-        if (!document.getElementById('msFile').files.length) { alert("稿件正文 (PDF) 必选！"); return false; }
-        return confirm('正式提交后不可自行撤回，确认吗？');
+        if (!document.getElementById('msFile').files.length && ![[${manuscript.manuscriptId > 0}]] ) {
+            alert("请上传稿件正文 PDF 文件！");
+            return false;
+        }
+
+        return confirm('正式提交后，稿件将进入审稿流程，您将无法再修改内容。确认提交吗？');
     }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

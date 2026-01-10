@@ -21,14 +21,12 @@
 <body class="bg-light d-flex flex-column h-100">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
   <div class="container">
-    <a class="navbar-brand fw-bold" th:href="@{/author/manuscript/list}">
+    <a class="navbar-brand fw-bold">
       <i class="bi bi-journal-bookmark-fill me-2"></i>学术论文管理系统-作者端
     </a>
-
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#authorNavbar">
       <span class="navbar-toggler-icon"></span>
     </button>
-
     <div class="collapse navbar-collapse" id="authorNavbar">
       <ul class="navbar-nav ms-auto align-items-center">
         <li class="nav-item me-3">
@@ -36,16 +34,14 @@
             <i class="bi bi-envelope-fill fs-5"></i>
             <span class="position-absolute top-2 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
                             <span class="visually-hidden">新消息</span>
-                        </span>
+            </span>
           </a>
         </li>
-
         <li class="nav-item me-3 border-end pe-3">
           <a class="nav-link text-light" th:href="@{/author/profile}" title="账号设置">
             <i class="bi bi-gear-fill fs-5"></i>
           </a>
         </li>
-
         <li class="nav-item dropdown ms-2">
                     <span class="navbar-text text-light me-3">
                         <i class="bi bi-person-circle me-1"></i>

@@ -1,22 +1,28 @@
 package com.bjfu.paperSystem.editor.service;
 
-import com.bjfu.paperSystem.author.dao.LogsDao;
 import com.bjfu.paperSystem.javabeans.*;
 import com.bjfu.paperSystem.editor.dao.*;
 import com.bjfu.paperSystem.author.service.logService;
 import com.bjfu.paperSystem.mailUtils.MailUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.bjfu.paperSystem.editor.dao.DecisionHistoryDao; // 确保引用路径正确
+import com.bjfu.paperSystem.editor.dao.DecisionHistoryDao;
 import com.bjfu.paperSystem.javabeans.DecisionHistory;
+import com.bjfu.paperSystem.javabeans.ClientMessage;
+import com.bjfu.paperSystem.clientMessageUtils.Service.clientMessageService;
 import java.util.Date;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.stream.Collectors;
+import com.bjfu.paperSystem.editor.dao.EditorRecordAllocationDao;
 
 @Service
 public class EditorProcessServiceImpl implements EditorProcessService {
@@ -27,11 +33,28 @@ public class EditorProcessServiceImpl implements EditorProcessService {
     @Autowired private logService logService;
     @Autowired private MailUtil mailUtil;
     @Autowired private DecisionHistoryDao decisionHistoryRepository;
-    @Autowired private LogsDao logsDao;
+    @Autowired private clientMessageService clientMsgService;
+    @Autowired private EditorRecordAllocationDao recordAllocationDao;
 
     @Override
     public Manuscript getManuscriptDetail(int id, int editorId) {
-        return manuscriptDao.findById(id).orElse(null);
+        Manuscript manuscript = manuscriptDao.findById(id).orElse(null);
+        if (manuscript == null) {
+            return null;
+        }
+
+        // 权限验证：检查Editor是否被分配了该稿件
+        // 方式1：通过 Record_Allocation 表验证
+        List<Record_Allocation> allocations = recordAllocationDao.findByEditorId(editorId);
+        boolean hasPermission = allocations.stream()
+                .anyMatch(a -> a.getManuscriptId() == id);
+
+        // 方式2：通过 manuscript.getEditorId() 验证（如果该字段有值）
+        if (!hasPermission && (manuscript.getEditorId() == null || !manuscript.getEditorId().equals(editorId))) {
+            return null; // 没有权限，返回null
+        }
+
+        return manuscript;
     }
 
     @Override
@@ -57,18 +80,7 @@ public class EditorProcessServiceImpl implements EditorProcessService {
         // 获取该稿件所有的审稿记录
         return reviewDao.findByManuId(manuscriptId);
     }
-
-    @Override
-    public void sendMessageToAuthor(int manuscriptId, String message, int editorId) {
-        // 简单实现：记录日志作为消息，或者你有专门的 Message 表
-        logService.record(editorId, "MSG_TO_AUTHOR: " + message, manuscriptId);
-    }
-
-    @Override
-    public List<Logs> getCommunicationHistory(int manuscriptId) {
-        // 假设 logService 有获取日志的方法，或者返回空
-        return Collections.emptyList();
-    }
+    
 
     /**
      * 核心功能：邀请审稿人
@@ -133,9 +145,11 @@ public class EditorProcessServiceImpl implements EditorProcessService {
     public void checkAndUpdateManuscriptStatus(int manuscriptId) {
         // 1. 获取该稿件所有的审稿记录
         List<Review> reviews = reviewDao.findByManuId(manuscriptId);
-        // 2. 统计状态为已接受的人数
+        // 2. 统计状态为 审稿中 或 已完成 的人数
         long validReviewerCount = reviews.stream()
-                .filter(r -> "accepted".equalsIgnoreCase(r.getStatus())).count();
+                .filter(r -> "accepted".equalsIgnoreCase(r.getStatus())
+                        || "finished".equalsIgnoreCase(r.getStatus()))
+                .count();
 
         // 3. 获取稿件当前信息
         Manuscript manuscript = manuscriptDao.findById(manuscriptId).orElse(null);
@@ -143,16 +157,6 @@ public class EditorProcessServiceImpl implements EditorProcessService {
         if (manuscript != null && validReviewerCount >= 3 && "With Editor".equalsIgnoreCase(manuscript.getStatus())) {
             manuscript.setStatus("Under Review");
             manuscriptDao.save(manuscript);
-
-            int editorId = manuscript.getEditorId();
-            String action = "editor completed";
-
-            Logs log = new Logs();
-            log.setOporId(editorId);
-            log.setPaperId(manuscriptId);
-            log.setOpTime(LocalDateTime.now());
-            log.setOpType(action);
-            logsDao.save(log);
         }
     }
 
@@ -167,8 +171,6 @@ public class EditorProcessServiceImpl implements EditorProcessService {
 
         // 只能撤销 pending
         if ("pending".equals(review.getStatus())) {
-
-            String oldStatus = review.getStatus();
             review.setStatus("undo"); // 软删除状态
             reviewDao.save(review);
             // 现在的写法：只传操作简码
@@ -246,5 +248,205 @@ public class EditorProcessServiceImpl implements EditorProcessService {
         manu.setStatus("With Editor II");
 
         manuscriptDao.save(manu);
+    }
+
+    @Override
+    @Transactional
+    public void sendMessageToAuthor(int manuscriptId, int authorId, String message, int editorId) {
+        // 1. 权限验证：检查Editor是否被分配了该稿件
+        Manuscript manuscript = manuscriptDao.findById(manuscriptId).orElse(null);
+        if (manuscript == null || manuscript.getAuthorId() != authorId) {
+            return; // 稿件不存在或作者ID不匹配，直接返回
+        }
+
+        // 2. 验证Editor权限（可选，如果已经在Controller层验证过可以省略）
+        if (manuscript.getEditorId() == null || !manuscript.getEditorId().equals(editorId)) {
+            // 也可以通过 Record_Allocation 表验证，这里简化处理
+            return;
+        }
+
+        // 3. 保存消息到数据库
+        clientMsgService.insertMessage(
+                editorId,           // senderId: Editor的ID
+                authorId,           // receiverId: 作者的ID
+                message,            // messageBody: 消息内容
+                LocalDateTime.now(), // sendingTime: 当前时间
+                manuscriptId        // manuId: 关联的稿件ID
+        );
+
+        // 4. 记录日志（可选）
+        logService.record(editorId, "MESSAGE_TO_AUTHOR: " + message, manuscriptId);
+    }
+
+    @Override
+    public List<ClientMessage> getCommunicationHistory(int manuscriptId, int editorId) {
+        // 权限验证：检查Editor是否被分配了该稿件
+        Manuscript manuscript = manuscriptDao.findById(manuscriptId).orElse(null);
+        if (manuscript == null) {
+            return List.of();
+        }
+
+        // 权限验证：检查是否被分配（通过 editorId 字段或 Record_Allocation 表）
+        // 这里简化处理，如果 manuscript.editorId 匹配就可以，否则需要查询 Record_Allocation
+        if (manuscript.getEditorId() == null || !manuscript.getEditorId().equals(editorId)) {
+            // 可以通过 Record_Allocation 表进一步验证，这里先返回空
+            return List.of();
+        }
+
+        // 查询该稿件的所有消息
+        List<ClientMessage> sent = clientMsgService.findMessageBySender(editorId);
+        List<ClientMessage> received = clientMsgService.findMessageByReceiver(editorId);
+
+        // 过滤出属于该稿件的消息（使用 Objects.equals 进行安全的比较）
+        return java.util.stream.Stream.concat(sent.stream(), received.stream())
+                .filter(msg -> msg.getManuId() != null && java.util.Objects.equals(msg.getManuId(), manuscriptId))
+                .sorted((m1, m2) -> {
+                    if (m1.getSendingTime() == null || m2.getSendingTime() == null) {
+                        return 0;
+                    }
+                    return m1.getSendingTime().compareTo(m2.getSendingTime());
+                })
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Override
+    public List<Map<String, Object>> getOverdueManuscripts(int editorId) {
+        List<Map<String, Object>> result = new ArrayList<>();
+        
+        // 获取该编辑的所有稿件分配记录
+        List<Record_Allocation> allocations = recordAllocationDao.findByEditorId(editorId);
+        
+        if (allocations.isEmpty()) {
+            return result;
+        }
+        
+        LocalDateTime now = LocalDateTime.now();
+        Set<Integer> manuscriptIds = new HashSet<>();
+        
+        // 查找所有有逾期审稿人的稿件ID
+        for (Record_Allocation allocation : allocations) {
+            int manuId = allocation.getManuscriptId();
+            List<Review> reviews = reviewDao.findByManuId(manuId);
+            
+            for (Review review : reviews) {
+                if (review.getDeadline() != null &&
+                        ("accepted".equalsIgnoreCase(review.getStatus()) || 
+                         "pending".equalsIgnoreCase(review.getStatus()))) {
+                    if (now.isAfter(review.getDeadline())) {
+                        manuscriptIds.add(manuId);
+                        break; // 该稿件至少有一个逾期审稿人，添加后退出内层循环
+                    }
+                }
+            }
+        }
+        
+        // 构建返回结果
+        for (Integer manuId : manuscriptIds) {
+            Manuscript manuscript = manuscriptDao.findById(manuId).orElse(null);
+            if (manuscript != null) {
+                Map<String, Object> item = new HashMap<>();
+                item.put("manuscriptId", manuId);
+                item.put("title", manuscript.getTitle());
+                result.add(item);
+            }
+        }
+        
+        return result;
+    }
+
+    @Override
+    public List<Map<String, Object>> getOverdueReviewers(int manuscriptId) {
+        List<Map<String, Object>> result = new ArrayList<>();
+        
+        List<Review> reviews = reviewDao.findByManuId(manuscriptId);
+        LocalDateTime now = LocalDateTime.now();
+        
+        for (Review review : reviews) {
+            // 只返回已逾期的审稿人
+            if (review.getDeadline() != null &&
+                    ("accepted".equalsIgnoreCase(review.getStatus()) || 
+                     "pending".equalsIgnoreCase(review.getStatus()))) {
+                if (now.isAfter(review.getDeadline())) {
+                    User reviewer = userDao.findById(review.getReviewerId()).orElse(null);
+                    
+                    // 计算已逾期天数
+                    long overdueDays = ChronoUnit.DAYS.between(
+                            review.getDeadline().toLocalDate(), 
+                            now.toLocalDate()
+                    );
+                    
+                    Map<String, Object> item = new HashMap<>();
+                    item.put("reviewId", review.getReviewId());
+                    item.put("reviewerId", review.getReviewerId());
+                    item.put("reviewerName", reviewer != null ? reviewer.getFullName() : "Unknown");
+                    item.put("reviewerEmail", reviewer != null ? reviewer.getEmail() : "");
+                    item.put("deadline", review.getDeadline());
+                    item.put("overdueDays", overdueDays);
+                    result.add(item);
+                }
+            }
+        }
+        
+        return result;
+    }
+
+    @Override
+    @Transactional
+    public void sendCustomReminder(int reviewId, String subject, String customContent, int editorId) {
+        // 1. 获取 Review 信息
+        Review review = reviewDao.findById(reviewId).orElse(null);
+        if (review == null) {
+            throw new RuntimeException("审稿任务不存在");
+        }
+
+        // 2. 获取审稿人和稿件信息
+        User reviewer = userDao.findById(review.getReviewerId()).orElse(null);
+        Manuscript manuscript = manuscriptDao.findById(review.getManuId()).orElse(null);
+
+        if (reviewer == null || manuscript == null) {
+            throw new RuntimeException("审稿人或稿件信息不存在");
+        }
+
+        // 3. 替换占位符（如果需要）
+        String finalContent = replacePlaceholders(customContent, reviewer, manuscript, review);
+        String finalSubject = subject != null && !subject.trim().isEmpty() ? 
+                subject : "[催审提醒] 请尽快完成稿件审阅 - " + manuscript.getTitle();
+
+        // 4. 发送邮件
+        try {
+            mailUtil.sendTextMail(reviewer.getEmail(), finalSubject, finalContent);
+            
+            // 5. 记录日志
+            logService.record(editorId, "SEND_CUSTOM_REMINDER: Sent to " + reviewer.getFullName(), review.getManuId());
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("催审邮件发送失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 替换邮件内容中的占位符
+     */
+    private String replacePlaceholders(String content, User reviewer, Manuscript manuscript, Review review) {
+        if (content == null) return "";
+        
+        LocalDateTime now = LocalDateTime.now();
+        long overdueDays = 0;
+        if (review.getDeadline() != null && now.isAfter(review.getDeadline())) {
+            overdueDays = ChronoUnit.DAYS.between(
+                    review.getDeadline().toLocalDate(), 
+                    now.toLocalDate()
+            );
+        }
+        
+        String deadlineStr = review.getDeadline() != null ?
+                review.getDeadline().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "未知";
+        
+        return content
+                .replace("{审稿人姓名}", reviewer.getFullName() != null ? reviewer.getFullName() : "审稿人")
+                .replace("{稿件标题}", manuscript.getTitle() != null ? manuscript.getTitle() : "未知稿件")
+                .replace("{稿件ID}", String.valueOf(manuscript.getManuscriptId()))
+                .replace("{截止日期}", deadlineStr)
+                .replace("{逾期天数}", String.valueOf(overdueDays));
     }
 }

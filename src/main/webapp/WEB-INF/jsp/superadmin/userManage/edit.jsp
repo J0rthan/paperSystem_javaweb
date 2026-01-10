@@ -1,5 +1,8 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="zh-CN">
 <head>
     <title>修改账号</title>
     <meta charset="UTF-8">
@@ -79,46 +82,41 @@
 
 <h2>修改账号</h2>
 
-<form th:action="@{/superadmin/userManage/modifyAccount}"
+<form action="${pageContext.request.contextPath}/superadmin/userManage/modifyAccount"
       method="post"
       onsubmit="return confirm('确认保存修改？');">
 
-    <!-- 主键必须带回去，用 hidden -->
-    <input type="hidden" name="userId" th:value="${userInfo.userId}" />
+    <!-- 主键必须带回去 -->
+    <input type="hidden" name="userId" value="${userInfo.userId}" />
 
     <div>
         <label>账号名称：</label>
-        <input type="text" name="userName" th:value="${userInfo.userName}" />
+        <input type="text" name="userName" value="${userInfo.userName}" />
     </div>
 
     <div>
         <label>用户全名：</label>
-        <input type="text" name="fullName" th:value="${userInfo.fullName}" />
+        <input type="text" name="fullName" value="${userInfo.fullName}" />
     </div>
 
     <div>
         <label>邮箱：</label>
-        <input type="text" name="email" th:value="${userInfo.email}" />
+        <input type="text" name="email" value="${userInfo.email}" />
     </div>
 
     <div>
         <label>用户类型：</label>
-        <input type="text" name="userType" th:value="${userInfo.userType}" />
+        <input type="text" name="userType" value="${userInfo.userType}" />
     </div>
 
     <div>
         <label>单位：</label>
-        <input type="text" name="company" th:value="${userInfo.company}" />
+        <input type="text" name="company" value="${userInfo.company}" />
     </div>
 
     <div>
         <label>研究方向：</label>
-        <input type="text" name="investigationDirection" th:value="${userInfo.investigationDirection}" />
-    </div>
-
-    <div>
-        <label>注册时间：</label>
-        <input type="text" name="registerTime" th:value="${userInfo.registerTime}" />
+        <input type="text" name="investigationDirection" value="${userInfo.investigationDirection}" />
     </div>
 
     <hr/>
@@ -131,14 +129,21 @@
     <div>
         <label>账号状态：</label>
         <select name="status">
-            <option value="exist" th:selected="${userInfo.status == 'exist'}">启用账号</option>
-            <option value="not_exist" th:selected="${userInfo.status == 'not_exist'}">禁用账号</option>
+            <option value="exist"
+                    <c:if test="${userInfo.status == 'exist'}">selected</c:if>>
+                启用账号
+            </option>
+
+            <option value="not_exist"
+                    <c:if test="${userInfo.status == 'not_exist'}">selected</c:if>>
+                禁用账号
+            </option>
         </select>
     </div>
 
     <div style="margin-top: 16px; text-align: center;">
         <input type="submit" value="保存修改"/>
-        <a th:href="@{/superadmin/userManage/modifyAccountPage}">返回列表</a>
+        <a href="${pageContext.request.contextPath}/superadmin/userManage/modifyAccountPage">返回列表</a>
     </div>
 
 </form>

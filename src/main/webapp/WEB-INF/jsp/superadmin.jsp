@@ -153,6 +153,20 @@
             .sidebar { width: 200px; }
             .brand h1 { font-size: 14px; }
         }
+
+        .logout {
+            font-size: 14px;
+            color: #374151;
+            text-decoration: none;
+            padding: 6px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background-color: #f9fafb;
+        }
+
+        .logout:hover {
+            background-color: #e5e7eb;
+        }
     </style>
 </head>
 
@@ -163,7 +177,6 @@
     <aside class="sidebar">
         <div class="brand">
             <h1>超级管理员后台</h1>
-            <p>角色功能示范页（用户管理 / 权限管理 / 系统管理）</p>
         </div>
 
         <nav class="menu">
@@ -176,13 +189,17 @@
                 </summary>
                 <div class="submenu">
                     <a class="active"
-                       data-breadcrumb="超级管理员后台 / 用户管理 / 用户列表"
-                       href="${pageContext.request.contextPath}/superadmin/userManage"
-                       target="mainFrame">用户列表</a>
+                       data-breadcrumb="超级管理员后台 / 用户管理 / 修改账号"
+                       href="${pageContext.request.contextPath}/superadmin/userManage/modifyAccountPage"
+                       target="mainFrame">修改账号</a>
 
-                    <a data-breadcrumb="超级管理员后台 / 用户管理 / 新增用户"
-                       href="${pageContext.request.contextPath}/superadmin/userCreate"
-                       target="mainFrame">新增用户</a>
+                    <a data-breadcrumb="超级管理员后台 / 用户管理 / 创建账号"
+                       href="${pageContext.request.contextPath}/superadmin/userManage/createAccountPage"
+                       target="mainFrame">创建账号</a>
+
+                    <a data-breadcrumb="超级管理员后台 / 用户管理 / 删除账号"
+                       href="${pageContext.request.contextPath}/superadmin/userManage/deleteAccountPage"
+                       target="mainFrame">删除账号</a>
                 </div>
             </details>
 
@@ -196,10 +213,6 @@
                     <a data-breadcrumb="超级管理员后台 / 权限管理 / 权限配置"
                        href="${pageContext.request.contextPath}/superadmin/permissionManage"
                        target="mainFrame">权限配置</a>
-
-                    <a data-breadcrumb="超级管理员后台 / 权限管理 / 角色管理"
-                       href="${pageContext.request.contextPath}/superadmin/roleManage"
-                       target="mainFrame">角色管理</a>
                 </div>
             </details>
 
@@ -210,12 +223,8 @@
                     <span class="chev"></span>
                 </summary>
                 <div class="submenu">
-                    <a data-breadcrumb="超级管理员后台 / 系统管理 / 系统设置"
-                       href="${pageContext.request.contextPath}/superadmin/systemManage"
-                       target="mainFrame">系统设置</a>
-
                     <a data-breadcrumb="超级管理员后台 / 系统管理 / 系统日志"
-                       href="${pageContext.request.contextPath}/superadmin/logs"
+                       href="${pageContext.request.contextPath}/superadmin/systemManage/queryLogs"
                        target="mainFrame">系统日志</a>
                 </div>
             </details>
@@ -226,15 +235,22 @@
     <!-- 右侧内容 -->
     <main class="main">
         <div class="topbar">
-            <div class="path" id="breadcrumb">当前位置：超级管理员后台 / 用户管理 / 用户列表</div>
-            <div style="font-size:12px;color:#6b7280;">JSP + Servlet 侧栏（链接树）</div>
+            <div class="path" id="breadcrumb">
+                当前位置：超级管理员后台 / 用户管理 / 修改账号
+            </div>
+
+            <a href="${pageContext.request.contextPath}/author/logout"
+               class="logout"
+               onclick="return confirm('确认退出登录？');">
+                退出登录
+            </a>
         </div>
 
         <div class="content">
             <!-- 默认加载一个子页面（你也可以换成 systemManage 等） -->
             <iframe class="frame"
                     name="mainFrame"
-                    src="${pageContext.request.contextPath}/superadmin/userManage">
+                    src="${pageContext.request.contextPath}/superadmin/userManage/modifyAccountPage">
             </iframe>
         </div>
     </main>

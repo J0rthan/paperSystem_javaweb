@@ -75,18 +75,28 @@ public class superAdminServiceImpl implements superAdminService{
 
     @Override
     public void modifyUser(User user) {
-        User dbUser = suAdminDao.findById(user.getUserId()).orElse(null);
+        User dbUser = suAdminDao.findById(user.getUserId())
+                .orElseThrow(() -> new RuntimeException("用户不存在: " + user.getUserId()));
+
         dbUser.setUserName(user.getUserName());
-        // 密码留空则不修改
-        if (!user.getPassword().equals("")) {
-            dbUser.setPassword(user.getPassword());
+
+        // 密码：null/空白 => 不修改；有值 => 才更新
+        String pwd = user.getPassword();
+        if (pwd != null && !pwd.isBlank()) {
+            dbUser.setPassword(pwd);
         }
+
         dbUser.setFullName(user.getFullName());
         dbUser.setEmail(user.getEmail());
         dbUser.setUserType(user.getUserType());
         dbUser.setCompany(user.getCompany());
         dbUser.setInvestigationDirection(user.getInvestigationDirection());
-        dbUser.setRegisterTime(user.getRegisterTime());
+
+        //  注册时间：一般不允许改；如果你确实要允许改，也必须判空
+        if (user.getRegisterTime() != null) {
+            dbUser.setRegisterTime(user.getRegisterTime());
+        }
+
         dbUser.setStatus(user.getStatus());
 
         suAdminDao.save(dbUser);

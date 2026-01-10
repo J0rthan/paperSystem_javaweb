@@ -1,3 +1,4 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -13,7 +14,6 @@
             text-align: center;
         }
 
-        /* 顶部三个功能按钮 */
         .tab-button {
             display: inline-block;
             margin: 20px 10px;
@@ -34,7 +34,6 @@
             margin-top: 20px;
         }
 
-        /* 表单整体居中 */
         form {
             width: 420px;
             margin: 20px auto;
@@ -76,13 +75,11 @@
 
 <body>
 
-<a href="/superadmin/userManage/createAccountPage" class="tab-button active">创建账号</a>
-<a href="/superadmin/userManage/deleteAccountPage" class="tab-button">删除账号</a>
-<a href="/superadmin/userManage/modifyAccountPage" class="tab-button">修改账号</a>
-
 <h2>创建账号</h2>
 
-<form action="/superadmin/userManage/createAccount" method="post">
+<form action="<%= request.getContextPath() %>/superadmin/userManage/createAccount"
+      method="post">
+
     <div>
         <label for="userName">账号名：</label>
         <input id="userName" name="userName" type="text" placeholder="请输入账号名" required>
@@ -107,47 +104,39 @@
 
     <div>
         <label for="email">邮箱</label>
-        <input
-                type="email"
-                id="email"
-                name="email"
-                placeholder="example@domain.com"
-                pattern="^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
-                required
-        >
+        <input type="email"
+               id="email"
+               name="email"
+               placeholder="example@domain.com"
+               pattern="^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
+               required>
     </div>
 
     <div>
         <label for="fullName">全名</label>
-        <input
-                type="text"
-                id="fullName"
-                name="fullName"
-                placeholder="请输入您的全名"
-                required
-        >
+        <input type="text"
+               id="fullName"
+               name="fullName"
+               placeholder="请输入您的全名"
+               required>
     </div>
 
     <div>
         <label for="company">公司</label>
-        <input
-                type="text"
-                id="company"
-                name="company"
-                placeholder="请输入您的公司名"
-                required
-        >
+        <input type="text"
+               id="company"
+               name="company"
+               placeholder="请输入您的公司名"
+               required>
     </div>
 
     <div>
         <label for="investigationDirection">就业方向</label>
-        <input
-                type="text"
-                id="investigationDirection"
-                name="investigationDirection"
-                placeholder="请输入您的就业方向"
-                required
-        >
+        <input type="text"
+               id="investigationDirection"
+               name="investigationDirection"
+               placeholder="请输入您的就业方向"
+               required>
     </div>
 
     <div style="margin-top: 10px; text-align: center;">

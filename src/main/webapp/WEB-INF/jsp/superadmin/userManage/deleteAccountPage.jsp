@@ -1,5 +1,8 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="zh-CN">
 <head>
     <title>删除账号页</title>
     <meta charset="UTF-8">
@@ -12,7 +15,6 @@
             text-align: center;
         }
 
-        /* 顶部功能按钮 */
         .tab-button {
             display: inline-block;
             margin: 20px 10px;
@@ -33,7 +35,6 @@
             margin: 20px 0;
         }
 
-        /* 表格居中 */
         table {
             margin: 0 auto 30px;
             border-collapse: collapse;
@@ -52,7 +53,6 @@
             font-weight: bold;
         }
 
-        /* 删除按钮 */
         input[type="submit"] {
             padding: 4px 12px;
             border: 1px solid #ccc;
@@ -69,10 +69,6 @@
 
 <body>
 
-<a href="/superadmin/userManage/createAccountPage" class="tab-button active">创建账号</a>
-<a href="/superadmin/userManage/deleteAccountPage" class="tab-button">删除账号</a>
-<a href="/superadmin/userManage/modifyAccountPage" class="tab-button">修改账号</a>
-
 <h2>用户列表</h2>
 
 <table>
@@ -83,18 +79,22 @@
         <th>操作</th>
     </tr>
 
-    <tr th:each="user : ${userList}">
-        <td th:text="${user.getUserName()}"></td>
-        <td th:text="${user.getFullName()}"></td>
-        <td th:text="${user.getUserType()}"></td>
-        <td>
-            <form th:action="@{/superadmin/userManage/deleteAccount}" method="post"
-                  onsubmit="return confirm('确认删除该用户？此操作不可恢复');">
-                <input type="hidden" name="userId" th:value="${user.userId}">
-                <input type="submit" value="删除">
-            </form>
-        </td>
-    </tr>
+    <c:forEach var="user" items="${userList}">
+        <tr>
+            <td>${user.userName}</td>
+            <td>${user.fullName}</td>
+            <td>${user.userType}</td>
+            <td>
+                <form action="${pageContext.request.contextPath}/superadmin/userManage/deleteAccount"
+                      method="post"
+                      onsubmit="return confirm('确认删除该用户？此操作不可恢复');">
+                    <input type="hidden" name="userId" value="${user.userId}">
+                    <input type="submit" value="删除">
+                </form>
+            </td>
+        </tr>
+    </c:forEach>
+
 </table>
 
 </body>

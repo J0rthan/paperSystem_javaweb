@@ -2,27 +2,28 @@
 <html xmlns:th="http://www.thymeleaf.org" class="h-100">
 <head>
   <meta charset="UTF-8">
-  <title>学术论文管理系统-消息中心</title>
+  <title>消息中心 - 学术论文管理系统</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
   <style>
     body { background-color: #f4f7f6; }
     .navbar { background: #212529; border-bottom: 3px solid #0d6efd; }
-    .msg-card { border-radius: 12px; border: none; background: #fff; margin-bottom: 15px; position: relative; transition: box-shadow 0.3s; }
-    .msg-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important; }
-    .msg-sent { border-left: 5px solid #0d6efd; }
-    .msg-received { border-left: 5px solid #198754; }
+    .msg-card { border-radius: 12px; border: none; background: #fff; margin-bottom: 15px; position: relative; transition: all 0.3s; }
+    .msg-card:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(0,0,0,0.1) !important; }
+
+    /* 蓝色代表我发送的，绿色代表我收到的 */
+    .msg-sent { border-left: 5px solid #0d6efd; background: linear-gradient(to right, #f0f7ff, #ffffff); }
+    .msg-received { border-left: 5px solid #198754; background: linear-gradient(to right, #f2faf5, #ffffff); }
+
     .msg-time-tag { position: absolute; top: 15px; right: 20px; font-size: 0.85rem; color: #6c757d; }
-    .nav-pills .nav-link.active { background-color: #0d6efd; border-radius: 50px; }
-    .msg-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-    .msg-count-badge { font-size: 0.9rem; color: #495057; background: #e9ecef; padding: 5px 15px; border-radius: 20px; }
-    .btn-sort-custom { font-size: 0.85rem; padding: 4px 12px; border-radius: 20px; color: #0d6efd; border: 1px solid #0d6efd; background: white; transition: 0.2s; }
-    .btn-sort-custom:hover { background: #0d6efd; color: white; }
+
+    /* 私信表隐藏表头 */
     #clientMsgTable thead { display: none; }
     #clientMsgTable td { border: none !important; padding: 0 !important; background: transparent !important; }
-    #emailFullContent p { margin-bottom: 1rem; }
-    .detail-container { line-height: 1.8; color: #333; font-size: 1rem; }
+
+    .user-avatar { width: 32px; height: 32px; background: #e9ecef; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #6c757d; }
+    .nav-pills .nav-link.active { box-shadow: 0 4px 10px rgba(13, 110, 253, 0.1); }
   </style>
 </head>
 <body class="bg-light d-flex flex-column h-100">
@@ -46,7 +47,6 @@
             <i class="bi bi-gear-fill fs-5"></i>
           </a>
         </li>
-
         <li class="nav-item dropdown ms-2">
                     <span class="navbar-text text-light me-3">
                         <i class="bi bi-person-circle me-1"></i>
@@ -64,53 +64,76 @@
 <main class="flex-grow-1">
   <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
+      <small class="text-muted">欢迎您：<span th:text="${session.loginUser.userName}">作者</span></small>
       <h3 class="fw-bold mb-0">消息中心</h3>
-      <a th:href="@{/author/manuscript/list}" class="btn btn-sm btn-secondary rounded-pill px-3">返回列表</a>
+      <a th:href="@{/author/manuscript/list}" class="btn btn-sm btn-secondary rounded-pill px-3">返回稿件列表</a>
     </div>
 
-    <ul class="nav nav-pills mb-4 bg-white p-2 rounded-pill shadow-sm d-inline-flex" id="pills-tab">
-      <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-client">与编辑沟通</button></li>
-      <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-email">查看我的邮件</button></li>
+    <ul class="nav nav-pills mb-4 bg-white p-2 rounded-pill shadow-sm d-inline-flex" id="msgTabs">
+      <li class="nav-item">
+        <button class="nav-link active rounded-pill px-4" data-bs-toggle="pill" data-bs-target="#tab-client" type="button">站内私信</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link rounded-pill px-4" data-bs-toggle="pill" data-bs-target="#tab-email" type="button">系统邮件</button>
+      </li>
     </ul>
 
     <div class="tab-content">
       <div class="tab-pane fade show active" id="tab-client">
-        <div class="msg-toolbar">
-          <div class="msg-count-badge shadow-sm" id="msgTotalCount"><i class="bi bi-chat-dots me-1"></i> 共 0 条私信</div>
-          <button class="btn-sort-custom" id="msgSortBtn"><i class="bi bi-sort-down"></i> 切换时间排序</button>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="text-muted small"><i class="bi bi-info-circle me-1"></i>默认显示最新消息</div>
+          <button class="btn btn-sm btn-light border rounded-pill px-3 shadow-sm" id="btn-toggle-sort">
+            <i class="bi bi-sort-down"></i> <span id="sort-text">切换为时间逆序</span>
+          </button>
         </div>
 
         <table id="clientMsgTable" class="table w-100">
-          <thead><tr><th>Content</th></tr></thead>
+          <thead><tr><th>内容</th></tr></thead>
           <tbody>
           <tr th:each="msg : ${clientMsgs}">
             <td th:data-order="${msg.sendingTime}">
-              <div class="card msg-card shadow-sm" th:classappend="${msg.senderId == session.loginUser.userId} ? 'msg-sent' : 'msg-received'">
+              <div class="card msg-card shadow-sm"
+                   th:classappend="${msg.senderId == session.loginUser.userId} ? 'msg-sent' : 'msg-received'">
                 <div class="card-body p-4">
-                  <div class="msg-time-tag"><i class="bi bi-clock me-1"></i>[[${#temporals.format(msg.sendingTime, 'yyyy-MM-dd HH:mm')}]]</div>
+                  <div class="msg-time-tag">
+                    <i class="bi bi-clock me-1"></i>
+                    <span th:text="${#temporals.format(msg.sendingTime, 'yyyy-MM-dd HH:mm')}">时间</span>
+                  </div>
+
                   <div class="d-flex align-items-center mb-3">
-                    <div class="fw-bold text-dark">
-                      <span th:if="${msg.senderId == session.loginUser.userId}" class="text-primary">发送给编辑</span>
-                      <span th:unless="${msg.senderId == session.loginUser.userId}" class="text-success">编辑来信</span>
-                      <span class="ms-2 badge bg-light text-secondary border">稿件 #[[${msg.manuId}]]</span>
+                    <div class="user-avatar me-2">
+                      <i class="bi" th:classappend="${msg.senderId == session.loginUser.userId} ? 'bi-send-fill' : 'bi-chat-left-dots-fill'"></i>
+                    </div>
+                    <div class="fw-bold">
+                                            <span th:if="${msg.senderId != session.loginUser.userId}" class="text-success">
+                                                来自编辑：<span th:text="${msg.sender != null ? msg.sender.userName : '编辑'}">编辑名</span>
+                                            </span>
+                      <span th:if="${msg.senderId == session.loginUser.userId}" class="text-primary">
+                                                发送给：<span th:text="${msg.receiver != null ? msg.receiver.userName : '编辑部'}">接收人名</span>
+                                            </span>
+                      <span class="ms-3 badge bg-light text-secondary border fw-normal small">稿件 ID: [[${msg.manuId}]]</span>
                     </div>
                   </div>
-                  <div class="text-secondary" th:utext="${msg.messageBody}">内容</div>
+
+                  <div class="text-dark" style="white-space: pre-wrap; line-height: 1.6;">[[${msg.messageBody}]]</div>
                 </div>
               </div>
             </td>
           </tr>
           </tbody>
         </table>
+        <div th:if="${#lists.isEmpty(clientMsgs)}" class="text-center py-5 bg-white rounded-4 shadow-sm">
+          <p class="text-muted mb-0">暂无站内消息记录</p>
+        </div>
       </div>
 
       <div class="tab-pane fade" id="tab-email">
         <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
           <table id="emailTable" class="table table-hover align-middle w-100">
-            <thead>
+            <thead class="table-light">
             <tr>
               <th>关联稿件</th>
-              <th>内容预览</th>
+              <th>邮件预览</th>
               <th>发送时间</th>
               <th class="text-end">操作</th>
             </tr>
@@ -118,11 +141,11 @@
             <tbody>
             <tr th:each="email : ${emailMsgs}">
               <td><span class="badge bg-primary-subtle text-primary">MS-[[${email.manuId}]]</span></td>
-              <td><div class="text-truncate text-muted" style="max-width: 300px;">[[${email.messageBody}]]</div></td>
-              <td class="small">[[${#temporals.format(email.sendingTime, 'yyyy-MM-dd HH:mm')}]]</td>
+              <td><div class="text-truncate text-muted" style="max-width: 400px;">[[${email.messageBody}]]</div></td>
+              <td class="small text-muted" th:text="${#temporals.format(email.sendingTime, 'yyyy-MM-dd HH:mm')}">时间</td>
               <td class="text-end">
                 <button class="btn btn-sm btn-outline-primary rounded-pill read-email-btn"
-                        th:attr="data-email-body=${email.messageBody}">阅读全文</button>
+                        th:attr="data-email-body=${email.messageBody}">详情</button>
               </td>
             </tr>
             </tbody>
@@ -134,20 +157,14 @@
 </main>
 
 <div class="modal fade" id="emailModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered modal-lg"> <div class="modal-content border-0 shadow-lg rounded-4">
-    <div class="modal-header border-0 bg-light p-4">
-      <h5 class="modal-title fw-bold text-primary"><i class="bi bi-file-earmark-text me-2"></i>详情内容</h5>
-      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-    </div>
-    <div class="modal-body p-4">
-      <div class="detail-container px-2">
-        <div id="emailFullContent"></div>
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header border-0 bg-light p-4">
+        <h5 class="modal-title fw-bold text-primary"><i class="bi bi-envelope-open-fill me-2"></i>通知详情</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
+      <div class="modal-body p-4" id="emailFullContent" style="line-height: 1.8; white-space: pre-wrap;"></div>
     </div>
-    <div class="modal-footer border-0">
-      <button type="button" class="btn btn-primary rounded-pill px-5" data-bs-dismiss="modal">关闭</button>
-    </div>
-  </div>
   </div>
 </div>
 
@@ -156,46 +173,56 @@
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
+
+
 <script th:inline="none">
   $(document).ready(function() {
-    var chinese = {
-      "search": "搜索:",
-      "lengthMenu": "每页 _MENU_ 条",
-      "info": "显示 _START_ 到 _END_ 条 / 共 _TOTAL_ 条",
-      "infoEmpty": "共 0 条记录",
+    const lang = {
+      "search": "查找:",
+      "zeroRecords": "未找到相关记录",
       "paginate": { "next": "下一页", "previous": "上一页" }
     };
 
+    // 1. 初始化站内私信表 (隐藏表头模式)
     var clientTable = $('#clientMsgTable').DataTable({
-      "language": chinese, "pageLength": 5, "lengthChange": false, "order": [[0, "desc"]], "dom": "ftp",
-      "drawCallback": function(settings) {
-        $('#msgTotalCount').html('<i class="bi bi-chat-dots me-1"></i> 共 ' + settings.fnRecordsTotal() + ' 条私信');
+      "language": lang,
+      "pageLength": 5,
+      "dom": "ftp",
+      "order": [[ 0, "desc" ]] // 默认逆序：最新在前
+    });
+
+    // 2. 初始化邮件表 (带表头模式)
+    $('#emailTable').DataTable({
+      "language": lang,
+      "pageLength": 10,
+      "dom": "ftp",
+      "order": [[ 2, "desc" ]] // 邮件按第三列排序
+    });
+
+    // 3. 站内私信手动排序切换功能
+    $('#btn-toggle-sort').on('click', function() {
+      var currentOrder = clientTable.order();
+      var dir = currentOrder[0][1]; // 'asc' or 'desc'
+
+      if (dir === 'desc') {
+        clientTable.order([0, 'asc']).draw();
+        $(this).html('<i class="bi bi-sort-up"></i> <span id="sort-text">切换为时间顺序</span>');
+      } else {
+        clientTable.order([0, 'desc']).draw();
+        $(this).html('<i class="bi bi-sort-down"></i> <span id="sort-text">切换为时间逆序</span>');
       }
     });
 
-    $('#emailTable').DataTable({ "language": chinese, "pageLength": 10, "lengthChange": false, "order": [[2, "desc"]] });
-
-    $('#msgSortBtn').on('click', function() {
-      var nextOrder = (clientTable.order()[0][1] === 'desc') ? 'asc' : 'desc';
-      clientTable.order([0, nextOrder]).draw();
-      $(this).html('<i class="bi ' + (nextOrder === 'asc' ? 'bi-sort-up' : 'bi-sort-down') + '"></i> ' + (nextOrder === 'asc' ? '切换为逆序' : '切换为顺序'));
+    // 解决 Tab 切换表格宽度压缩问题
+    $('button[data-bs-toggle="pill"]').on('shown.bs.tab', function (e) {
+      $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
     });
 
-    // 修复 <p> 标签问题的核心 JS 代码
+    // 模态框正文填充
     $(document).on('click', '.read-email-btn', function() {
-      var rawContent = $(this).attr('data-email-body');
-
-      // 1. 如果内容里包含 \n，先将其转换为 <br> 方便显示
-      var formattedContent = rawContent.replace(/\n/g, '<br>');
-
-      // 2. 使用 .html() 而不是 .text()，这样浏览器就会解析里面的 <p> 和 <br> 标签
-      $('#emailFullContent').html(formattedContent);
-
+      var body = $(this).attr('data-email-body');
+      $('#emailFullContent').text(body);
       new bootstrap.Modal('#emailModal').show();
-    });
-
-    $('button[data-bs-toggle="pill"]').on('shown.bs.tab', function () {
-      $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
     });
   });
 </script>

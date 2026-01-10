@@ -21,4 +21,9 @@ public class chiefEditorController {
         model.addAttribute("username", loginUser.getUserName());
         return "chiefeditor";
     }
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/index";
+    }
 }

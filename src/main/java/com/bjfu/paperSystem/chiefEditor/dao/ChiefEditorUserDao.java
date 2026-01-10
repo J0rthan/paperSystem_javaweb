@@ -11,6 +11,8 @@ public interface ChiefEditorUserDao extends JpaRepository<User, Integer> {
     List<User> findByStatus(String status);
 
     List<User> findByUserTypeIgnoreCase(String userType);
+    
+    User findByUserName(String userName);
 }
 
 

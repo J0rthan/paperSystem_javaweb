@@ -2,48 +2,265 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>撤稿与特殊操作 · 主编</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>撤稿管理 · 主编</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #00629B;
+            --secondary-color: #003d5c;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --bg-light: #f8f9fa;
+            --text-dark: #2c3e50;
+            --text-muted: #6c757d;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .navbar-custom {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .navbar-brand-custom {
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--primary-color) !important;
+        }
+
+        .nav-link-custom {
+            color: var(--text-dark) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link-custom:hover, .nav-link-custom.active {
+            color: var(--primary-color) !important;
+            background: var(--bg-light);
+            border-radius: 4px;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem 2rem;
+        }
+
+        .page-header {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .page-title {
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .table thead th {
+            border: none;
+            padding: 1rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .badge {
+            padding: 0.4rem 0.8rem;
+            font-weight: 500;
+            border-radius: 6px;
+        }
+
+        .btn-group-sm .btn {
+            padding: 0.35rem 0.75rem;
+            font-size: 0.875rem;
+            border-radius: 6px;
+        }
+
+        .modal-content {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+
+        .modal-header {
+            background: var(--bg-light);
+            border-bottom: 1px solid #dee2e6;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .modal-title {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .info-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+    </style>
 </head>
-<body class="bg-light">
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h4 mb-0">撤稿与特殊操作</h1>
-        <a href="/chiefeditor" class="btn btn-outline-secondary btn-sm">返回工作台</a>
+<body>
+
+<!-- 导航栏 -->
+<nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container-fluid">
+        <div class="container">
+            <a class="navbar-brand navbar-brand-custom" href="/chiefeditor">
+                <i class="bi bi-journal-text"></i> 主编系统
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/chiefeditor/manuscripts">
+                            <i class="bi bi-file-text"></i> 稿件管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/chiefeditor/reviewers">
+                            <i class="bi bi-people"></i> 审稿人管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/chiefeditor/initial-review">
+                            <i class="bi bi-search"></i> 初审管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/chiefeditor/decisions">
+                            <i class="bi bi-check-circle"></i> 稿件决议
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom active" href="/chiefeditor/withdrawals">
+                            <i class="bi bi-arrow-return-right"></i> 撤稿管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/chiefeditor/profile">
+                            <i class="bi bi-person-circle"></i> 个人资料
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/chiefeditor/logout">
+                            <i class="bi bi-box-arrow-right"></i> 退出
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="main-container">
+    <!-- 页面标题 -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="page-title">
+                    <i class="bi bi-arrow-return-right"></i> 撤稿管理
+                </h1>
+                <p class="text-muted mb-0 mt-2">
+                    <i class="bi bi-info-circle"></i> 仅在发现学术不端、严重错误或作者正式申请撤稿等情况下使用。所有撤稿操作都会被记录在系统日志中。
+                </p>
+            </div>
+
+        </div>
     </div>
 
-    <p class="text-muted">
-        仅在发现学术不端、严重错误或作者正式申请撤稿等情况下使用。所有撤稿操作都会被记录在系统日志中。
-    </p>
-
-    <table class="table table-hover table-sm bg-white align-middle">
-        <thead class="table-light">
-        <tr>
-            <th>ID</th>
-            <th>标题</th>
-            <th>作者</th>
-            <th>当前状态</th>
-            <th>撤稿操作</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="m : ${manuscripts}">
-            <td th:text="${m.manuscriptId}">1</td>
-            <td th:text="${m.title}">标题</td>
-            <td th:text="${m.authorList}">作者</td>
-            <td th:text="${m.status}">状态</td>
-            <td>
-                <form th:action="@{/chiefeditor/withdrawals/do}" method="post"
-                      class="d-flex gap-1"
-                      onsubmit="return confirm('确认对该稿件执行撤稿操作？');">
-                    <input type="hidden" name="manuscriptId" th:value="${m.manuscriptId}">
-                    <input class="form-control form-control-sm" name="reason" placeholder="撤稿原因(必填)" required>
-                    <button class="btn btn-danger btn-sm" type="submit">撤稿</button>
-                </form>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <!-- 撤稿操作表格 -->
+    <div class="table-container">
+        <table class="table table-hover align-middle">
+            <thead>
+            <tr>
+                <th><i class="bi bi-hash"></i> ID</th>
+                <th><i class="bi bi-file-text"></i> 标题</th>
+                <th><i class="bi bi-person"></i> 作者</th>
+                <th><i class="bi bi-tags"></i> 当前状态</th>
+                <th><i class="bi bi-gear"></i> 撤稿操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="m : ${manuscripts}">
+                <td th:text="${m.manuscriptId}">1</td>
+                <td>
+                    <div style="max-width: 400px;">
+                        <span th:text="${m.title}" class="text-truncate d-inline-block" style="max-width: 100%;">示例标题</span>
+                    </div>
+                </td>
+                <td th:text="${m.authorList}">作者</td>
+                <td th:text="${m.status}">状态</td>
+                <td>
+                    <form th:action="@{/chiefeditor/withdrawals/do}" method="post" class="d-flex gap-1">
+                        <input type="hidden" name="manuscriptId" th:value="${m.manuscriptId}">
+                        <input class="form-control form-control-sm" name="reason" placeholder="撤稿原因(必填)" required style="min-width: 200px;">
+                        <button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('确认对该稿件执行撤稿操作？');">
+                            <i class="bi bi-exclamation-triangle"></i> 撤稿
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

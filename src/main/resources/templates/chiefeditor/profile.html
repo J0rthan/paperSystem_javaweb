@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人资料 · 主编</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #00629B;
+            --secondary-color: #003d5c;
+            --success-color: #28a745;
+            --info-color: #17a2b8;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --bg-light: #f8f9fa;
+            --text-dark: #2c3e50;
+            --text-muted: #6c757d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        /* 导航栏 */
+        .navbar-custom {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .navbar-brand-custom {
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--primary-color) !important;
+        }
+
+        .nav-link-custom {
+            color: var(--text-dark) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link-custom:hover {
+            color: var(--primary-color) !important;
+            background: var(--bg-light);
+            border-radius: 4px;
+        }
+
+        .nav-link-custom.active {
+            color: var(--primary-color) !important;
+            background: var(--bg-light);
+            border-radius: 4px;
+        }
+
+        /* 主容器 */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem 2rem;
+        }
+
+        /* 页面标题 */
+        .page-header {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .page-title {
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .page-subtitle {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        /* 表单样式 */
+        .form-container {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(0, 98, 155, 0.25);
+        }
+
+        /* 用户信息 */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem 0.5rem;
+            }
+            .page-header {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- 导航栏 -->
+<nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container-fluid">
+        <div class="container">
+            <a class="navbar-brand navbar-brand-custom" href="/chiefeditor">
+                <i class="bi bi-journal-text"></i> 主编系统
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/chiefeditor/manuscripts">
+                            <i class="bi bi-file-text"></i> 稿件管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/chiefeditor/reviewers">
+                            <i class="bi bi-people"></i> 审稿人管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/chiefeditor/initial-review">
+                            <i class="bi bi-search"></i> 初审管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/chiefeditor/decisions">
+                            <i class="bi bi-check-circle"></i> 稿件决议
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/chiefeditor/withdrawals">
+                            <i class="bi bi-arrow-return-right"></i> 撤稿管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom active" href="/chiefeditor/profile">
+                            <i class="bi bi-person-circle"></i> 个人资料
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/chiefeditor/logout">
+                            <i class="bi bi-box-arrow-right"></i> 退出
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="main-container">
+
+    <!-- 页面标题 -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="page-title">
+                    <i class="bi bi-person-circle"></i> 个人资料
+                </h1>
+                <p class="text-muted mb-0 mt-2">
+                    <i class="bi bi-info-circle"></i> 管理您的个人信息和账户设置
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 个人资料表单 -->
+    <div class="form-container">
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>错误：</strong> <span th:text="${error}">错误消息</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div th:if="${msg}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>成功：</strong> <span th:text="${msg}">成功消息</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <form th:action="@{/chiefeditor/profile/update}" method="post">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="userName" class="form-label">账号名</label>
+                        <input type="text" id="userName" name="userName" class="form-control"
+                               th:value="${user.userName}" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="fullName" class="form-label">全名</label>
+                        <input type="text" id="fullName" name="fullName" class="form-control"
+                               th:value="${user.fullName}">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">邮箱</label>
+                        <input type="email" id="email" name="email" class="form-control"
+                               th:value="${user.email}">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="company" class="form-label">单位</label>
+                        <input type="text" id="company" name="company" class="form-control"
+                               th:value="${user.company}">
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="mb-3">
+                        <label for="investigationDirection" class="form-label">研究方向</label>
+                        <input type="text" id="investigationDirection" name="investigationDirection" class="form-control"
+                               th:value="${user.investigationDirection}">
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="mb-3">
+                        <label for="password" class="form-label">修改密码</label>
+                        <input type="password"
+                               name="password"
+                               id="password"
+                               class="form-control"
+                               placeholder="若不修改请留空"
+                               minlength="8"
+                               oninput="checkPasswordLength(this)">
+                        <div id="passwordHelp" class="form-text text-danger" style="display:none;">
+                            密码长度不足 8 位！
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                function checkPasswordLength(input) {
+                    const helpText = document.getElementById('passwordHelp');
+                    if (input.value.length > 0 && input.value.length < 8) {
+                        helpText.style.display = 'block';
+                    } else {
+                        helpText.style.display = 'none';
+                    }
+                }
+            </script>
+
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i> 保存修改
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

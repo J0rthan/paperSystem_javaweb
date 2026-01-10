@@ -151,6 +151,41 @@
             margin-bottom: 1rem;
             opacity: 0.5;
         }
+
+        .abstract-cell{
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            justify-content: space-between;
+        }
+
+        .abstract{
+            flex: 1 1 auto;
+            min-width: 0;
+            text-align: left;
+            color: #374151;
+            line-height: 1.55;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            overflow: hidden;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
+
+        .btn-more{
+            flex: 0 0 auto;
+            display: none;
+            padding: 0;
+            border: none;
+            background: transparent;
+            color: gray;
+            font-weight: 800;
+        }
+
+        .btn-more:hover{
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -241,7 +276,12 @@
             <tr th:each="m : ${manuscripts}">
                 <td th:text="${m.manuscriptId}">1</td>
                 <td th:text="${m.title}">标题</td>
-                <td th:utext="${m.abstractText}">摘要</td>
+                <td>
+                    <div class="abstract-cell">
+                        <div class="abstract" th:utext="${m.abstractText}"></div>
+                        <button type="button" class="btn-more" aria-label="展开摘要">展开</button>
+                    </div>
+                </td>
                 <td th:text="${m.authorId}">作者Id</td>
                 <td th:text="${#temporals.format(m.submitTime, 'yyyy-MM-dd HH:mm')}">时间</td>
                 <td>
@@ -265,5 +305,67 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- 摘要展开对话框 -->
+<dialog id="absDialog" style="
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 0;
+    max-width: 80vw;
+    max-height: 80vh;
+    overflow: auto;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+">
+    <div style="padding: 1.5rem; border-bottom: 1px solid #e5e7eb;">
+        <h3 style="margin: 0; font-size: 1.25rem; font-weight: 600;">摘要详情</h3>
+        <button type="button" onclick="document.getElementById('absDialog').close()" 
+                style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer;">
+            ×
+        </button>
+    </div>
+    <div id="absBody" style="padding: 1.5rem; font-size: 1rem; line-height: 1.6;"></div>
+</dialog>
+
+<script>
+    const dialog = document.getElementById('absDialog');
+    const bodyEl = document.getElementById('absBody');
+    
+    // 判断一个元素是否被 line-clamp 截断（溢出）
+    function isClamped(el) {
+        return el.scrollHeight > el.clientHeight + 1;
+    }
+    
+    function initAbstractMore() {
+        const cells = document.querySelectorAll(".abstract-cell");
+        cells.forEach(cell => {
+            const abs = cell.querySelector(".abstract");
+            const btn = cell.querySelector(".btn-more");
+            if (!abs || !btn) return;
+
+            // 只在溢出时显示“展开”
+            if (isClamped(abs)) {
+                btn.style.display = "inline";
+            } else {
+                btn.style.display = "none";
+            }
+
+            btn.addEventListener("click", () => {
+                // 用 innerText 获取纯文本（更安全、不会注入 HTML）
+                bodyEl.textContent = abs.innerText || "";
+                dialog.showModal();
+            });
+        });
+    }
+    
+    // 点击对话框外部关闭对话框
+    document.addEventListener("click", e => {
+        if (dialog.open && e.target === dialog) {
+            dialog.close();
+        }
+    });
+    
+    // 页面加载完成后初始化
+    window.addEventListener("DOMContentLoaded", initAbstractMore);
+</script>
 </body>
 </html>

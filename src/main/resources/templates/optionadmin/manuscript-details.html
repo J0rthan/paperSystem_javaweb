@@ -271,7 +271,7 @@
             </div>
             <div class="col-12">
                 <div class="info-label">摘要</div>
-                <div class="info-value p-3 bg-light rounded" style="white-space: pre-wrap;" th:text="${manuscript.abstractText ?: '暂无摘要内容'}">摘要内容...</div>
+                <div class="info-value p-3 bg-light rounded" style="white-space: pre-wrap;" th:utext="${manuscript.abstractText ?: '暂无摘要内容'}">摘要内容...</div>
             </div>
             <div class="col-md-6">
                 <div class="info-label">稿件ID</div>
@@ -280,10 +280,6 @@
             <div class="col-md-6">
                 <div class="info-label">提交时间</div>
                 <p class="info-value" th:text="${#temporals.format(manuscript.submitTime, 'yyyy-MM-dd HH:mm')}">2026-01-01</p>
-            </div>
-            <div class="col-md-6">
-                <div class="info-label">稿件状态</div>
-                <p class="info-value" th:text="${manuscript.status}">待审核</p>
             </div>
         </div>
     </div>

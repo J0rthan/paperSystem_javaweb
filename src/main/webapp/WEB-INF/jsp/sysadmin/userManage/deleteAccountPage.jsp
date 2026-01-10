@@ -7,93 +7,176 @@
     <title>删除账号页</title>
     <meta charset="UTF-8">
     <style>
-        body {
+        :root{
+            --bg: #f6f7fb;
+            --card: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --header: #f3f4f6;
+            --hover: #f9fafb;
+
+            --danger: #dc2626;
+            --danger-weak: rgba(220,38,38,.10);
+
+            --shadow: 0 10px 30px rgba(17,24,39,.08);
+            --radius: 12px;
+        }
+
+        *{ box-sizing: border-box; }
+        html, body{ height: 100%; }
+
+        /* ✅ iframe/右侧内容区：不要居中，铺满父容器 */
+        body{
             margin: 0;
-            font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
-            background-color: #f6f7fb;
-            color: #333;
-            text-align: center;
+            font-family: "PingFang SC","Microsoft YaHei", Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            text-align: left;
+            padding: 16px;
         }
 
-        .tab-button {
-            display: inline-block;
-            margin: 20px 10px;
-            padding: 8px 18px;
-            text-decoration: none;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            color: #333;
-            background-color: #fff;
+        /* ✅ 表格：铺满，不再 min-width，不再 auto 居中 */
+        #userTable{
+            width: 100% !important;
+            margin: 0 !important;
+            border-collapse: separate !important;
+            border-spacing: 0 !important;
+            background: var(--card) !important;
+            border: 1px solid var(--border) !important;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
         }
 
-        .tab-button:hover { background-color: #f2f2f2; }
-
-        .tab-button.active {
-            background-color: #eaeaea;
-            font-weight: bold;
-        }
-
-        h2 { margin: 20px 0; }
-
-        table {
-            margin: 0 auto 30px;
-            border-collapse: collapse;
-            background-color: #fff;
-            min-width: 900px;
-            box-shadow: 0 6px 18px rgba(0,0,0,.06);
-        }
-
-        th, td {
-            padding: 10px 16px;
-            border: 1px solid #ddd;
+        /* ✅ 覆盖你 th/td 上的 inline 样式：统一细线与间距 */
+        #userTable th,
+        #userTable td{
+            border: none !important;
+            border-bottom: 1px solid var(--border) !important;
+            padding: 12px 14px !important;
             text-align: center;
             font-size: 14px;
+            white-space: nowrap;
         }
 
-        th {
-            background-color: #f0f2f5;
-            font-weight: bold;
+        #userTable thead th{
+            background: var(--header) !important;
+            color: #374151;
+            font-weight: 700;
+            font-size: 13px;
         }
 
-        tr:hover td { background-color: #fafafa; }
+        #userTable tbody tr:last-child td{
+            border-bottom: none !important;
+        }
 
-        button[type="submit"] {
-            padding: 4px 12px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            background-color: #fff;
+        #userTable tbody tr:hover td{
+            background: var(--hover);
+        }
+
+        /* 删除按钮：危险按钮风格 */
+        #userTable button[type="submit"]{
+            height: 32px;
+            padding: 0 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(220,38,38,.25);
+            background: var(--danger-weak);
+            color: var(--danger);
+            font-weight: 700;
             cursor: pointer;
+            transition: transform .12s ease, background .12s ease, border-color .12s ease;
         }
 
-        button[type="submit"]:hover {
-            background-color: #f2f2f2;
+        #userTable button[type="submit"]:hover{
+            background: rgba(220,38,38,.16);
+            border-color: rgba(220,38,38,.35);
+            transform: translateY(-1px);
         }
 
-        .pager button {
-            padding: 6px 12px;
-            border: 1px solid #ccc;
+        #userTable button[type="submit"]:active{
+            transform: translateY(0);
+        }
+
+        /* 分页区控件统一 */
+        #pageInfo{
+            color: var(--muted);
+            font-size: 13px;
+            padding: 0 6px;
+        }
+
+        button, select, input[type="number"]{ font: inherit; }
+
+        /* 只影响分页区的普通按钮 */
+        #prevBtn, #nextBtn, #gotoBtn{
+            height: 34px;
+            padding: 0 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
             background: #fff;
-            border-radius: 4px;
+            color: #111827;
             cursor: pointer;
+            box-shadow: 0 2px 10px rgba(17,24,39,.06);
+            transition: background .12s ease, transform .12s ease, box-shadow .12s ease;
         }
 
-        .pager button:disabled {
-            opacity: .5;
+        #prevBtn:hover, #nextBtn:hover, #gotoBtn:hover{
+            background: #f9fafb;
+            transform: translateY(-1px);
+            box-shadow: 0 10px 22px rgba(17,24,39,.08);
+        }
+
+        #prevBtn:disabled, #nextBtn:disabled{
+            opacity: .45;
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
-        .pager select, .pager input {
-            padding: 6px 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+        select{
+            height: 34px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            padding: 0 10px;
             background: #fff;
+            color: #111827;
+        }
+
+        input[type="number"]{
+            height: 34px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            padding: 0 10px;
+            background: #fff;
+            color: #111827;
+            outline: none;
+        }
+
+        /* focus 更清晰 */
+        #prevBtn:focus-visible, #nextBtn:focus-visible, #gotoBtn:focus-visible,
+        select:focus-visible, input[type="number"]:focus-visible,
+        #userTable button[type="submit"]:focus-visible{
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(37,99,235,.18);
+            border-color: rgba(37,99,235,.45);
+        }
+
+        /* 小屏：表格可横向滚动避免挤坏 */
+        @media (max-width: 900px){
+            body{ padding: 12px; }
+            #userTable{
+                display: block;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            #userTable th, #userTable td{
+                text-align: left;
+            }
         }
     </style>
 </head>
 
 <body>
-
-<h2>用户列表</h2>
 
 <table id="userTable">
     <thead>
@@ -112,20 +195,17 @@
     <tbody id="userTbody">
     <c:forEach items="${userList}" var="u">
         <tr class="user-row">
-            <td><c:out value="${u.userId}"/></td>
-            <td><c:out value="${u.userName}"/></td>
-            <td><c:out value="${u.userType}"/></td>
-            <td><c:out value="${u.email}"/></td>
-            <td><c:out value="${u.fullName}"/></td>
-            <td><c:out value="${u.company}"/></td>
-            <td><c:out value="${u.investigationDirection}"/></td>
+            <td style="border:1px solid #ddd;padding:8px;"><c:out value="${u.userId}"/></td>
+            <td style="border:1px solid #ddd;padding:8px;"><c:out value="${u.userName}"/></td>
+            <td style="border:1px solid #ddd;padding:8px;"><c:out value="${u.userType}"/></td>
+            <td style="border:1px solid #ddd;padding:8px;"><c:out value="${u.email}"/></td>
+            <td style="border:1px solid #ddd;padding:8px;"><c:out value="${u.fullName}"/></td>
+            <td style="border:1px solid #ddd;padding:8px;"><c:out value="${u.company}"/></td>
+            <td style="border:1px solid #ddd;padding:8px;"><c:out value="${u.investigationDirection}"/></td>
             <td>
-                <form action="${pageContext.request.contextPath}/sysadmin/userManage/deleteAccount"
-                      method="post"
-                      style="display:inline;"
-                      onsubmit="return confirm('确认删除该用户？此操作不可恢复');">
+                <form action="<%=request.getContextPath()%>/sysadmin/userManage/deleteAccount" method="post" style="display:inline;">
                     <input type="hidden" name="userId" value="${u.userId}">
-                    <button type="submit">删除</button>
+                    <button type="submit" onclick="return confirm('确认删除？');">删除</button>
                 </form>
             </td>
         </tr>
@@ -134,8 +214,7 @@
 </table>
 
 <!-- 分页控制区 -->
-<div class="pager"
-     style="margin-top:14px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;">
+<div style="margin-top:14px;display:flex;gap:10px;align-items:center;justify-content:flex-start;flex-wrap:wrap;">
     <button type="button" id="prevBtn">上一页</button>
     <span id="pageInfo"></span>
     <button type="button" id="nextBtn">下一页</button>

@@ -8,170 +8,244 @@
     <title>系统管理 - 操作日志</title>
 
     <style>
-        body {
+        :root{
+            --bg: #f6f7fb;
+            --card: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --header: #f3f4f6;
+            --hover: #f9fafb;
+
+            --primary: #2563eb;
+            --primary-weak: rgba(37,99,235,.10);
+
+            --shadow: 0 10px 30px rgba(17,24,39,.08);
+            --radius: 12px;
+        }
+
+        *{ box-sizing: border-box; }
+        html, body{ height: 100%; }
+
+        /* ✅ 右侧内容区：铺满父容器，不居中 */
+        body{
             margin: 0;
-            font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
-            background-color: #f6f7fb;
-            color: #333;
-            text-align: center;
+            padding: 16px;
+            font-family: "PingFang SC","Microsoft YaHei", Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            text-align: left;
         }
 
-        header {
-            padding: 22px 0 10px;
-        }
-
-        header h1 {
-            margin: 0 0 6px;
-            font-size: 22px;
-        }
-
-        header p {
+        /* ✅ container：占满右侧 div（去掉 max-width 和 auto 居中） */
+        .container{
+            width: 100%;
+            max-width: none;
             margin: 0;
-            color: #666;
-            font-size: 14px;
         }
 
-        .container {
-            width: 92%;
-            max-width: 1100px;
-            margin: 16px auto 30px;
+        /* 卡片统一风格 */
+        .card,
+        .table-card{
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
         }
 
         /* 查询卡片 */
-        .card {
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 6px 18px rgba(0,0,0,.06);
+        .card{
             padding: 18px 18px 14px;
             text-align: left;
         }
 
-        fieldset {
-            border: 1px solid #ddd;
-            border-radius: 8px;
+        fieldset{
+            border: 1px solid var(--border);
+            border-radius: 10px;
             padding: 14px 14px 10px;
             margin: 0;
         }
 
-        legend {
+        legend{
             padding: 0 8px;
-            font-weight: bold;
-            color: #333;
+            font-weight: 700;
+            color: #111827;
+            font-size: 14px;
         }
 
-        .form-grid {
+        .form-grid{
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px 18px;
             margin-top: 10px;
         }
 
-        .form-item label {
-            display: inline-block;
-            width: 90px;
-            font-weight: bold;
+        .form-item{
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-item label{
+            width: auto;
+            font-weight: 600;
+            color: #374151;
+            text-align: right;
+            white-space: nowrap;
         }
 
         input[type="text"],
-        input[type="datetime-local"] {
-            width: 240px;
-            padding: 6px 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+        input[type="datetime-local"]{
+            width: 100%;
+            height: 36px;
+            padding: 0 10px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
             background: #fff;
+            color: #111827;
+            outline: none;
+            transition: box-shadow .12s ease, border-color .12s ease;
         }
 
-        .form-actions {
+        input[type="text"]:focus,
+        input[type="datetime-local"]:focus{
+            border-color: rgba(37,99,235,.45);
+            box-shadow: 0 0 0 4px rgba(37,99,235,.18);
+        }
+
+        /* ✅ 查询/重置按钮：相对居中 */
+        .form-actions{
             margin-top: 14px;
-            text-align: center;
+            display: flex;
+            justify-content: center; /* 你要求的“相对居中” */
+            gap: 12px;
         }
 
-        button {
-            padding: 6px 16px;
-            margin-right: 10px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-            background-color: #fff;
+        button{
+            height: 36px;
+            padding: 0 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: #fff;
+            color: #111827;
             cursor: pointer;
+            font-weight: 700;
+            box-shadow: 0 2px 10px rgba(17,24,39,.06);
+            transition: transform .12s ease, background .12s ease, box-shadow .12s ease, border-color .12s ease;
         }
 
-        button:hover { background-color: #eaeaea; }
+        button:hover{
+            background: var(--hover);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 22px rgba(17,24,39,.08);
+        }
+
+        button[type="submit"]{
+            border-color: rgba(37,99,235,.25);
+            background: var(--primary-weak);
+            color: var(--primary);
+        }
+
+        button[type="submit"]:hover{
+            background: rgba(37,99,235,.16);
+            border-color: rgba(37,99,235,.35);
+        }
 
         /* 表格卡片 */
-        .table-card {
+        .table-card{
             margin-top: 16px;
-            background: #fff;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            box-shadow: 0 6px 18px rgba(0,0,0,.06);
             padding: 14px 14px 10px;
         }
 
-        table {
+        table{
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
             background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
         }
 
-        th, td {
-            padding: 10px 14px;
-            border: 1px solid #ddd;
+        th, td{
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
             text-align: center;
             font-size: 14px;
+            white-space: nowrap;
         }
 
-        th {
-            background-color: #f0f2f5;
-            font-weight: bold;
+        thead th{
+            background: var(--header);
+            font-weight: 700;
+            color: #374151;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border);
         }
 
-        tr:hover td { background-color: #fafafa; }
+        tbody tr:last-child td{
+            border-bottom: none;
+        }
+
+        tbody tr:hover td{
+            background: var(--hover);
+        }
 
         /* 分页控件 */
-        .pager button {
-            padding: 6px 12px;
-            border: 1px solid #ccc;
-            background: #fff;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .pager button:disabled {
-            opacity: .5;
-            cursor: not-allowed;
-        }
-
-        .pager select, .pager input {
-            padding: 6px 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            background: #fff;
-        }
-
-        .pager {
+        .pager{
             margin-top: 12px;
             display: flex;
             gap: 10px;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start; /* 与铺满布局更匹配 */
             flex-wrap: wrap;
         }
 
-        @media (max-width: 820px) {
-            .form-grid { grid-template-columns: 1fr; }
-            input[type="text"], input[type="datetime-local"] { width: 100%; }
-            .form-item label { width: 90px; }
+        .pager button{
+            height: 34px;
+            padding: 0 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: #fff;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 2px 10px rgba(17,24,39,.06);
+        }
+
+        .pager button:disabled{
+            opacity: .5;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .pager select, .pager input{
+            height: 34px;
+            padding: 0 10px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #fff;
+            color: #111827;
+        }
+
+        #pageInfo{
+            color: var(--muted);
+            font-size: 13px;
+            padding: 0 6px;
+        }
+
+        @media (max-width: 900px){
+            .form-grid{ grid-template-columns: 1fr; }
+            .form-item{ grid-template-columns: 1fr; }
+            .form-item label{ text-align: left; }
+            table{ display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            th, td{ text-align: left; }
         }
     </style>
 </head>
 
 <body>
-
-<header>
-    <h1>系统管理</h1>
-    <p>查看操作日志，支持按时间、用户及操作关键字筛选，用于故障排查与审计追溯</p>
-</header>
 
 <div class="container">
 
@@ -270,6 +344,25 @@
 <script>
     (function () {
         const rows = Array.from(document.querySelectorAll(".log-row"));
+        const tbody = document.getElementById("logTbody");
+
+        function parseTime(text){
+            const m = text.match(
+                /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?/
+            );
+            if(!m) return 0;
+            return new Date(
+                m[1], m[2]-1, m[3],
+                m[4], m[5], m[6]||0
+            ).getTime();
+        }
+
+        // ✅ 时间倒序
+        rows.sort((a,b)=>{
+            return parseTime(b.cells[0].innerText) -
+                parseTime(a.cells[0].innerText);
+        });
+        rows.forEach(r=>tbody.appendChild(r));
         const prevBtn = document.getElementById("prevBtn");
         const nextBtn = document.getElementById("nextBtn");
         const pageInfo = document.getElementById("pageInfo");

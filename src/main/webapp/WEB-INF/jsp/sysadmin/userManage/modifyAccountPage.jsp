@@ -7,92 +7,175 @@
     <title>修改账号</title>
     <meta charset="UTF-8">
     <style>
+        :root{
+            --bg: #f6f7fb;
+            --card: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --header: #f3f4f6;
+            --hover: #f9fafb;
+            --primary: #2563eb;
+            --primary-weak: rgba(37,99,235,.10);
+            --shadow: 0 10px 30px rgba(17,24,39,.08);
+            --radius: 12px;
+        }
+
+        * { box-sizing: border-box; }
+        html, body { height: 100%; }
+
         body {
             margin: 0;
             font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
-            background-color: #f6f7fb;
-            color: #333;
-            text-align: center;
-        }
-
-        .tab-button {
-            display: inline-block;
-            margin: 20px 8px 10px;
-            padding: 6px 18px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            text-decoration: none;
-            color: #333;
-            background-color: #fff;
-        }
-
-        .tab-button:hover {
-            background-color: #f2f2f2;
-        }
-
-        .tab-button.active {
-            font-weight: bold;
-            border-color: #999;
+            background-color: var(--bg);
+            color: var(--text);
+            text-align: left;        /* ← 关键 */
+            padding: 16px;           /* 适合 iframe 内边距 */
         }
 
         h2 {
-            margin: 20px 0;
+            margin: 0 0 18px;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: .2px;
+            color: #111827;
         }
 
+        /* 表格整体更像“卡片” */
         table {
-            margin: 0 auto 30px;
-            border-collapse: collapse;
-            background-color: #fff;
-            min-width: 760px;
-            box-shadow: 0 6px 18px rgba(0,0,0,.06);
+            width: 100%;                 /* ← 填满右侧 div */
+            margin: 0;                   /* ← 不再居中 */
+            border-collapse: separate;
+            border-spacing: 0;
+            background-color: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
         }
 
         th, td {
-            border: 1px solid #ddd;
-            padding: 10px 14px;
+            padding: 12px 14px;
             text-align: center;
             font-size: 14px;
+            border-bottom: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        tr td:last-child,
+        tr th:last-child {
+            border-right: none;
         }
 
         th {
-            background-color: #f3f4f6;
-            font-weight: bold;
+            background-color: var(--header);
+            font-weight: 700;
+            color: #374151;
+            font-size: 13px;
         }
 
-        tr:hover td {
-            background-color: #fafafa;
+        /* 最后一行不要底边 */
+        tbody tr:last-child td {
+            border-bottom: none;
         }
 
+        /* 行 hover 更柔和 */
+        tbody tr:hover td {
+            background-color: var(--hover);
+        }
+
+        /* 操作链接：做成按钮样式 */
         td a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 32px;
+            padding: 0 12px;
             text-decoration: none;
-            color: #333;
-            padding: 4px 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            color: var(--primary);
+            border: 1px solid rgba(37,99,235,.25);
+            background: var(--primary-weak);
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 13px;
+            transition: transform .12s ease, background .12s ease, border-color .12s ease;
         }
 
         td a:hover {
-            background-color: #f2f2f2;
+            background: rgba(37,99,235,.16);
+            border-color: rgba(37,99,235,.35);
+            transform: translateY(-1px);
         }
 
-        .pager button {
-            padding: 6px 12px;
-            border: 1px solid #ccc;
+        /* 分页区：统一控件风格（不改你HTML，只覆盖默认样式） */
+        #pageInfo{
+            color: var(--muted);
+            font-size: 13px;
+            padding: 0 6px;
+        }
+
+        button, select, input[type="number"]{
+            font: inherit;
+        }
+
+        button{
+            height: 34px;
+            padding: 0 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
             background: #fff;
-            border-radius: 4px;
+            color: #111827;
             cursor: pointer;
+            box-shadow: 0 2px 10px rgba(17,24,39,.06);
+            transition: background .12s ease, transform .12s ease, box-shadow .12s ease;
         }
 
-        .pager button:disabled {
-            opacity: .5;
+        button:hover{
+            background: #f9fafb;
+            transform: translateY(-1px);
+            box-shadow: 0 10px 22px rgba(17,24,39,.08);
+        }
+
+        button:active{
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(17,24,39,.06);
+        }
+
+        button:disabled{
+            opacity: .45;
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
-        .pager select, .pager input {
-            padding: 6px 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+        select{
+            height: 34px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            padding: 0 10px;
             background: #fff;
+            color: #111827;
+        }
+
+        input[type="number"]{
+            height: 34px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            padding: 0 10px;
+            background: #fff;
+            color: #111827;
+            outline: none;
+        }
+
+        /* 聚焦更明显一点 */
+        button:focus-visible,
+        select:focus-visible,
+        input[type="number"]:focus-visible,
+        td a:focus-visible{
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(37,99,235,.18);
+            border-color: rgba(37,99,235,.45);
         }
     </style>
 </head>
@@ -128,8 +211,14 @@
 </table>
 
 <!-- 前端分页控件（与你给的风格一致） -->
-<div class="pager"
-     style="margin-top:14px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;">
+<div style="
+    margin-top:14px;
+    display:flex;
+    gap:10px;
+    align-items:center;
+    justify-content:flex-start;   <!-- 原来是 center -->
+    flex-wrap:wrap;
+">
     <button type="button" id="prevBtn">上一页</button>
     <span id="pageInfo"></span>
     <button type="button" id="nextBtn">下一页</button>

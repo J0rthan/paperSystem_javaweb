@@ -7,69 +7,176 @@
     <title>删除账号页</title>
     <meta charset="UTF-8">
     <style>
-        body {
+        :root{
+            --bg: #f6f7fb;
+            --card: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --header: #f3f4f6;
+            --hover: #f9fafb;
+
+            --danger: #dc2626;
+            --danger-weak: rgba(220,38,38,.10);
+
+            --shadow: 0 10px 30px rgba(17,24,39,.08);
+            --radius: 12px;
+        }
+
+        *{ box-sizing: border-box; }
+        html, body{ height: 100%; }
+
+        /* ✅ iframe/右侧内容区：不要居中，铺满父容器 */
+        body{
             margin: 0;
-            font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
-            background-color: #f6f7fb;
-            color: #333;
+            font-family: "PingFang SC","Microsoft YaHei", Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            text-align: left;
+            padding: 16px;
+        }
+
+        /* ✅ 表格：铺满，不再 min-width，不再 auto 居中 */
+        #userTable{
+            width: 100% !important;
+            margin: 0 !important;
+            border-collapse: separate !important;
+            border-spacing: 0 !important;
+            background: var(--card) !important;
+            border: 1px solid var(--border) !important;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        /* ✅ 覆盖你 th/td 上的 inline 样式：统一细线与间距 */
+        #userTable th,
+        #userTable td{
+            border: none !important;
+            border-bottom: 1px solid var(--border) !important;
+            padding: 12px 14px !important;
             text-align: center;
+            font-size: 14px;
+            white-space: nowrap;
         }
 
-        .tab-button {
-            display: inline-block;
-            margin: 20px 10px;
-            padding: 8px 18px;
-            text-decoration: none;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            color: #333;
-            background-color: #fff;
+        #userTable thead th{
+            background: var(--header) !important;
+            color: #374151;
+            font-weight: 700;
+            font-size: 13px;
         }
 
-        .tab-button.active {
-            background-color: #eaeaea;
-            font-weight: bold;
+        #userTable tbody tr:last-child td{
+            border-bottom: none !important;
         }
 
-        h2 {
-            margin: 20px 0;
+        #userTable tbody tr:hover td{
+            background: var(--hover);
         }
 
-        table {
-            margin: 0 auto 30px;
-            border-collapse: collapse;
-            background-color: #fff;
-            min-width: 600px;
-        }
-
-        th, td {
-            padding: 10px 16px;
-            border: 1px solid #ddd;
-            text-align: center;
-        }
-
-        th {
-            background-color: #f0f2f5;
-            font-weight: bold;
-        }
-
-        input[type="submit"] {
-            padding: 4px 12px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            background-color: #fff;
+        /* 删除按钮：危险按钮风格 */
+        #userTable button[type="submit"]{
+            height: 32px;
+            padding: 0 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(220,38,38,.25);
+            background: var(--danger-weak);
+            color: var(--danger);
+            font-weight: 700;
             cursor: pointer;
+            transition: transform .12s ease, background .12s ease, border-color .12s ease;
         }
 
-        input[type="submit"]:hover {
-            background-color: #f2f2f2;
+        #userTable button[type="submit"]:hover{
+            background: rgba(220,38,38,.16);
+            border-color: rgba(220,38,38,.35);
+            transform: translateY(-1px);
+        }
+
+        #userTable button[type="submit"]:active{
+            transform: translateY(0);
+        }
+
+        /* 分页区控件统一 */
+        #pageInfo{
+            color: var(--muted);
+            font-size: 13px;
+            padding: 0 6px;
+        }
+
+        button, select, input[type="number"]{ font: inherit; }
+
+        /* 只影响分页区的普通按钮 */
+        #prevBtn, #nextBtn, #gotoBtn{
+            height: 34px;
+            padding: 0 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: #fff;
+            color: #111827;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(17,24,39,.06);
+            transition: background .12s ease, transform .12s ease, box-shadow .12s ease;
+        }
+
+        #prevBtn:hover, #nextBtn:hover, #gotoBtn:hover{
+            background: #f9fafb;
+            transform: translateY(-1px);
+            box-shadow: 0 10px 22px rgba(17,24,39,.08);
+        }
+
+        #prevBtn:disabled, #nextBtn:disabled{
+            opacity: .45;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        select{
+            height: 34px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            padding: 0 10px;
+            background: #fff;
+            color: #111827;
+        }
+
+        input[type="number"]{
+            height: 34px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            padding: 0 10px;
+            background: #fff;
+            color: #111827;
+            outline: none;
+        }
+
+        /* focus 更清晰 */
+        #prevBtn:focus-visible, #nextBtn:focus-visible, #gotoBtn:focus-visible,
+        select:focus-visible, input[type="number"]:focus-visible,
+        #userTable button[type="submit"]:focus-visible{
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(37,99,235,.18);
+            border-color: rgba(37,99,235,.45);
+        }
+
+        /* 小屏：表格可横向滚动避免挤坏 */
+        @media (max-width: 900px){
+            body{ padding: 12px; }
+            #userTable{
+                display: block;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            #userTable th, #userTable td{
+                text-align: left;
+            }
         }
     </style>
 </head>
 
 <body>
-
-<h2>用户列表</h2>
 
 <table id="userTable" style="width:100%;border-collapse:collapse;background:#fff;">
     <thead>
@@ -108,7 +215,7 @@
 </table>
 
 <!-- 分页控制区 -->
-<div style="margin-top:14px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;">
+<div style="margin-top:14px;display:flex;gap:10px;align-items:center;justify-content:flex-start;flex-wrap:wrap;">
     <button type="button" id="prevBtn">上一页</button>
     <span id="pageInfo"></span>
     <button type="button" id="nextBtn">下一页</button>

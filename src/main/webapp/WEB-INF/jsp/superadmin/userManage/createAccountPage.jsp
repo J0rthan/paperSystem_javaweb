@@ -6,78 +6,135 @@
     <title>创建账号页</title>
 
     <style>
-        body {
+        :root{
+            --bg: #f6f7fb;
+            --card: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --hover: #f9fafb;
+
+            --primary: #2563eb;
+            --primary-weak: rgba(37,99,235,.10);
+
+            --shadow: 0 10px 30px rgba(17,24,39,.08);
+            --radius: 12px;
+        }
+
+        *{ box-sizing: border-box; }
+        html, body{ height: 100%; }
+
+        body{
             margin: 0;
-            font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
-            background-color: #f6f7fb;
-            color: #333;
-            text-align: center;
-        }
-
-        .tab-button {
-            display: inline-block;
-            margin: 20px 10px;
-            padding: 8px 18px;
-            text-decoration: none;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            color: #333;
-            background-color: #fff;
-        }
-
-        .tab-button.active {
-            background-color: #eaeaea;
-            font-weight: bold;
-        }
-
-        h2 {
-            margin-top: 20px;
-        }
-
-        form {
-            width: 420px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #ffffff;
-            border-radius: 8px;
-            border: 1px solid #ddd;
+            padding: 16px;
+            font-family: "PingFang SC","Microsoft YaHei", Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
             text-align: left;
         }
 
-        form div {
-            margin-bottom: 12px;
+        /* 标题（如果你保留 h2） */
+        h2{
+            margin: 0 0 14px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #111827;
         }
 
-        label {
-            display: inline-block;
-            width: 90px;
+        .form-card{
+            width: 100%;
+            margin: 0;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(17,24,39,.08);
         }
 
-        input, select {
-            width: 240px;
-            padding: 6px;
+        /* 用网格排版，让表单看起来更“后台” */
+        .form-card > div{
+            display: grid;
+            grid-template-columns: 110px 1fr;
+            gap: 10px;
+            margin-bottom: 14px;
+            align-items: center;
         }
 
-        button {
-            padding: 6px 16px;
-            margin-right: 10px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-            background-color: #fff;
+
+        label{
+            width: auto;
+            color: #374151;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: right;
+        }
+
+        input, select{
+            width: 100%;
+            height: 38px;
+            padding: 0 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #fff;
+            color: #111827;
+            outline: none;
+            transition: box-shadow .12s ease, border-color .12s ease, background .12s ease;
+        }
+
+        input::placeholder{
+            color: #9ca3af;
+        }
+
+        input:focus, select:focus{
+            border-color: rgba(37,99,235,.45);
+            box-shadow: 0 0 0 4px rgba(37,99,235,.18);
+        }
+
+        /* 最后一行按钮：单独覆盖你原来的 inline style */
+        .form-card .actions{
+            margin-top: 16px;
+            display: flex;
+            justify-content: center;  /* ✅ 你要的 */
+            gap: 16px;
+        }
+
+        button{
+            height: 38px;
+            padding: 0 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: #fff;
+            color: #111827;
             cursor: pointer;
+            font-weight: 700;
+            box-shadow: 0 2px 10px rgba(17,24,39,.06);
+            transition: transform .12s ease, background .12s ease, box-shadow .12s ease, border-color .12s ease;
         }
 
-        button:hover {
-            background-color: #eaeaea;
+        button:hover{
+            background: var(--hover);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 22px rgba(17,24,39,.08);
+        }
+
+        /* 主按钮（创建用户） */
+        button[type="submit"]{
+            border-color: rgba(37,99,235,.25);
+            background: var(--primary-weak);
+            color: var(--primary);
+        }
+
+        button[type="submit"]:hover{
+            background: rgba(37,99,235,.16);
+            border-color: rgba(37,99,235,.35);
         }
     </style>
 </head>
 
 <body>
 
-<h2>创建账号</h2>
-
-<form action="<%= request.getContextPath() %>/superadmin/userManage/createAccount"
+<form class="form-card"
+      action="<%= request.getContextPath() %>/superadmin/userManage/createAccount"
       method="post">
 
     <div>
@@ -139,7 +196,7 @@
                required>
     </div>
 
-    <div style="margin-top: 10px; text-align: center;">
+    <div class="actions">
         <button type="submit">创建用户</button>
         <button type="reset">重置</button>
     </div>

@@ -3,6 +3,7 @@ package com.bjfu.paperSystem.editor.dao;
 import com.bjfu.paperSystem.javabeans.Record_Allocation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.List; // 记得导入 List
 
@@ -14,6 +15,7 @@ public interface EditorRecordAllocationDao extends JpaRepository<Record_Allocati
     Record_Allocation findLatestByManuscriptId(int manuscriptId);
 
     // === 【新增】根据编辑ID查找他被分配的所有记录 ===
-    // Spring Data JPA 会自动根据方法名生成 SQL，不需要手动写 Query
-    List<Record_Allocation> findByEditorId(Integer editorId);
+    // 使用显式查询确保正确映射（editorId可能为null，所以用LEFT JOIN方式查询）
+    @Query("SELECT r FROM Record_Allocation r WHERE r.editorId = :editorId")
+    List<Record_Allocation> findByEditorId(@Param("editorId") Integer editorId);
 }

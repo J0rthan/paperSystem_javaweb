@@ -1,0 +1,1722 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="h-100">
+<head>
+    <meta charset="UTF-8">
+  <title>稿件管理系统 - 编辑端</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
+  <style>
+    body { background-color: #f8f9fa; }
+    .main-card { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-top: 20px; }
+    .nav-tabs .nav-link { color: #495057; font-weight: bold; border: none; }
+    .nav-tabs .nav-link.active { color: #0d6efd; border-bottom: 3px solid #0d6efd; background: none; }
+    .sub-nav .nav-link { font-size: 0.85rem; padding: 5px 15px; }
+    .sub-nav .nav-link.active { background-color: #e9ecef !important; color: #000 !important; border-radius: 20px; }
+    .dt-buttons { margin-bottom: 15px; }
+    .dataTables_filter { margin-bottom: 15px; }
+    .msg-card { border-radius: 12px; transition: all 0.2s; border: 1px solid #eee; margin-bottom: 10px; }
+    .msg-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .msg-sent { border-left: 5px solid #0d6efd !important; }
+    .msg-received { border-left: 5px solid #198754 !important; }
+    .communication-area { max-height: 500px; overflow-y: auto; background-color: #f8f9fa; padding: 15px; border-radius: 8px; }
+    .reviewer-scroll-box { min-height: 300px; max-height: 450px; overflow-y: auto; border: 1px solid #e9ecef; padding: 15px; border-radius: 8px; background-color: #f8f9fa; }
+    /* 摘要显示样式 */
+    #inviteManuscriptAbstract { 
+      background-color: #f8f9fa; 
+      padding: 12px; 
+      border-radius: 6px; 
+      border-left: 3px solid #0d6efd;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      text-align: justify;
+    }
+    /* 已邀请名单表格样式 */
+    #existingReviewsArea .table { margin-bottom: 0; }
+    #existingReviewsArea .table td { vertical-align: middle; }
+    /* 新消息角标动画 */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+    .animate__pulse {
+      animation: pulse 2s infinite;
+    }
+  </style>
+</head>
+<body class="bg-light d-flex flex-column h-100">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+  <div class="container">
+    <a class="navbar-brand fw-bold" th:href="@{/editor}">
+      <i class="bi bi-journal-bookmark-fill me-2"></i>学术论文管理系统-编辑端
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#editorNavbar">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="editorNavbar">
+      <ul class="navbar-nav ms-auto align-items-center">
+        <li class="nav-item me-3">
+          <a class="nav-link text-light position-relative" th:href="@{/editor/message/list}" title="消息中心">
+            <i class="bi bi-envelope-fill fs-5"></i>
+            <span class="position-absolute top-2 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"
+                  id="newMessageBadge" style="display: none;">
+          <span class="visually-hidden">新消息</span>
+          <span id="unreadCount" style="font-size: 0.7rem;">0</span>
+        </span>
+          </a>
+        </li>
+
+        <li class="nav-item me-3 border-end pe-3">
+          <a class="nav-link text-light" th:href="@{/editor/profile}" title="账号设置">
+            <i class="bi bi-gear-fill fs-5"></i>
+          </a>
+        </li>
+
+        <li class="nav-item dropdown ms-2">
+      <span class="navbar-text text-light me-3">
+        <i class="bi bi-person-circle me-1"></i>
+        <span th:text="${username}">编辑姓名</span>
+      </span>
+          <a href="/editor/logout" class="btn btn-outline-light btn-sm rounded-pill px-3">
+            <i class="bi bi-box-arrow-right me-1"></i>退出登录
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<main class="flex-grow-1">
+  <div class="container py-4">
+    <div class="card border-0 shadow-sm mb-3 rounded-4">
+      <div class="card-body py-2 px-4">
+        <div class="row align-items-center">
+          <div class="col-md-auto text-muted small fw-bold"><i class="bi bi-filter"></i> 日期筛选：</div>
+          <div class="col-md-3">
+            <input type="date" id="minDate" class="form-control form-control-sm" placeholder="开始日期">
+          </div>
+          <div class="col-md-auto">至</div>
+          <div class="col-md-3">
+            <input type="date" id="maxDate" class="form-control form-control-sm" placeholder="结束日期">
+          </div>
+          <div class="col-md-auto">
+            <button class="btn btn-sm btn-outline-primary rounded-pill" onclick="clearDateFilter()">重置</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-card">
+      <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+        <div>
+          <h3 class="fw-bold text-dark mb-0">我的工作台</h3>
+          <small class="text-muted">欢迎您：<span th:text="${username}">编辑</span></small>
+        </div>
+      </div>
+
+      <ul class="nav nav-tabs mb-4" id="mainTabs" role="tablist">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-manuscripts">我的稿件</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-invite">邀请审稿人</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-reminders">催审</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-recommendation">提出建议</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-communication">与作者沟通</button></li>
+      </ul>
+
+      <div class="tab-content">
+        <!-- 我的稿件标签页 -->
+        <div class="tab-pane fade show active" id="tab-manuscripts">
+          <ul class="nav nav-pills sub-nav mb-3 bg-light rounded-pill p-1 d-inline-flex" role="tablist">
+            <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#sub-editor">编辑处理中</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#sub-review">审稿中</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#sub-pending">待提交建议</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#sub-revision">需要返修</button></li>
+          </ul>
+
+          <div class="tab-content pt-2">
+            <div class="tab-pane fade show active" id="sub-editor">
+              <div th:replace="~{editor/fragments :: manuscriptTable(${withEditor}, 'withEditor')}"></div>
+            </div>
+            <div class="tab-pane fade" id="sub-review">
+              <div th:replace="~{editor/fragments :: manuscriptTable(${underReview}, 'underReview')}"></div>
+            </div>
+            <div class="tab-pane fade" id="sub-pending">
+              <div th:replace="~{editor/fragments :: manuscriptTable(${pendingRecommendation}, 'pendingRecommendation')}"></div>
+            </div>
+            <div class="tab-pane fade" id="sub-revision">
+              <div th:replace="~{editor/fragments :: manuscriptTable(${needRevision}, 'needRevision')}"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 与作者沟通标签页 -->
+        <div class="tab-pane fade" id="tab-communication">
+          <div class="alert alert-info mb-3">
+            <i class="bi bi-info-circle me-2"></i>
+            在"我的稿件" → "需要返修"状态下的稿件，可以使用"与作者沟通"功能。只显示状态为 Need Revision 且分配给当前编辑的稿件。
+          </div>
+          
+          <div class="row">
+            <div class="col-md-4">
+              <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                  <h6 class="mb-0"><i class="bi bi-file-text me-2"></i> 选择稿件</h6>
+                </div>
+                <div class="card-body">
+                  <select id="communicationManuscriptSelect" class="form-select mb-3" onchange="loadCommunicationManuscriptDetail()">
+                    <option value="">-- 请选择稿件 --</option>
+                    <!-- 选项将通过JS动态加载 -->
+                  </select>
+                  
+                  <div id="communicationManuscriptInfo" style="display: none;">
+                    <div class="mb-2">
+                      <small class="text-muted"><strong>稿件ID：</strong></small>
+                      <span id="communicationManuscriptId" class="badge bg-secondary"></span>
+                    </div>
+                    <div class="mb-2">
+                      <small class="text-muted"><strong>标题：</strong></small>
+                      <div id="communicationManuscriptTitle" class="fw-bold text-dark"></div>
+                    </div>
+                    <div class="mb-2">
+                      <small class="text-muted"><strong>摘要：</strong></small>
+                      <div id="communicationManuscriptAbstract" class="text-muted small mt-1" style="max-height: 120px; overflow-y: auto; line-height: 1.5; background-color: #f8f9fa; padding: 12px; border-radius: 6px; border-left: 3px solid #0d6efd;">
+                        <!-- 摘要内容将通过JS填充 -->
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <div id="authorInfo" class="alert alert-info mb-0">
+                        <small><strong>作者：</strong><span id="authorName"></span></small>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div id="communicationManuscriptPlaceholder" class="text-center py-4 text-muted">
+                    <i class="bi bi-file-earmark-text fs-3 d-block mb-2"></i>
+                    <small>请选择稿件查看详情</small>
+                  </div>
+
+                  <div class="card mt-3" id="sendMessageCard" style="display: none;">
+                    <div class="card-header bg-light">
+                      <h6 class="mb-0">发送消息</h6>
+                    </div>
+                    <div class="card-body">
+                      <form id="messageForm" onsubmit="sendMessage(event)">
+                        <div class="mb-3">
+                          <label class="form-label small">消息内容</label>
+                          <textarea id="messageText" class="form-control" rows="4" placeholder="请输入您要发送给作者的消息..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm w-100">
+                          <i class="bi bi-send"></i> 发送消息
+                        </button>
+                      </form>
+                      <div id="messageAlert" class="mt-2"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-8">
+              <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                  <h6 class="mb-0"><i class="bi bi-chat-left-text"></i> 沟通历史</h6>
+                </div>
+                <div class="card-body">
+                  <div id="communicationArea" class="communication-area">
+                    <div class="text-center py-5 text-muted">
+                      <i class="bi bi-chat-square-dots fs-1 d-block mb-2"></i>
+                      <p>请选择左侧稿件查看沟通历史</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 邀请审稿人标签页 -->
+        <div class="tab-pane fade" id="tab-invite">
+          <div class="alert alert-info mb-3">
+            <i class="bi bi-info-circle me-2"></i>
+            在"我的稿件" → "编辑处理中"状态下的稿件，可以使用"邀请审稿人"功能。
+          </div>
+          
+          <!-- 上半部分：左右两栏 -->
+          <div class="row mb-3">
+            <!-- 左上：选择稿件（显示摘要） -->
+            <div class="col-md-6">
+              <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                  <h6 class="mb-0"><i class="bi bi-file-text me-2"></i> 选择稿件</h6>
+                </div>
+                <div class="card-body">
+                  <select id="inviteManuscriptSelect" class="form-select mb-3" onchange="loadExistingReviews()">
+                    <option value="">-- 请选择稿件 --</option>
+                    <option th:each="m : ${withEditor}" th:value="${m.manuscriptId}" th:text="${(m.title != null and m.title != '') ? m.title : ('稿件 #MS-' + m.manuscriptId)}"></option>
+                  </select>
+                  <div id="inviteManuscriptInfo" style="display: none;">
+                    <div class="mb-2">
+                      <small class="text-muted"><strong>稿件ID：</strong></small>
+                      <span id="inviteManuscriptId" class="badge bg-secondary"></span>
+                    </div>
+                    <div class="mb-2">
+                      <small class="text-muted"><strong>标题：</strong></small>
+                      <div id="inviteManuscriptTitle" class="fw-bold text-dark"></div>
+                    </div>
+                    <div>
+                      <small class="text-muted"><strong>摘要：</strong></small>
+                      <div id="inviteManuscriptAbstract" class="text-muted small mt-1" style="max-height: 120px; overflow-y: auto; line-height: 1.5;">
+                        <!-- 摘要内容将通过JS填充 -->
+                      </div>
+                    </div>
+                  </div>
+                  <div id="inviteManuscriptPlaceholder" class="text-center py-4 text-muted">
+                    <i class="bi bi-file-earmark-text fs-3 d-block mb-2"></i>
+                    <small>请选择稿件查看详情</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 右上：已邀请名单（审稿人状态） -->
+            <div class="col-md-6">
+              <div class="card shadow-sm h-100">
+                <div class="card-header bg-light">
+                  <h6 class="mb-0"><i class="bi bi-list-check me-2"></i> 已邀请名单</h6>
+                </div>
+                <div class="card-body" style="max-height: 350px; overflow-y: auto;">
+                  <div id="existingReviewsArea">
+                    <div class="text-center py-5 text-muted">
+                      <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                      <p class="mb-0">请先选择左侧稿件查看已邀请的审稿人</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-footer bg-light">
+                  <div class="alert alert-warning small mb-0" id="inviteRuleAlert" style="display: none;">
+                    <strong><i class="bi bi-info-circle-fill me-1"></i> 规则：</strong>
+                    当有 3 位审稿人接受邀请后，稿件将自动进入 "Under Review" 状态。
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 下半部分：审稿人名单（横向一整块） -->
+          <div class="card shadow-sm">
+            <div class="card-header bg-light">
+              <h6 class="mb-0"><i class="bi bi-people-fill me-2"></i> 审稿人名单</h6>
+            </div>
+            <div class="card-body">
+              <!-- 搜索框 -->
+              <div class="mb-3">
+                <div class="input-group">
+                  <input type="text" id="reviewerSearchKeyword" class="form-control" placeholder="输入姓名或研究方向关键词搜索审稿人..." onkeypress="if(event.key==='Enter') searchReviewers()">
+                  <button class="btn btn-primary" type="button" onclick="searchReviewers()">
+                    <i class="bi bi-search me-1"></i> 搜索
+                  </button>
+                </div>
+              </div>
+              
+              <!-- 审稿人列表 -->
+              <div id="reviewerListArea" class="reviewer-scroll-box" style="min-height: 300px; max-height: 450px; overflow-y: auto; border: 1px solid #e9ecef; padding: 15px; border-radius: 8px; background-color: #f8f9fa;">
+                <div class="text-center py-5 text-muted">
+                  <i class="bi bi-arrow-up-circle fs-3 d-block mb-2"></i>
+                  <p class="mb-0">请先选择稿件，然后在上方搜索关键词</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 催审管理标签页 -->
+        <div class="tab-pane fade" id="tab-reminders">
+          <div class="alert alert-warning mb-3">
+            <i class="bi bi-info-circle me-2"></i>
+            在"我的稿件" → "审稿中"状态下的稿件，可以使用"催审"功能。
+          </div>
+          
+          <!-- 上半部分：已逾期审稿人表格 -->
+          <div class="card shadow-sm mb-3">
+            <div class="card-header bg-danger text-white">
+              <h6 class="mb-0"><i class="bi bi-exclamation-triangle-fill me-2"></i> 已逾期审稿人列表</h6>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table id="remindersTable" class="table table-hover align-middle no-datatables">
+                  <thead class="table-light">
+                  <tr>
+                    <th>稿件标题</th>
+                    <th>审稿人</th>
+                    <th>邮箱</th>
+                    <th>截止日期</th>
+                    <th>已逾期天数</th>
+                  </tr>
+                  </thead>
+                  <tbody id="remindersBody">
+                  <tr>
+                    <td colspan="5" class="text-center py-4 text-muted">
+                      <i class="bi bi-hourglass-split fs-4 d-block mb-2"></i>
+                      正在加载...
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- 下半部分：编辑并发送催审邮件 -->
+          <div class="card shadow-sm">
+            <div class="card-header bg-warning text-dark">
+              <h6 class="mb-0"><i class="bi bi-envelope-paper-fill me-2"></i> 手动催审 - 编辑邮件内容</h6>
+            </div>
+            <div class="card-body">
+              <form id="remindEmailForm" onsubmit="sendCustomReminder(event)">
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label class="form-label"><strong>选择稿件 <span class="text-danger">*</span></strong></label>
+                    <select id="remindManuscriptSelect" class="form-select" onchange="loadOverdueReviewers()" required>
+                      <option value="">-- 请选择有逾期审稿人的稿件 --</option>
+                    </select>
+                    <small class="form-text text-muted">只显示存在逾期审稿人的稿件</small>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label"><strong>选择审稿人 <span class="text-danger">*</span></strong></label>
+                    <select id="remindReviewerSelect" class="form-select" required>
+                      <option value="">-- 请先选择稿件 --</option>
+                    </select>
+                    <small class="form-text text-muted">根据选择的稿件加载逾期审稿人</small>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label"><strong>邮件主题 <span class="text-danger">*</span></strong></label>
+                  <input type="text" id="remindEmailSubject" class="form-control" placeholder="例如：[催审提醒] 请尽快完成稿件审阅" required>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label"><strong>邮件内容 <span class="text-danger">*</span></strong></label>
+                  <textarea id="remindEmailContent" class="form-control" rows="8" placeholder="请输入催审邮件内容..." required></textarea>
+                  <small class="form-text text-muted">
+                    <i class="bi bi-lightbulb me-1"></i>
+                    提示：可以使用以下占位符，系统会自动替换：{审稿人姓名}、{稿件标题}、{稿件ID}、{截止日期}、{逾期天数}
+                  </small>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+                  <button type="button" class="btn btn-outline-secondary" onclick="resetRemindForm()">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i> 重置
+                  </button>
+                  <button type="submit" class="btn btn-warning">
+                    <i class="bi bi-send-fill me-1"></i> 发送催审邮件
+                  </button>
+                </div>
+
+                <div id="remindEmailAlert" class="mt-3"></div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- 提出建议标签页 -->
+        <div class="tab-pane fade" id="tab-recommendation">
+          <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            在"我的稿件" → "待提交建议"状态下的稿件，可以提交建议给主编。
+          </div>
+          <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+              <h6 class="mb-0"><i class="bi bi-check-circle-fill"></i> 待提交建议的稿件</h6>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-hover align-middle no-datatables">
+                  <thead class="table-light">
+                  <tr>
+                    <th>稿件ID</th>
+                    <th>标题</th>
+                    <th>提交时间</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr th:each="m : ${pendingRecommendation}">
+                    <td th:text="'#MS-' + ${m.manuscriptId}">#MS-xxx</td>
+                    <td>
+                      <span th:if="${m.title == null or m.title == ''}" class="text-muted fst-italic">（未填写标题）</span>
+                      <span th:if="${m.title != null and m.title != ''}" th:text="${m.title}" class="text-truncate d-inline-block" style="max-width: 250px;"></span>
+                    </td>
+                    <td>
+                      <span th:if="${m.submitTime != null}"
+                            th:text="${#temporals.format(m.submitTime, 'yyyy-MM-dd HH:mm:ss')}">
+                      </span>
+                      <span th:if="${m.submitTime == null}" class="text-muted">-</span>
+                    </td>
+                    <td><span class="badge bg-warning text-dark">待提交建议</span></td>
+                    <td>
+                      <a th:href="@{/editor/process/{id}(id=${m.manuscriptId})}" class="btn btn-sm btn-success">
+                        <i class="bi bi-check-circle"></i> 提出建议
+                      </a>
+                    </td>
+                  </tr>
+                  <tr th:if="${#lists.isEmpty(pendingRecommendation)}">
+                    <td colspan="5" class="text-center py-5 text-muted">
+                      <i class="bi bi-folder2-open fs-2 d-block mb-2"></i>
+                      暂无待提交建议的稿件
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- 稿件详情模态框 -->
+<div class="modal fade" id="manuscriptModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">稿件详情</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="manuscriptModalBody">
+        <p>加载中...</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="py-4 mt-auto">
+  <p class="text-center text-muted small mb-0">© 2026 学术论文管理系统 · 编辑</p>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script>
+  // ========== 完全禁用 DataTables 警告消息 ==========
+  // 必须在 DataTables 加载后立即执行，使用立即执行函数确保执行时机
+  (function() {
+    // 等待 DataTables 完全加载
+    if (typeof $ !== 'undefined' && typeof $.fn.dataTable !== 'undefined') {
+      // 方法1: 设置错误处理模式为 'none'（完全不显示警告对话框）
+      $.fn.dataTable.ext.errMode = 'none';
+      
+      // 方法2: 重写警告显示函数（如果 DataTables 使用内部函数显示警告）
+      if (typeof $.fn.dataTable.ext._fnLog !== 'undefined') {
+        $.fn.dataTable.ext._fnLog = function(settings, level, msg) {
+          // 完全忽略所有警告日志
+          return;
+        };
+      }
+      
+      // 方法3: 拦截 DataTables 的警告显示函数
+      if (typeof $.fn.dataTable.ext.sErrMode !== 'undefined') {
+        $.fn.dataTable.ext.sErrMode = 'none';
+      }
+    }
+    
+    // 方法4: 拦截 window.alert，过滤掉 DataTables 相关的警告
+    var originalAlert = window.alert;
+    window.alert = function(message) {
+      if (typeof message === 'string') {
+        // 如果消息包含 DataTables 或列数相关的警告，完全忽略
+        if (message.indexOf('DataTables') !== -1 || 
+            message.indexOf('Incorrect column') !== -1 ||
+            message.indexOf('table id=') !== -1 ||
+            message.indexOf('DataTables warning') !== -1) {
+          // 静默忽略，不显示警告
+          return;
+        }
+      }
+      // 其他 alert 正常显示
+      return originalAlert.apply(window, arguments);
+    };
+    
+    // 方法5: 拦截 console.warn（某些版本的 DataTables 可能使用 console.warn）
+    if (typeof console !== 'undefined' && typeof console.warn !== 'undefined') {
+      var originalWarn = console.warn;
+      console.warn = function() {
+        var args = Array.prototype.slice.call(arguments);
+        var message = args.join(' ');
+        // 如果是 DataTables 警告，忽略
+        if (message.indexOf('DataTables') !== -1 || 
+            message.indexOf('Incorrect column') !== -1) {
+          return;
+        }
+        // 其他警告正常显示
+        return originalWarn.apply(console, args);
+      };
+    }
+  })();
+</script>
+<script th:inline="javascript">
+  
+  // DataTables配置
+  $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+    var min = $('#minDate').val();
+    var max = $('#maxDate').val();
+    var dateStr = data[2] ? data[2].split(' ')[0] : "";
+    if ((min === "" && max === "") || (min === "" && dateStr <= max) ||
+        (min <= dateStr && max === "") || (min <= dateStr && dateStr <= max)) {
+      return true;
+    }
+    return false;
+  });
+
+  // 初始化单个表格的 DataTables
+  function initManuscriptTable($table) {
+    // 检查表格是否已经初始化过
+    if ($.fn.DataTable.isDataTable($table)) {
+      return;
+    }
+    
+    // 如果表格有 no-datatables 类，跳过初始化（明确标记为不使用 DataTables）
+    if ($table.hasClass('no-datatables')) {
+      return;
+    }
+    
+    // 检查表格是否有正确的结构
+    if (!$table.length || $table.find('thead').length === 0 || $table.find('tbody').length === 0) {
+      return; // 表格结构不完整，不初始化
+    }
+    
+    var headerCount = $table.find('thead th').length;
+    var firstRow = $table.find('tbody tr').first();
+    
+    // 检查表头列数和第一行列数是否匹配
+    if (headerCount !== 5) {
+      return; // 列数不对，不初始化
+    }
+    
+    // 检查第一行数据的列数（如果有数据行）
+    if (firstRow.length > 0) {
+      var firstRowCellCount = firstRow.find('td').length;
+      // 允许空列表情况（colspan），但如果有数据行，必须列数匹配
+      if (firstRowCellCount > 0 && firstRowCellCount !== headerCount && !firstRow.find('td[colspan]').length) {
+        return; // 列数不匹配，不初始化
+      }
+    }
+    
+    try {
+      var orderConfig = [];
+      orderConfig.push([2, 'desc']);
+      
+      // 使用静默模式初始化，不显示警告
+      var table = $table.DataTable({
+        language: {
+          "processing": "处理中...",
+          "lengthMenu": "每页显示 _MENU_ 条记录",
+          "zeroRecords": "没有找到符合条件的稿件",
+          "info": "显示第 _START_ 至 _END_ 条，共 _TOTAL_ 条记录",
+          "infoEmpty": "显示第 0 至 0 条，共 0 条记录",
+          "infoFiltered": "(由 _MAX_ 条记录过滤)",
+          "search": "全文搜索:",
+          "emptyTable": "表中无数据",
+          "paginate": {
+            "first": "首页", "previous": "上页", "next": "下页", "last": "末页"
+          },
+          "buttons": { "copy": "复制", "csv": "导出 CSV" }
+        },
+        dom: '<"d-flex justify-content-between"Bf>rtip',
+        buttons: [{
+          extend: 'csv',
+          text: '<i class="bi bi-download"></i> 导出 CSV',
+          className: 'btn btn-success btn-sm rounded-pill mb-2',
+          charset: 'utf-8',
+          bom: true,
+          filename: '我的稿件列表_' + new Date().toLocaleDateString(),
+          exportOptions: { columns: [0, 1, 2, 3] }
+        }],
+        order: orderConfig,
+        pageLength: 10,
+        autoWidth: false,
+        // 禁用列数检查警告
+        columnDefs: [
+          { targets: '_all', defaultContent: '' }
+        ],
+        // 完全禁用错误警告显示
+        errMode: 'none'
+      });
+      
+      // 存储 table 实例以便后续使用
+      $table.data('dataTable', table);
+      
+      // 强制禁用该表格实例的警告
+      if (table && table.settings && table.settings[0]) {
+        table.settings[0].oInit = table.settings[0].oInit || {};
+        table.settings[0].oInit.errMode = 'none';
+      }
+    } catch (e) {
+      // 完全静默失败，不显示任何错误或警告
+      // 不做任何处理，让错误被完全忽略
+    }
+  }
+
+  $(document).ready(function() {
+    // 初始化当前可见的稿件表格
+    var visibleManuscriptTables = $('.tab-pane.active .manuscript-table');
+    if (visibleManuscriptTables.length > 0) {
+      visibleManuscriptTables.each(function() {
+        initManuscriptTable($(this));
+      });
+    }
+    
+    // 延迟初始化隐藏的表格（等待页面完全加载）
+    setTimeout(function() {
+      $('.manuscript-table').each(function() {
+        var $table = $(this);
+        if (!$.fn.DataTable.isDataTable($table)) {
+          initManuscriptTable($table);
+        }
+      });
+    }, 100);
+
+    // 日期筛选功能 - 应用到所有 manuscript-table
+    $('#minDate, #maxDate').on('change', function() {
+      $('.manuscript-table').each(function() {
+        var table = $.fn.DataTable.isDataTable(this) ? $(this).DataTable() : null;
+        if (table) {
+          table.draw();
+        }
+      });
+    });
+    
+    // 当切换子 tab（稿件状态分类）时，初始化对应的 DataTables
+    $('button[data-bs-target^="#sub-"]').on('shown.bs.tab', function() {
+      var targetId = $(this).data('bs-target');
+      var $table = $(targetId).find('.manuscript-table');
+      if ($table.length > 0 && !$.fn.DataTable.isDataTable($table)) {
+        initManuscriptTable($table);
+      } else if ($.fn.DataTable.isDataTable($table)) {
+        // 如果已经初始化，调整列宽并重新绘制
+        $table.DataTable().columns.adjust().draw();
+      }
+    });
+    
+    // 当切换主 tab 时，初始化可见的表格
+    $('button[data-bs-target^="#tab-"]').on('shown.bs.tab', function() {
+      var targetId = $(this).data('bs-target');
+      $(targetId).find('.manuscript-table').each(function() {
+        if (!$.fn.DataTable.isDataTable(this)) {
+          initManuscriptTable($(this));
+        } else {
+          $(this).DataTable().columns.adjust().draw();
+        }
+      });
+    });
+
+    // 检查新消息数量
+    checkUnreadMessages();
+
+    // 每30秒自动检查一次新消息
+    setInterval(function() {
+      checkUnreadMessages();
+    }, 30000); // 30秒检查一次
+
+    // 切换到催审管理标签页时加载数据
+    $(document).on('shown.bs.tab', 'button[data-bs-target="#tab-reminders"]', function() {
+      loadPendingReviews();
+      loadOverdueManuscripts();
+    });
+    
+    // 如果页面加载时已经在催审标签页，也需要加载数据
+    setTimeout(function() {
+      var activeTab = $('.nav-tabs .nav-link.active');
+      var targetPane = activeTab.attr('data-bs-target');
+      if (targetPane === '#tab-reminders' || $('#tab-reminders').hasClass('active') || $('#tab-reminders').hasClass('show')) {
+        loadPendingReviews();
+        loadOverdueManuscripts();
+      }
+    }, 300);
+
+    // 切换到邀请审稿人标签页时的初始化
+    $('[data-bs-target="#tab-invite"]').on('shown.bs.tab', function() {
+      // 如果已经选择了稿件，自动加载已邀请列表
+      const manuscriptId = $('#inviteManuscriptSelect').val();
+      if (manuscriptId) {
+        loadExistingReviews();
+        $('#inviteRuleAlert').show();
+      }
+    });
+
+    // 切换到与作者沟通标签页时的初始化
+    $('[data-bs-target="#tab-communication"]').on('shown.bs.tab', function() {
+      // 加载 Need Revision 状态的稿件列表
+      loadNeedRevisionManuscripts();
+    });
+    
+    // 如果页面加载时已经在与作者沟通标签页，也需要加载数据
+    setTimeout(function() {
+      var activeTab = $('.nav-tabs .nav-link.active');
+      var targetPane = activeTab.attr('data-bs-target');
+      if (targetPane === '#tab-communication' || $('#tab-communication').hasClass('active') || $('#tab-communication').hasClass('show')) {
+        loadNeedRevisionManuscripts();
+      }
+    }, 300);
+  });
+
+  // 检查未读消息数量的函数
+  function checkUnreadMessages() {
+    fetch('/editor/api/message/unreadCount')
+            .then(response => response.json())
+            .then(data => {
+              if (data.success && data.unreadCount !== undefined) {
+                const count = data.unreadCount;
+                const badge = document.getElementById('newMessageBadge');
+                const countSpan = document.getElementById('unreadCount');
+
+                if (count > 0) {
+                  // 显示角标
+                  badge.style.display = 'block';
+                  countSpan.textContent = count > 99 ? '99+' : count;
+
+                  // 添加闪烁动画（可选）
+                  badge.classList.add('animate__animated', 'animate__pulse');
+                } else {
+                  // 隐藏角标
+                  badge.style.display = 'none';
+                  badge.classList.remove('animate__animated', 'animate__pulse');
+                }
+              }
+            })
+            .catch(error => {
+              console.error('检查新消息失败:', error);
+            });
+  }
+
+  // 日期筛选重置
+  function clearDateFilter() {
+    $('#minDate').val('');
+    $('#maxDate').val('');
+    $('.manuscript-table').each(function() {
+      var table = $(this).data('dataTable');
+      if (table) {
+        table.draw();
+      }
+    });
+  }
+
+    // 获取当前用户ID（从session中获取）
+    const currentUserId = /*[[${session.loginUser.userId}]]*/ null;
+
+    // ========== 与作者沟通相关函数 ==========
+    
+    // 加载 Need Revision 状态的稿件列表
+    function loadNeedRevisionManuscripts() {
+      fetch('/editor/api/manuscripts/need-revision')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success && data.manuscripts && data.manuscripts.length > 0) {
+            let html = '<option value="">-- 请选择稿件 --</option>';
+            data.manuscripts.forEach(m => {
+              const title = m.title || `稿件 #MS-${m.manuscriptId}`;
+              html += `<option value="${m.manuscriptId}">${title}</option>`;
+            });
+            $('#communicationManuscriptSelect').html(html);
+          } else {
+            $('#communicationManuscriptSelect').html('<option value="">暂无需要返修的稿件</option>');
+          }
+        })
+        .catch(error => {
+          console.error('Error loading manuscripts:', error);
+          $('#communicationManuscriptSelect').html('<option value="">加载失败，请重试</option>');
+        });
+    }
+
+    // 加载选中稿件的详情（显示ID、标题、摘要、作者信息）
+    function loadCommunicationManuscriptDetail() {
+      const manuscriptId = $('#communicationManuscriptSelect').val();
+      if (!manuscriptId) {
+        $('#communicationManuscriptInfo').hide();
+        $('#communicationManuscriptPlaceholder').show();
+        $('#sendMessageCard').hide();
+        $('#communicationArea').html('<div class="text-center py-5 text-muted"><i class="bi bi-chat-square-dots fs-1 d-block mb-2"></i><p>请选择稿件查看沟通历史</p></div>');
+        return;
+      }
+
+      // 获取稿件详情
+      fetch(`/editor/api/manuscript/${manuscriptId}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success && data.manuscript) {
+            const m = data.manuscript;
+            const a = data.author;
+
+            // 显示稿件信息
+            $('#communicationManuscriptId').text('#MS-' + manuscriptId);
+            $('#communicationManuscriptTitle').text(m.title || '（未填写标题）');
+            $('#communicationManuscriptAbstract').text(m.abstractText || '（未填写摘要）');
+            $('#authorName').text(a ? (a.fullName || '未知') : '未知');
+            
+            // 显示稿件详情卡片和发送消息卡片
+            $('#communicationManuscriptInfo').show();
+            $('#communicationManuscriptPlaceholder').hide();
+            $('#sendMessageCard').show();
+
+            // 加载沟通历史
+            loadCommunicationHistory();
+          } else {
+            $('#communicationManuscriptInfo').hide();
+            $('#communicationManuscriptPlaceholder').show();
+            $('#sendMessageCard').hide();
+            alert('加载失败：' + (data.message || '未知错误'));
+          }
+        })
+        .catch(error => {
+          console.error('Error loading manuscript:', error);
+          $('#communicationManuscriptInfo').hide();
+          $('#communicationManuscriptPlaceholder').show();
+          $('#sendMessageCard').hide();
+          alert('加载失败，请重试');
+        });
+    }
+
+    // 加载沟通历史
+    function loadCommunicationHistory() {
+      const manuscriptId = $('#communicationManuscriptSelect').val();
+      if (!manuscriptId) {
+        $('#communicationArea').html('<div class="text-center py-5 text-muted"><i class="bi bi-chat-square-dots fs-1 d-block mb-2"></i><p>请选择稿件查看沟通历史</p></div>');
+        return;
+      }
+
+      // 加载沟通历史
+      fetch(`/editor/api/manuscript/${manuscriptId}/messages`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success && data.messages) {
+            renderMessages(data.messages, currentUserId);
+          } else {
+            $('#communicationArea').html('<div class="text-center py-5 text-muted"><p>暂无沟通记录</p></div>');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          $('#communicationArea').html('<div class="alert alert-danger">加载失败，请重试</div>');
+        });
+    }
+
+  // 渲染消息列表
+  function renderMessages(messages, currentUserId) {
+    if (!messages || messages.length === 0) {
+      $('#communicationArea').html('<div class="text-center py-5 text-muted"><p>暂无沟通记录</p></div>');
+      return;
+    }
+
+    let html = '';
+    messages.forEach(msg => {
+      const isSent = msg.senderId === currentUserId;
+      const senderName = msg.sender ? msg.sender.fullName : (isSent ? '我' : '作者');
+      const receiverName = msg.receiver ? msg.receiver.fullName : (isSent ? '作者' : '我');
+      const timeStr = new Date(msg.sendingTime).toLocaleString('zh-CN', {
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit'
+      });
+
+      html += `
+        <div class="msg-card ${isSent ? 'msg-sent' : 'msg-received'}">
+          <div class="card-body p-3">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <div>
+                <strong class="${isSent ? 'text-primary' : 'text-success'}">
+                  ${isSent ? '我 (编辑)' : senderName + ' (作者)'}
+                </strong>
+                <small class="text-muted ms-2">${timeStr}</small>
+              </div>
+            </div>
+            <p class="mb-0" style="white-space: pre-wrap;">${msg.messageBody || ''}</p>
+          </div>
+        </div>
+      `;
+    });
+
+    $('#communicationArea').html(html);
+    $('#communicationArea').scrollTop($('#communicationArea')[0].scrollHeight);
+  }
+
+  // 发送消息
+  function sendMessage(event) {
+    event.preventDefault();
+    const manuscriptId = $('#communicationManuscriptSelect').val();
+    const messageBody = $('#messageText').val().trim();
+
+    if (!manuscriptId) {
+      $('#messageAlert').html('<div class="alert alert-warning">请先选择稿件</div>');
+      return;
+    }
+
+    if (!messageBody) {
+      $('#messageAlert').html('<div class="alert alert-warning">请输入消息内容</div>');
+      return;
+    }
+
+    const formData = new URLSearchParams();
+    formData.append('manuscriptId', manuscriptId);
+    formData.append('messageBody', messageBody);
+
+    $('#messageAlert').html('<div class="alert alert-info"><i class="bi bi-hourglass-split"></i> 发送中...</div>');
+
+    fetch('/editor/api/message/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        $('#messageAlert').html('<div class="alert alert-success"><i class="bi bi-check-circle"></i> ' + data.message + '</div>');
+        $('#messageText').val('');
+        // 重新加载沟通历史
+        setTimeout(() => {
+          loadCommunicationHistory();
+          $('#messageAlert').html('');
+        }, 1000);
+      } else {
+        $('#messageAlert').html('<div class="alert alert-danger"><i class="bi bi-x-circle"></i> ' + (data.message || '发送失败') + '</div>');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      $('#messageAlert').html('<div class="alert alert-danger">发送失败，请重试</div>');
+    });
+  }
+
+  // 加载已逾期审稿人列表
+  function loadPendingReviews() {
+    var $remindersBody = $('#remindersBody');
+    if ($remindersBody.length === 0) {
+      return;
+    }
+    
+    $remindersBody.html('<tr><td colspan="5" class="text-center py-4"><i class="bi bi-hourglass-split"></i> 正在加载...</td></tr>');
+
+    fetch('/editor/api/reviews/pending')
+      .then(response => {
+        if (!response.ok) {
+          return response.text().then(text => {
+            throw new Error('HTTP ' + response.status + ': ' + response.statusText);
+          });
+        }
+        return response.json().catch(err => {
+          throw new Error('响应格式错误，无法解析JSON');
+        });
+      })
+      .then(data => {
+        if (!data) {
+          $('#remindersBody').html('<tr><td colspan="5" class="text-center py-4 text-warning">未收到有效数据</td></tr>');
+          return;
+        }
+        
+        if (data.success === false) {
+          const errorMsg = data.message || '查询失败';
+          $('#remindersBody').html('<tr><td colspan="5" class="text-center py-4 text-danger">' + 
+            '<i class="bi bi-exclamation-triangle"></i> ' + errorMsg + '</td></tr>');
+          return;
+        }
+        
+        if (data.success && data.pendingList && data.pendingList.length > 0) {
+          renderPendingReviews(data.pendingList);
+        } else {
+          $('#remindersBody').html('<tr><td colspan="5" class="text-center py-5 text-muted">' +
+            '<i class="bi bi-check-circle fs-4 d-block mb-2"></i>目前没有已逾期的审稿任务</td></tr>');
+        }
+      })
+      .catch(error => {
+        $('#remindersBody').html('<tr><td colspan="5" class="text-center py-4 text-danger">' +
+          '<i class="bi bi-x-circle"></i> 加载失败: ' + (error.message || '未知错误') + '</td></tr>');
+      });
+  }
+
+  // 渲染已逾期审稿人列表
+  function renderPendingReviews(list) {
+    if (!list || list.length === 0) {
+      $('#remindersBody').html('<tr><td colspan="5" class="text-center py-5 text-muted">暂无逾期审稿任务</td></tr>');
+      return;
+    }
+    
+    let html = '';
+    list.forEach((item) => {
+      // 处理日期格式化
+      let deadlineStr = '未知';
+      try {
+        if (item.deadline) {
+          let dateObj;
+          if (typeof item.deadline === 'string') {
+            let dateStr = item.deadline.trim();
+            if (dateStr.indexOf(' ') > 0 && dateStr.indexOf('T') < 0) {
+              dateStr = dateStr.replace(' ', 'T');
+            }
+            if (!dateStr.includes('T')) {
+              dateStr += 'T00:00:00';
+            }
+            dateObj = new Date(dateStr);
+          } else if (Array.isArray(item.deadline)) {
+            dateObj = new Date(...item.deadline);
+          } else {
+            dateObj = new Date(item.deadline);
+          }
+          
+          if (!isNaN(dateObj.getTime())) {
+            deadlineStr = dateObj.toLocaleDateString('zh-CN');
+          } else {
+            deadlineStr = String(item.deadline);
+          }
+        }
+      } catch (e) {
+        deadlineStr = String(item.deadline || '未知');
+      }
+      
+      const overdueDays = item.overdueDays || 0;
+      const overdueDaysBadge = overdueDays > 0 ? 
+        `<span class="badge bg-danger">已逾期 ${overdueDays} 天</span>` : 
+        '<span class="badge bg-secondary">-</span>';
+
+      html += `
+        <tr>
+          <td>
+            <strong>${item.manuscriptTitle || '无标题'}</strong><br>
+            <small class="text-muted">ID: #MS-${item.manuscriptId}</small>
+          </td>
+          <td>${item.reviewerName || '未知'}</td>
+          <td><small class="text-muted">${item.reviewerEmail || '-'}</small></td>
+          <td><small class="text-muted">${deadlineStr}</small></td>
+          <td>${overdueDaysBadge}</td>
+        </tr>
+      `;
+    });
+    
+    $('#remindersBody').html(html);
+  }
+
+  // 加载有逾期审稿人的稿件列表
+  function loadOverdueManuscripts() {
+    fetch('/editor/api/reviews/overdue/manuscripts')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success && data.manuscripts && data.manuscripts.length > 0) {
+          let html = '<option value="">-- 请选择有逾期审稿人的稿件 --</option>';
+          data.manuscripts.forEach(m => {
+            const title = m.title || `稿件 #MS-${m.manuscriptId}`;
+            html += `<option value="${m.manuscriptId}">${title} (ID: #MS-${m.manuscriptId})</option>`;
+          });
+          $('#remindManuscriptSelect').html(html);
+        } else {
+          $('#remindManuscriptSelect').html('<option value="">暂无有逾期审稿人的稿件</option>');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        $('#remindManuscriptSelect').html('<option value="">加载失败，请重试</option>');
+      });
+  }
+
+  // 根据稿件加载逾期审稿人列表
+  function loadOverdueReviewers() {
+    const manuscriptId = $('#remindManuscriptSelect').val();
+    if (!manuscriptId) {
+      $('#remindReviewerSelect').html('<option value="">-- 请先选择稿件 --</option>');
+      $('#remindEmailSubject').val('');
+      $('#remindEmailContent').val('');
+      return;
+    }
+
+    $('#remindReviewerSelect').html('<option value="">加载中...</option>');
+
+    fetch(`/editor/api/reviews/overdue/reviewers?manuscriptId=${manuscriptId}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success && data.reviewers && data.reviewers.length > 0) {
+          let html = '<option value="">-- 请选择审稿人 --</option>';
+          data.reviewers.forEach(r => {
+            const name = r.reviewerName || `Reviewer-${r.reviewerId}`;
+            const overdueDays = r.overdueDays || 0;
+            // 将reviewer数据存储在data属性中，方便后续使用
+            html += `<option value="${r.reviewId}" 
+                              data-reviewer-name="${r.reviewerName || ''}" 
+                              data-reviewer-email="${r.reviewerEmail || ''}" 
+                              data-overdue-days="${overdueDays}" 
+                              data-deadline="${r.deadline || ''}">${name} (已逾期 ${overdueDays} 天)</option>`;
+          });
+          $('#remindReviewerSelect').html(html);
+          
+          // 移除之前的change事件监听器，避免重复绑定
+          $('#remindReviewerSelect').off('change').on('change', function() {
+            autoFillEmailContent(manuscriptId);
+          });
+        } else {
+          $('#remindReviewerSelect').html('<option value="">该稿件暂无逾期审稿人</option>');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        $('#remindReviewerSelect').html('<option value="">加载失败，请重试</option>');
+      });
+  }
+
+  // 自动填充默认邮件内容
+  function autoFillEmailContent(manuscriptId) {
+    const selectedOption = $('#remindReviewerSelect option:selected');
+    if (!selectedOption.val()) {
+      $('#remindEmailSubject').val('');
+      $('#remindEmailContent').val('');
+      return;
+    }
+
+    const reviewerName = selectedOption.data('reviewer-name') || '审稿人';
+    const overdueDays = selectedOption.data('overdue-days') || 0;
+    const deadline = selectedOption.data('deadline');
+    
+    // 获取稿件信息
+    const manuscriptOption = $('#remindManuscriptSelect option:selected');
+    const manuscriptTitle = manuscriptOption.text().split('(')[0].trim();
+    
+    // 格式化截止日期
+    let deadlineStr = '未知';
+    if (deadline) {
+      try {
+        deadlineStr = new Date(deadline).toLocaleDateString('zh-CN');
+      } catch (e) {
+        deadlineStr = deadline;
+      }
+    }
+    
+    // 设置默认主题
+    $('#remindEmailSubject').val(`[催审提醒] 请尽快完成稿件审阅 - ${manuscriptTitle}`);
+    
+    // 设置默认内容
+    let defaultContent = `尊敬的 ${reviewerName} 老师：\n\n`;
+    defaultContent += `您好！\n\n`;
+    defaultContent += `您接受审阅的稿件《${manuscriptTitle}》(ID: #MS-${manuscriptId})\n`;
+    defaultContent += `截止日期为：${deadlineStr}。\n\n`;
+    if (overdueDays > 0) {
+      defaultContent += `截止日期已过 ${overdueDays} 天，编辑部注意到尚未收到您的审稿意见，请您在百忙之中抽出时间尽快登录系统完成审阅。\n\n`;
+    } else {
+      defaultContent += `编辑部注意到尚未收到您的审稿意见，请您在百忙之中抽出时间尽快登录系统完成审阅。\n\n`;
+    }
+    defaultContent += `感谢您的支持！\n\n`;
+    defaultContent += `此致\n敬礼\n\n编辑部`;
+    
+    $('#remindEmailContent').val(defaultContent);
+  }
+
+  // 发送自定义内容的催审邮件
+  function sendCustomReminder(event) {
+    event.preventDefault();
+    
+    const reviewId = $('#remindReviewerSelect').val();
+    const subject = $('#remindEmailSubject').val().trim();
+    const content = $('#remindEmailContent').val().trim();
+
+    if (!reviewId || !subject || !content) {
+      $('#remindEmailAlert').html('<div class="alert alert-warning"><i class="bi bi-exclamation-triangle"></i> 请填写完整信息</div>');
+      return;
+    }
+
+    $('#remindEmailAlert').html('<div class="alert alert-info"><i class="bi bi-hourglass-split"></i> 正在发送...</div>');
+    $('button[type="submit"]').prop('disabled', true);
+
+    const formData = new URLSearchParams();
+    formData.append('reviewId', reviewId);
+    formData.append('customContent', content);
+    formData.append('subject', subject);
+
+    fetch('/editor/api/review/remind', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      $('button[type="submit"]').prop('disabled', false);
+      if (data.success) {
+        $('#remindEmailAlert').html('<div class="alert alert-success"><i class="bi bi-check-circle"></i> ' + (data.message || '催审邮件已发送成功！') + '</div>');
+        // 重新加载逾期列表
+        setTimeout(() => {
+          loadPendingReviews();
+          resetRemindForm();
+        }, 2000);
+      } else {
+        $('#remindEmailAlert').html('<div class="alert alert-danger"><i class="bi bi-x-circle"></i> ' + (data.message || '发送失败，请重试') + '</div>');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      $('button[type="submit"]').prop('disabled', false);
+      $('#remindEmailAlert').html('<div class="alert alert-danger"><i class="bi bi-x-circle"></i> 发送失败，请重试</div>');
+    });
+  }
+
+  // 重置催审表单
+  function resetRemindForm() {
+    $('#remindManuscriptSelect').val('');
+    $('#remindReviewerSelect').html('<option value="">-- 请先选择稿件 --</option>');
+    $('#remindEmailSubject').val('');
+    $('#remindEmailContent').val('');
+    $('#remindEmailAlert').html('');
+    // 重新加载逾期稿件列表
+    loadOverdueManuscripts();
+  }
+
+  // 显示稿件详情（可选功能，需要时调用）
+  function showManuscriptDetail(manuscriptId) {
+    fetch(`/editor/api/manuscript/${manuscriptId}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const m = data.manuscript;
+          const a = data.author;
+          $('#manuscriptModalBody').html(`
+            <div class="mb-3">
+              <h6>稿件信息</h6>
+              <p><strong>ID:</strong> #MS-${m.manuscriptId}</p>
+              <p><strong>标题:</strong> ${m.title || '无标题'}</p>
+              <p><strong>摘要:</strong> ${m.abstractText || '无摘要'}</p>
+              <p><strong>状态:</strong> ${m.status || '未知'}</p>
+              <p><strong>提交时间:</strong> ${m.submitTime ? new Date(m.submitTime).toLocaleString('zh-CN') : '-'}</p>
+            </div>
+            <div class="mb-3">
+              <h6>作者信息</h6>
+              <p><strong>姓名:</strong> ${a ? (a.fullName || '未知') : '未知'}</p>
+              <p><strong>邮箱:</strong> ${a ? (a.email || '-') : '-'}</p>
+            </div>
+          `);
+          $('#manuscriptModal').modal('show');
+        } else {
+          alert('加载失败：' + (data.message || '未知错误'));
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('加载失败，请重试');
+      });
+  }
+
+  // ========== 标签页切换函数 ==========
+  
+  // 切换到"邀请审稿人"标签页
+  function switchToInviteTab(manuscriptId) {
+    // 切换到邀请审稿人标签页
+    const inviteTabButton = document.querySelector('[data-bs-target="#tab-invite"]');
+    if (inviteTabButton) {
+      // 先绑定一次性事件监听器
+      $(inviteTabButton).one('shown.bs.tab', function() {
+        // 延迟一点时间确保内容渲染完成
+        setTimeout(function() {
+          // 自动选择对应的稿件
+          $('#inviteManuscriptSelect').val(manuscriptId);
+          loadExistingReviews();
+          $('#inviteRuleAlert').show();
+        }, 300);
+      });
+      
+      // 触发标签页切换
+      const tab = new bootstrap.Tab(inviteTabButton);
+      tab.show();
+    }
+  }
+
+  // ========== 邀请审稿人相关函数 ==========
+
+  // 加载已邀请的审稿人列表
+  function loadExistingReviews() {
+    const manuscriptId = $('#inviteManuscriptSelect').val();
+    if (!manuscriptId) {
+      $('#existingReviewsArea').html('<div class="text-center py-5 text-muted"><i class="bi bi-inbox fs-2 d-block mb-2"></i><p class="mb-0">请先选择稿件查看已邀请的审稿人</p></div>');
+      $('#inviteManuscriptInfo').hide();
+      $('#inviteManuscriptPlaceholder').show();
+      $('#reviewerListArea').html('<div class="text-center py-5 text-muted"><i class="bi bi-arrow-up-circle fs-3 d-block mb-2"></i><p class="mb-0">请先选择稿件，然后在上方搜索关键词</p></div>');
+      $('#inviteRuleAlert').hide();
+      return;
+    }
+
+    // 先加载稿件详情（包括摘要）
+    fetch(`/editor/api/manuscript/${manuscriptId}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success && data.manuscript) {
+          const m = data.manuscript;
+          // 显示稿件信息（包括摘要）
+          $('#inviteManuscriptId').text('#MS-' + manuscriptId);
+          $('#inviteManuscriptTitle').text(m.title || '（未填写标题）');
+          $('#inviteManuscriptAbstract').text(m.abstractText || '（未填写摘要）');
+          $('#inviteManuscriptInfo').show();
+          $('#inviteManuscriptPlaceholder').hide();
+        } else {
+          $('#inviteManuscriptInfo').hide();
+          $('#inviteManuscriptPlaceholder').show();
+        }
+      })
+      .catch(error => {
+        console.error('Error loading manuscript:', error);
+        $('#inviteManuscriptInfo').hide();
+        $('#inviteManuscriptPlaceholder').show();
+      });
+
+    // 加载已邀请列表
+    fetch(`/editor/api/reviews/existing?manuscriptId=${manuscriptId}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success && data.reviews) {
+          renderExistingReviews(data.reviews, manuscriptId);
+          $('#inviteRuleAlert').show();
+        } else {
+          $('#existingReviewsArea').html('<div class="text-center py-4 text-muted"><i class="bi bi-inbox fs-2 d-block mb-2"></i><p class="mb-0">暂无已邀请的审稿人</p></div>');
+          $('#inviteRuleAlert').show();
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        $('#existingReviewsArea').html('<div class="alert alert-danger">加载失败，请重试</div>');
+      });
+  }
+
+  // 渲染已邀请的审稿人列表
+  function renderExistingReviews(reviews, manuscriptId) {
+    if (!reviews || reviews.length === 0) {
+      $('#existingReviewsArea').html('<div class="text-center py-4 text-muted"><i class="bi bi-inbox fs-2 d-block mb-2"></i><p class="mb-0">暂无已邀请的审稿人</p></div>');
+      return;
+    }
+
+    let html = '<div class="table-responsive"><table class="table table-hover align-middle table-sm"><thead class="table-light"><tr>' +
+               '<th>审稿人姓名</th><th>邮箱</th><th>状态</th><th>截止时间</th><th>操作</th>' +
+               '</tr></thead><tbody>';
+
+    reviews.forEach(review => {
+      const statusBadge = getStatusBadge(review.status);
+      const deadlineStr = review.deadline ? new Date(review.deadline).toLocaleDateString('zh-CN') : '-';
+      const reviewerName = review.reviewerName || ('Reviewer-' + review.reviewerId);
+      const reviewerEmail = review.reviewerEmail || '-';
+      
+      html += '<tr>';
+      html += '<td><strong>' + reviewerName + '</strong></td>';
+      html += '<td><small class="text-muted">' + reviewerEmail + '</small></td>';
+      html += '<td>' + statusBadge + '</td>';
+      html += '<td><small class="text-muted">' + deadlineStr + '</small></td>';
+      html += '<td>';
+
+      // 根据状态显示操作按钮
+      if (review.status === 'pending') {
+        html += '<button class="btn btn-sm btn-outline-danger" onclick="revokeInvitationAjax(' + review.reviewId + ', ' + manuscriptId + ')" title="撤销邀请">';
+        html += '<i class="bi bi-x-circle"></i> 撤销</button>';
+      } else if (review.status === 'accepted') {
+        // 点击催审按钮，跳转到催审标签页
+        html += '<button class="btn btn-sm btn-warning" onclick="switchToRemindTabFromInvite(' + review.reviewId + ', ' + manuscriptId + ')" title="跳转到催审页面">';
+        html += '<i class="bi bi-bell"></i> 催审</button>';
+      } else if (review.status === 'finished') {
+        html += '<span class="badge bg-success"><i class="bi bi-check-circle"></i> 已完成</span>';
+      } else if (review.status === 'rejected') {
+        html += '<span class="badge bg-danger">已拒绝</span>';
+      } else {
+        html += '<span class="text-muted">-</span>';
+      }
+
+      html += '</td></tr>';
+    });
+
+    html += '</tbody></table></div>';
+    $('#existingReviewsArea').html(html);
+  }
+
+  // 获取状态徽章
+  function getStatusBadge(status) {
+    const statusMap = {
+      'pending': '<span class="badge bg-secondary">待回复</span>',
+      'accepted': '<span class="badge bg-primary">审稿中</span>',
+      'rejected': '<span class="badge bg-danger">已拒绝</span>',
+      'finished': '<span class="badge bg-success">已完成</span>'
+    };
+    return statusMap[status] || `<span class="badge bg-secondary">${status}</span>`;
+  }
+
+  // 搜索审稿人
+  function searchReviewers() {
+    const manuscriptId = $('#inviteManuscriptSelect').val();
+    if (!manuscriptId) {
+      alert('请先选择稿件');
+      return;
+    }
+
+    const keyword = $('#reviewerSearchKeyword').val() || '';
+    $('#reviewerListArea').html('<div class="text-center py-3"><i class="bi bi-hourglass-split"></i> 搜索中...</div>');
+
+    fetch(`/editor/api/reviewers/search?keyword=${encodeURIComponent(keyword)}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success && data.reviewers) {
+          renderReviewerList(data.reviewers, manuscriptId);
+        } else {
+          $('#reviewerListArea').html('<div class="alert alert-warning">搜索失败：' + (data.message || '未知错误') + '</div>');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        $('#reviewerListArea').html('<div class="alert alert-danger">搜索失败，请重试</div>');
+      });
+  }
+
+  // 渲染审稿人列表
+  function renderReviewerList(reviewers, manuscriptId) {
+    if (!reviewers || reviewers.length === 0) {
+      $('#reviewerListArea').html('<div class="text-center py-5 text-muted"><i class="bi bi-inbox fs-3 d-block mb-2"></i><p class="mb-0">未找到匹配的审稿人</p></div>');
+      return;
+    }
+
+    let html = '<div class="mb-3"><span class="badge bg-info text-dark fs-6"><i class="bi bi-people-fill me-1"></i>找到 ' + reviewers.length + ' 位匹配的专家</span></div>';
+    html += '<div class="row g-3">';
+
+    reviewers.forEach(reviewer => {
+      const direction = reviewer.investigationDirection || '未填写';
+      const fullName = reviewer.fullName || 'Unknown';
+      const email = reviewer.email || '-';
+      
+      // 计算默认截止日期（14天后）
+      const defaultDate = new Date();
+      defaultDate.setDate(defaultDate.getDate() + 14);
+      const defaultDateStr = defaultDate.toISOString().split('T')[0];
+      
+      html += '<div class="col-md-6 col-lg-4">';
+      html += '<div class="card border shadow-sm h-100">';
+      html += '<div class="card-body">';
+      html += '<h6 class="card-title mb-2"><strong>' + fullName + '</strong></h6>';
+      html += '<p class="card-text small mb-2">';
+      html += '<i class="bi bi-briefcase-fill text-primary me-1"></i><span class="text-muted">研究方向：</span>' + direction;
+      html += '</p>';
+      html += '<p class="card-text small mb-3">';
+      html += '<i class="bi bi-envelope-fill text-success me-1"></i><span class="text-muted">' + email + '</span>';
+      html += '</p>';
+      html += '<form onsubmit="inviteReviewerAjax(event, ' + manuscriptId + ', ' + reviewer.userId + '); return false;">';
+      html += '<div class="mb-2">';
+      html += '<label class="form-label small text-muted mb-1">截止日期</label>';
+      html += '<input type="date" name="deadlineStr" class="form-control form-control-sm" value="' + defaultDateStr + '" min="' + defaultDateStr + '" required>';
+      html += '</div>';
+      html += '<button type="submit" class="btn btn-sm btn-success w-100">';
+      html += '<i class="bi bi-person-plus me-1"></i> 邀请';
+      html += '</button>';
+      html += '</form>';
+      html += '</div>';
+      html += '</div>';
+      html += '</div>';
+    });
+
+    html += '</div>';
+    $('#reviewerListArea').html(html);
+  }
+
+  // AJAX邀请审稿人
+  function inviteReviewerAjax(event, manuscriptId, reviewerId) {
+    event.preventDefault();
+    const form = event.target;
+    const deadlineStr = form.querySelector('input[name="deadlineStr"]').value;
+
+    if (!deadlineStr) {
+      alert('请选择截止日期');
+      return;
+    }
+
+    const formData = new URLSearchParams();
+    formData.append('manuscriptId', manuscriptId);
+    formData.append('reviewerId', reviewerId);
+    formData.append('deadlineStr', deadlineStr);
+
+    // 显示加载状态
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> 邀请中...';
+
+    fetch('/editor/api/invite', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+      
+      if (data.success) {
+        alert('邀请已发送！');
+        // 重新加载已邀请列表
+        loadExistingReviews();
+        // 清空搜索框，重新搜索（刷新列表）
+        searchReviewers();
+      } else {
+        alert('邀请失败：' + (data.message || '未知错误'));
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+      alert('邀请失败，请重试');
+    });
+  }
+
+  // AJAX撤销邀请
+  function revokeInvitationAjax(reviewId, manuscriptId) {
+    if (!confirm('确定撤销邀请吗？')) {
+      return;
+    }
+
+    const formData = new URLSearchParams();
+    formData.append('reviewId', reviewId);
+    formData.append('manuscriptId', manuscriptId);
+
+    fetch('/editor/api/revoke', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert('邀请已撤销');
+        // 重新加载已邀请列表
+        loadExistingReviews();
+      } else {
+        alert('撤销失败：' + (data.message || '未知错误'));
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('撤销失败，请重试');
+    });
+  }
+
+  // 从邀请页面跳转到催审标签页
+  function switchToRemindTabFromInvite(reviewId, manuscriptId) {
+    // 切换到催审标签页
+    const remindersTabButton = document.querySelector('[data-bs-target="#tab-reminders"]');
+    if (remindersTabButton) {
+      // 先绑定一次性事件监听器，在标签页切换完成后再加载数据并高亮对应行
+      $(remindersTabButton).one('shown.bs.tab', function() {
+        loadPendingReviews();
+        // 等待数据加载完成后再高亮对应的审稿任务
+        setTimeout(function() {
+          $('#remindersBody tr').each(function() {
+            const reviewIdAttr = $(this).find('button[onclick*="remindReviewer"]').attr('onclick');
+            if (reviewIdAttr && reviewIdAttr.includes('' + reviewId + ',')) {
+              $(this).addClass('table-warning');
+              // 滚动到该行
+              $('html, body').animate({
+                scrollTop: $(this).offset().top - 150
+              }, 500);
+              return false; // 退出循环
+            }
+          });
+        }, 1000); // 等待数据加载
+      });
+      
+      // 触发标签页切换
+      const tab = new bootstrap.Tab(remindersTabButton);
+      tab.show();
+    }
+  }
+
+  // 切换到"催审"标签页
+  function switchToRemindTab(manuscriptId) {
+    // 切换到催审标签页
+    const remindersTabButton = document.querySelector('[data-bs-target="#tab-reminders"]');
+    if (remindersTabButton) {
+      // 先绑定一次性事件监听器
+      $(remindersTabButton).one('shown.bs.tab', function() {
+        loadPendingReviews();
+        // 加载完成后，如果可能，高亮对应的稿件
+        setTimeout(function() {
+          $('#remindersBody tr').each(function() {
+            const text = $(this).text();
+            if (text.includes('#MS-' + manuscriptId) || text.includes('MS-' + manuscriptId)) {
+              $(this).addClass('table-warning');
+              $('html, body').animate({
+                scrollTop: $(this).offset().top - 100
+              }, 500);
+              return false;
+            }
+          });
+        }, 800); // 等待数据加载
+      });
+      
+      // 触发标签页切换
+      const tab = new bootstrap.Tab(remindersTabButton);
+      tab.show();
+    }
+  }
+
+  // 切换到"提出建议"标签页
+  function switchToRecommendationTab(manuscriptId) {
+    // 切换到提出建议标签页
+    const recommendationTabButton = document.querySelector('[data-bs-target="#tab-recommendation"]');
+    if (recommendationTabButton) {
+      // 先绑定一次性事件监听器
+      $(recommendationTabButton).one('shown.bs.tab', function() {
+        // 延迟一点时间确保内容渲染完成
+        setTimeout(function() {
+          // 移除之前的高亮
+          $('#tab-recommendation tbody tr').removeClass('table-warning');
+          // 高亮对应的稿件行
+          $('#tab-recommendation tbody tr').each(function() {
+            const td = $(this).find('td').first();
+            if (td.text().includes('#MS-' + manuscriptId)) {
+              $(this).addClass('table-warning');
+              // 滚动到该行
+              $('html, body').animate({
+                scrollTop: $(this).offset().top - 100
+              }, 500);
+              return false; // 退出循环
+            }
+          });
+        }, 300);
+      });
+      
+      // 触发标签页切换
+      const tab = new bootstrap.Tab(recommendationTabButton);
+      tab.show();
+    }
+  }
+
+  // 切换到"与作者沟通"标签页
+  function switchToCommunicationTab(manuscriptId) {
+    // 切换到沟通标签页
+    const communicationTabButton = document.querySelector('[data-bs-target="#tab-communication"]');
+    if (communicationTabButton) {
+      // 先绑定一次性事件监听器
+      $(communicationTabButton).one('shown.bs.tab', function() {
+        $('#manuscriptSelect').val(manuscriptId);
+        loadCommunicationHistory();
+      });
+      
+      // 触发标签页切换
+      const tab = new bootstrap.Tab(communicationTabButton);
+      tab.show();
+    }
+  }
+
+  // ========== 兼容旧函数名（如果需要） ==========
+  // 保留旧函数名以兼容可能的其他地方调用
+  function selectManuscriptForCommunication(manuscriptId) {
+    switchToCommunicationTab(manuscriptId);
+  }
+
+  function showRemindOptions(manuscriptId) {
+    switchToRemindTab(manuscriptId);
+  }
+
+</script>
+</body>
+</html>

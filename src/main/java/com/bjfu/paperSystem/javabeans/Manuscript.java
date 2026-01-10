@@ -54,11 +54,12 @@ public class Manuscript {
     @Column(columnDefinition = "integer default 1")
     private Integer round = 1;
 
-    // 编辑给主编的建议 (Accept/Reject/Revise) - 临时存放
+    // 编辑给主编的建议 (Accept/Reject/Revise)
+    @Column(name = "editor_recommendation", length = 50)
     private String editorRecommendation;
 
-    // 编辑给主编的备注 - 临时存放
-    @Column(columnDefinition = "TEXT")
+    // 编辑给主编的备注
+    @Column(name = "editor_comment", columnDefinition = "TEXT")
     private String editorComment;
 
     @Transient

@@ -28,4 +28,13 @@ public interface clientMessageDao extends JpaRepository<ClientMessage, Integer> 
         order by m.sendingTime desc
     """)
     List<ClientMessage> findReceivedWithUsers(@Param("uid") Integer uid);
+
+    @Query("""
+    select m from ClientMessage m
+    join fetch m.sender
+    join fetch m.receiver
+    where m.manuId = :manuId
+    order by m.sendingTime asc
+    """)
+    List<ClientMessage> findByManuIdWithUsers(@Param("manuId") Integer manuId);
 }

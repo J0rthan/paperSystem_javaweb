@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="manuscriptTable(list, statusType)">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle manuscript-table">
+            <thead class="table-light">
+            <tr>
+                <th>稿件ID</th>
+                <th>标题</th>
+                <th>提交时间</th>
+                <th>状态</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="p : ${list}">
+                <td th:text="${'#MS-' + p.manuscriptId}"></td>
+                <td>
+                    <span th:if="${p.title == null or p.title == ''}" class="text-muted fst-italic">（未填写标题）</span>
+                    <span th:if="${p.title != null and p.title != ''}" th:text="${p.title}" class="text-truncate d-inline-block" style="max-width: 250px;"></span>
+                </td>
+                <td>
+                    <span th:if="${p.submitTime != null}"
+                          th:text="${#temporals.format(p.submitTime, 'yyyy-MM-dd HH:mm:ss')}">
+                    </span>
+                    <span th:if="${p.submitTime == null}" class="text-muted">-</span>
+                </td>
+                <td>
+                    <span class="badge rounded-pill px-3"
+                          th:classappend="${p.status == 'With Editor'} ? 'bg-secondary' :
+                                          (${p.status == 'Under Review'} ? 'bg-info text-dark' :
+                                          (${p.status == 'With Editor II'} ? 'bg-warning text-dark' :
+                                          (${p.status == 'Need Revision'} ? 'bg-primary' : 'bg-secondary')))"
+                          th:switch="${p.status}">
+                        <span th:case="'With Editor'">编辑处理中</span>
+                        <span th:case="'With Editor II'">待提交建议</span>
+                        <span th:case="'Under Review'">审稿中</span>
+                        <span th:case="'Need Revision'">需要返修</span>
+                        <span th:case="*" th:text="${p.status}"></span>
+                    </span>
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <!-- 详情按钮（所有状态都有） -->
+                        <button type="button" class="btn btn-sm btn-outline-dark" 
+                                th:onclick="'showManuscriptDetail(' + ${p.manuscriptId} + ')'" 
+                                title="查看详情">
+                            <i class="bi bi-file-earmark-text"></i> 详情
+                        </button>
+
+                        <!-- 下载按钮（所有状态都有） -->
+                        <div class="btn-group" role="group">
+                            <button th:if="${(p.manuscriptPath != null and p.manuscriptPath != '') or (p.coverLetterPath != null and p.coverLetterPath != '')}"
+                                    type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                <i class="bi bi-download"></i> 下载
+                            </button>
+                            <ul class="dropdown-menu shadow-sm">
+                                <li th:if="${p.manuscriptPath != null and p.manuscriptPath != ''}">
+                                    <a class="dropdown-item small" th:href="@{/editor/download(path=${p.manuscriptPath})}">
+                                        <i class="bi bi-file-earmark-text me-2"></i>主稿件
+                                    </a>
+                                </li>
+                                <li th:if="${p.coverLetterPath != null and p.coverLetterPath != ''}">
+                                    <a class="dropdown-item small" th:href="@{/editor/download(path=${p.coverLetterPath})}">
+                                        <i class="bi bi-envelope me-2"></i>投稿信 (Cover Letter)
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- 根据状态显示不同的操作按钮 -->
+                        <!-- 编辑处理中：邀请审稿人 -->
+                        <button th:if="${statusType == 'withEditor'}" 
+                                type="button" class="btn btn-sm btn-primary" 
+                                th:onclick="'switchToInviteTab(' + ${p.manuscriptId} + ')'"
+                                title="邀请审稿人">
+                            <i class="bi bi-person-plus"></i> 邀请审稿人
+                        </button>
+                        
+                        <!-- 审稿中：催审 -->
+                        <button th:if="${statusType == 'underReview'}" 
+                                type="button" class="btn btn-sm btn-warning" 
+                                th:onclick="'switchToRemindTab(' + ${p.manuscriptId} + ')'"
+                                title="催审">
+                            <i class="bi bi-bell"></i> 催审
+                        </button>
+                        
+                        <!-- 待提交建议：提出建议 -->
+                        <button th:if="${statusType == 'pendingRecommendation'}" 
+                                type="button" class="btn btn-sm btn-success" 
+                                th:onclick="'switchToRecommendationTab(' + ${p.manuscriptId} + ')'"
+                                title="提出建议">
+                            <i class="bi bi-check-circle"></i> 提出建议
+                        </button>
+                        
+                        <!-- 需要返修：与作者沟通 -->
+                        <button th:if="${statusType == 'needRevision'}" 
+                                type="button" class="btn btn-sm btn-info" 
+                                th:onclick="'switchToCommunicationTab(' + ${p.manuscriptId} + ')'"
+                                title="与作者沟通">
+                            <i class="bi bi-chat-left-text"></i> 与作者沟通
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            <!-- 空列表时显示提示行 -->
+            <tr th:if="${#lists.isEmpty(list)}">
+                <td colspan="5" class="text-center py-5 text-muted">
+                    <i class="bi bi-folder2-open fs-2 d-block mb-2"></i> 暂无此类稿件
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</th:block>
+</html>

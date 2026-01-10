@@ -25,12 +25,46 @@
         <a class="navbar-brand fw-bold" th:href="@{/author/manuscript/list}">
             <i class="bi bi-journal-bookmark-fill me-2"></i>学术论文管理系统-作者端
         </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#authorNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="authorNavbar">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item me-3">
+                    <a class="nav-link text-light position-relative" th:href="@{/author/message/list}" title="消息中心">
+                        <i class="bi bi-envelope-fill fs-5"></i>
+                        <span class="position-absolute top-2 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
+                            <span class="visually-hidden">新消息</span>
+                        </span>
+                    </a>
+                </li>
+
+                <li class="nav-item me-3 border-end pe-3">
+                    <a class="nav-link text-light" th:href="@{/author/profile}" title="账号设置">
+                        <i class="bi bi-gear-fill fs-5"></i>
+                    </a>
+                </li>
+
+                <li class="nav-item dropdown ms-2">
+                    <span class="navbar-text text-light me-3">
+                        <i class="bi bi-person-circle me-1"></i>
+                        <span th:text="${session.loginUser.userName}">作者姓名</span>
+                    </span>
+                    <a href="/author/logout" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                        <i class="bi bi-box-arrow-right me-1"></i>退出登录
+                    </a>
+                </li>
+            </ul>
+        </div>
     </div>
 </nav>
 
 <main class="flex-grow-1">
     <div class="container py-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
+            <small class="text-muted">欢迎您：<span th:text="${session.loginUser.userName}">作者</span></small>
             <div>
                 <h2 class="mb-0 fw-bold" th:text="${manuscript.manuscriptId > 0 ? '编辑稿件' : '发起新投稿'}">发起新投稿</h2>
             </div>

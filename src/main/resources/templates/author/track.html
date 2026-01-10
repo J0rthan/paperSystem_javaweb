@@ -113,9 +113,6 @@
                             <span th:case="'Need Revision'">需要返修</span>
                             <span th:case="*" th:text="${manuscript.status}"></span>
                         </span>
-                        <a th:href="@{/author/manuscript/detail(id=${manuscript.manuscriptId})}" class="btn btn-sm btn-link text-decoration-none ms-2">
-                            <i class="bi bi-info-circle"></i> 查看详情
-                        </a>
                     </div>
                     <div th:if="${manuscript.decision != null and manuscript.decision != ''}" class="mt-4 p-3 decision-alert shadow-sm">
                         <div class="fw-bold mb-1"><i class="bi bi-megaphone-fill me-2"></i>主编意见：</div>

@@ -34,6 +34,7 @@ public class authorServiceImpl implements authorService {
             case "Rejected" -> "拒稿";
             case "Accepted" -> "录用";
             case "Need Revision" -> "需要返修";
+            case "After Revision"->"返修完成";
             case "With A Decision" -> "已决议";
             case "With Editor II"->"终审中";
             default -> status;
@@ -119,7 +120,7 @@ public class authorServiceImpl implements authorService {
         map.put("pendingReviewList", all.stream().filter(m -> m.getStatus().equals("待审查")).collect(Collectors.toList()));
         map.put("underReviewList", all.stream().filter(m -> m.getStatus().equals("审稿中")).collect(Collectors.toList()));
         map.put("decidedPapers", all.stream().filter(m -> Arrays.asList("录用", "拒稿", "已决议").contains(m.getStatus())).collect(Collectors.toList()));
-        map.put("revisionPapers", all.stream().filter(m -> m.getStatus().equals("需要返修")).collect(Collectors.toList()));
+        map.put("revisionPapers", all.stream().filter(m -> Arrays.asList("需要返修","返修完成").contains(m.getStatus())).collect(Collectors.toList()));
         map.put("pendingAllocationList", all.stream().filter(m -> m.getStatus().equals("待初审")).collect(Collectors.toList()));
         map.put("pendingAllocationIIList", all.stream().filter(m -> m.getStatus().equals("待分配")).collect(Collectors.toList()));
         map.put("withEditorList", all.stream().filter(m -> m.getStatus().equals("编辑处理中")).collect(Collectors.toList()));
@@ -175,7 +176,7 @@ public class authorServiceImpl implements authorService {
         newV.setResponseText(responseText);
         versionsDao.save(newV);
         Manuscript ms = manuscriptDao.findById(manuscriptId).get();
-        ms.setStatus("Under Review");
+        ms.setStatus("After revision");
         manuscriptDao.save(ms);
         Logs log = new Logs();
         log.setPaperId(manuscriptId);

@@ -47,6 +47,7 @@
                         <span th:case="'Rejected'">拒稿</span>
                         <span th:case="'Accepted'">录用</span>
                         <span th:case="'Need Revision'">需要返修</span>
+                        <span th:case="'After Revision'">返修完成</span>
                         <span th:case="'With A Decision'">已决议</span>
                         <span th:case="*" th:text="${p.status}"></span>
                     </span>
@@ -94,7 +95,7 @@
                             <i class="bi bi-eye"></i> 追踪
                         </a>
 
-                        <a th:if="${type == 'revise'}"
+                        <a th:if="${type == 'revise' and p.status == 'Need Revision'}"
                            th:href="@{/author/manuscript/revise(id=${p.manuscriptId})}"
                            class="btn btn-sm btn-success">
                             <i class="bi bi-arrow-repeat"></i> 提交修回

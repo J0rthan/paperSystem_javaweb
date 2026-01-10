@@ -145,6 +145,10 @@
                                             <span th:case="'submit revision'">提交修改稿 (Revision)</span>
                                             <span th:case="'assign editor'">分配编辑</span>
                                             <span th:case="'finish reviewing'">完成审稿</span>
+                                            <span th:case="'editor completed'">编辑完成审稿人分配</span>
+                                            <span th:case="'final accepted'">通过终审</span>
+                                            <span th:case="'need revision'">需要修改</span>
+                                            <span th:case="'final rejected'">未通过终审</span>
                                             <span th:case="*" th:text="${log.opType}">系统记录</span>
                                         </h5>
                                         <div class="text-primary small">

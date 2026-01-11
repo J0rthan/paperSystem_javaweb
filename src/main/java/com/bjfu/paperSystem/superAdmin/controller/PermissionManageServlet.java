@@ -28,14 +28,15 @@ public class PermissionManageServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        // 从 Spring 容器中获取 Bean
         WebApplicationContext ctx =
                 WebApplicationContextUtils.getWebApplicationContext(getServletContext());
         if (ctx == null) {
-            throw new ServletException("Spring WebApplicationContext not found. " +
-                    "请确认启动类包含 @ServletComponentScan");
+            throw new ServletException("Spring WebApplicationContext not found. 请确认启动类包含 @ServletComponentScan");
         }
+
         this.suAdminService = ctx.getBean(superAdminService.class);
+        this.permissionService = ctx.getBean(permissionManageService.class);
+        this.permissionDao = ctx.getBean(permissionManageDao.class);
     }
 
     @Override
@@ -78,6 +79,9 @@ public class PermissionManageServlet extends HttpServlet {
                 User user = suAdminService.findUserById(userId);
 
                 request.setAttribute("user", user);
+                Permission permission = permissionService.findByUserId(userId);
+                request.setAttribute("permission", permission);
+
                 request.getRequestDispatcher(
                         "/WEB-INF/jsp/superadmin/permissionDetail.jsp"
                 ).forward(request, response);

@@ -163,13 +163,13 @@ public class EditorProcessServiceImpl implements EditorProcessService {
         if (manuscript != null && validReviewerCount >= 3 && "With Editor".equalsIgnoreCase(manuscript.getStatus())) {
             manuscript.setStatus("Under Review");
             manuscriptDao.save(manuscript);
-            logService.record(0, "进入under_review状态", manuscriptId);
+            logService.record(0, "enter review", manuscriptId);
         }
 
         if (manuscript != null && finishedCount >= 3 && "Under Review".equalsIgnoreCase(manuscript.getStatus())) {
             manuscript.setStatus("Pending Advice");
             manuscriptDao.save(manuscript);
-            logService.record(0, "进入pending_advice状态", manuscriptId);
+            logService.record(0, "enter advice", manuscriptId);
         }
     }
 

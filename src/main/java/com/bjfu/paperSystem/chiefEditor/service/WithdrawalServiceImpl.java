@@ -15,12 +15,8 @@ public class WithdrawalServiceImpl implements WithdrawalService {
 
     @Override
     public List<Manuscript> listWithdrawalCandidates() {
-        // 简化版：允许对所有非已撤稿的稿件执行撤稿
-        // 你也可以只允许对 ACCEPTED / UNDER_REVIEW 的稿件撤稿
-        List<Manuscript> all = manuscriptDao.findAll();
-        return all.stream()
-                .filter(m -> !"WITHDRAWN".equalsIgnoreCase(m.getStatus()))
-                .toList();
+        // 直接使用DAO方法根据状态查询，提高性能
+        return manuscriptDao.findByStatus("Accepted");
     }
 
     @Override

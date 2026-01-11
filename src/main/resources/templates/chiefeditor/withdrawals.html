@@ -244,8 +244,8 @@
                         <span th:text="${m.title}" class="text-truncate d-inline-block" style="max-width: 100%;">示例标题</span>
                     </div>
                 </td>
-                <td th:text="${m.authorId}">作者</td>
-                <td th:text="${m.status}">状态</td>
+                <td th:text="${m.authorId}">作者Id</td>
+                <td>已发表</td>
                 <td>
                     <form th:action="@{/chiefeditor/withdrawals/do}" method="post" class="d-flex gap-1">
                         <input type="hidden" name="manuscriptId" th:value="${m.manuscriptId}">

@@ -236,10 +236,27 @@ public class EditorProcessServiceImpl implements EditorProcessService {
         Manuscript manu = manuscriptDao.findById(manuscriptId).orElse(null);
         if (manu == null) return;
 
-        // 2. 获取编辑用户
-        User editor = userDao.findById(editorId).orElse(null);
+        // 2. 验证稿件状态必须为 "Pending Advice"
+        if (!"Pending Advice".equals(manu.getStatus())) {
+            throw new IllegalStateException("只有状态为'Pending Advice'的稿件才能提交建议");
+        }
 
-        // 3. 【核心逻辑】创建并保存历史记录 (DecisionHistory)
+        // 3. 验证建议类型（必须是四种之一）
+        List<String> validRecommendations = List.of(
+            "Suggest Acceptance",
+            "Suggest Rejection",
+            "Suggest Acceptance after Minor Revision",
+            "Suggest Acceptance after Major Revision"
+        );
+        if (!validRecommendations.contains(recommendation)) {
+            throw new IllegalArgumentException("无效的建议类型：" + recommendation);
+        }
+
+        // 4. 获取编辑用户
+        User editor = userDao.findById(editorId).orElse(null);
+        if (editor == null) return;
+
+        // 5. 【核心逻辑】创建并保存历史记录 (DecisionHistory)
         DecisionHistory history = new DecisionHistory();
         history.setManuscript(manu);
         // 如果 manuscript 表里有 round 字段，用 manu.getRound()，没有则默认 1
@@ -252,15 +269,18 @@ public class EditorProcessServiceImpl implements EditorProcessService {
         // 保存历史存档
         decisionHistoryRepository.save(history);
 
-        // 4. 【核心逻辑】更新 Manuscript 快照信息
+        // 6. 【核心逻辑】更新 Manuscript 快照信息
         manu.setEditorRecommendation(recommendation);
         manu.setEditorComment(comment);
 
         // 关键：状态流转！
-        // 建议提交后，稿件应该进入 "PENDING_DECISION" (待主编终审) 状态
+        // 建议提交后，稿件应该进入 "With Editor II" (待主编终审) 状态
         manu.setStatus("With Editor II");
 
         manuscriptDao.save(manu);
+        
+        // 7. 记录日志
+        logService.record(editorId, "SUBMIT_RECOMMENDATION: " + recommendation, manuscriptId);
     }
 
     @Override

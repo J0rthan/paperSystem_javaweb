@@ -37,6 +37,8 @@ public class EditorDashboardController {
     private clientMessageService clientMsgService;
     @Autowired
     private ManuscriptAuthorsDao manuscriptAuthorsDao;
+    @Autowired
+    private com.bjfu.paperSystem.mailUtils.Dao.mailDao emailMessageDao;
 
     /**
      * 稿件详情页面（参考Author的实现）
@@ -533,12 +535,12 @@ public class EditorDashboardController {
     }
 
     // 辅助方法：按状态分类稿件
-    // 只返回4种状态：编辑处理中(With Editor)、审稿中(Under Review)、待提交建议(With Editor II)、需要返修(Need Revision)
+    // 只返回4种状态：编辑处理中(With Editor)、审稿中(Under Review)、待提交建议(Pending Advice)、需要返修(Need Revision)
     private Map<String, List<Manuscript>> categorizeManuscripts(List<Manuscript> manuscripts) {
         Map<String, List<Manuscript>> result = new HashMap<>();
         result.put("withEditor", new ArrayList<>());      // 编辑处理中
         result.put("underReview", new ArrayList<>());     // 审稿中
-        result.put("pendingRecommendation", new ArrayList<>()); // 待提交建议 (With Editor II)
+        result.put("pendingRecommendation", new ArrayList<>()); // 待提交建议 (Pending Advice)
         result.put("needRevision", new ArrayList<>());    // 需要返修
 
         for (Manuscript m : manuscripts) {
@@ -547,12 +549,12 @@ public class EditorDashboardController {
                 result.get("withEditor").add(m);
             } else if ("Under Review".equals(status)) {
                 result.get("underReview").add(m);
-            } else if ("With Editor II".equals(status)) {
+            } else if ("Pending Advice".equals(status)) {
                 result.get("pendingRecommendation").add(m);
             } else if ("Need Revision".equals(status)) {
                 result.get("needRevision").add(m);
             }
-            // 注意：已决议的稿件(Accepted/Rejected)不在此列表显示
+            // 注意：已决议的稿件(Accepted/Rejected)和已提交建议的稿件(With Editor II)不在此列表显示
         }
 
         return result;
@@ -692,6 +694,83 @@ public class EditorDashboardController {
 
             result.put("success", true);
             result.put("reviews", reviewList);
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.put("success", false);
+            result.put("message", "获取失败：" + e.getMessage());
+        }
+        return result;
+    }
+
+    /**
+     * AJAX接口：获取稿件的审稿意见（从 email_message 表查询）
+     */
+    @GetMapping("/api/manuscript/{id}/review-comments")
+    @ResponseBody
+    public Map<String, Object> getReviewComments(@PathVariable int id, HttpSession session) {
+        Map<String, Object> result = new HashMap<>();
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser == null) {
+            result.put("success", false);
+            result.put("message", "未登录");
+            return result;
+        }
+
+        try {
+            // 权限验证：检查Editor是否被分配了该稿件
+            Manuscript manuscript = processService.getManuscriptDetail(id, loginUser.getUserId());
+            if (manuscript == null) {
+                result.put("success", false);
+                result.put("message", "稿件不存在或无权限");
+                return result;
+            }
+
+            // 查询该稿件发送给当前编辑的审稿意见
+            List<com.bjfu.paperSystem.javabeans.EmailMessage> emailMessages = 
+                emailMessageDao.findByManuIdAndReceiverEmail(id, loginUser.getEmail());
+            
+            // 解析邮件内容，提取审稿意见信息
+            List<Map<String, Object>> reviewComments = new ArrayList<>();
+            for (com.bjfu.paperSystem.javabeans.EmailMessage msg : emailMessages) {
+                // 根据 reviewer 的 submitOpinion 方法，邮件格式为：
+                // "创新性打分:%d,\n方法论打分:%d,\n整体质量打分: %d,\n关键评价: %s,\n整体建议: %s"
+                String messageBody = msg.getMessageBody();
+                Map<String, Object> comment = new HashMap<>();
+                comment.put("senderEmail", msg.getSenderEmail());
+                comment.put("sendingTime", msg.getSendingTime());
+                comment.put("messageBody", messageBody);
+                
+                // 尝试解析打分信息（如果格式固定）
+                try {
+                    String[] lines = messageBody.split("\n");
+                    for (String line : lines) {
+                        if (line.contains("创新性打分")) {
+                            String score = line.substring(line.indexOf(":") + 1).trim().replace(",", "");
+                            comment.put("scoreNovelty", score);
+                        } else if (line.contains("方法论打分")) {
+                            String score = line.substring(line.indexOf(":") + 1).trim().replace(",", "");
+                            comment.put("scoreMethod", score);
+                        } else if (line.contains("整体质量打分")) {
+                            String score = line.substring(line.indexOf(":") + 1).trim().replace(",", "");
+                            comment.put("scoreQuality", score);
+                        } else if (line.contains("关键评价")) {
+                            String content = line.substring(line.indexOf(":") + 1).trim();
+                            comment.put("keyComments", content);
+                        } else if (line.contains("整体建议")) {
+                            String recommendation = line.substring(line.indexOf(":") + 1).trim();
+                            comment.put("recommendation", recommendation);
+                        }
+                    }
+                } catch (Exception e) {
+                    // 解析失败，使用原始内容
+                    comment.put("rawContent", messageBody);
+                }
+                
+                reviewComments.add(comment);
+            }
+
+            result.put("success", true);
+            result.put("reviewComments", reviewComments);
         } catch (Exception e) {
             e.printStackTrace();
             result.put("success", false);

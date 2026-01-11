@@ -133,6 +133,7 @@
               <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#sub-allocII">待分配</button></li>
               <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#sub-editor">编辑处理</button></li>
               <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#sub-review">审稿中</button></li>
+              <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#sub-advice">等待建议</button></li>
               <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#sub-editorII">终审中</button></li>
             </ul>
             <div class="tab-content pt-2">
@@ -150,6 +151,9 @@
               </div>
               <div class="tab-pane fade" id="sub-review">
                 <div th:replace="~{author/fragments :: manuscriptTable(${underReviewList}, 'track')}"></div>
+              </div>
+              <div class="tab-pane fade" id="sub-advice">
+                <div th:replace="~{author/fragments :: manuscriptTable(${pendingAdviceList}, 'track')}"></div>
               </div>
               <div class="tab-pane fade" id="sub-editorII">
                 <div th:replace="~{author/fragments :: manuscriptTable(${withEditorIIList}, 'track')}"></div>

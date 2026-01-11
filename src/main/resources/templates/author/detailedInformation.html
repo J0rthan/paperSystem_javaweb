@@ -80,9 +80,10 @@
                     <div class="info-label">关键词</div>
                     <p class="info-value" th:text="${manuscript.keywords ?: '未填写'}">关键词1, 关键词2</p>
                 </div>
-                <div class="col-12">
-                    <div class="info-label">摘要</div>
-                    <div class="info-value p-3 bg-light rounded" style="white-space: pre-wrap;" th:utext="${manuscript.abstractText ?: '暂无摘要内容'}">摘要内容...</div>
+                <div class="info-value p-3 bg-light rounded"
+                     style="white-space: pre-wrap; word-break: break-word; overflow-wrap: break-word; max-width: 100%;"
+                     th:utext="${manuscript.abstractText ?: '暂无摘要内容'}">
+                    摘要内容
                 </div>
             </div>
         </div>

@@ -2,6 +2,7 @@ package com.bjfu.paperSystem.javabeans;
 
 import jakarta.persistence.*;
 import org.springframework.cglib.core.Local;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDateTime;
 
@@ -46,6 +47,7 @@ public class ClientMessage {
 
     /**
      * JPA 关联对象（不直接写入列）
+     * 使用@JsonIgnore避免JSON序列化时的循环引用问题
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
@@ -54,6 +56,7 @@ public class ClientMessage {
             insertable = false,
             updatable = false
     )
+    @JsonIgnore
     private Manuscript manuscript;
 
     // ===== Getter / Setter =====

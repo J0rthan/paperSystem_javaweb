@@ -2,6 +2,7 @@ package com.bjfu.paperSystem.javabeans;
 
 import jakarta.persistence.*;
 import org.springframework.cglib.core.Local;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDateTime;
 
@@ -17,6 +18,7 @@ public class User {
     private String userName;
 
     @Column(name = "password", length = 20, nullable = false)
+    @JsonIgnore
     private String password;
 
     @Column(name = "user_type", length = 50)

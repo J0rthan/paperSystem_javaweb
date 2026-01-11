@@ -35,6 +35,33 @@ public class EditorDashboardController {
     private EditorReviewDao reviewDao;
     @Autowired
     private clientMessageService clientMsgService;
+    @Autowired
+    private ManuscriptAuthorsDao manuscriptAuthorsDao;
+
+    /**
+     * 稿件详情页面（参考Author的实现）
+     */
+    @GetMapping("/manuscript/detail")
+    public String showDetail(@RequestParam("id") int id, HttpSession session, Model model) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser == null) return "redirect:/Login.html";
+
+        // 权限验证：检查Editor是否被分配了该稿件
+        Manuscript manuscript = processService.getManuscriptDetail(id, loginUser.getUserId());
+        if (manuscript == null) {
+            return "redirect:/editor";
+        }
+
+        // 加载稿件的关联信息
+        manuscript.setAuthors(manuscriptAuthorsDao.findByManuscriptId(id));
+        // 注意：如果需要显示funding和reviewer，需要使用Author的DAO，这里暂时不加载
+        // manuscript.setReviewers(recommendedReviewerDao.findByManuscriptId(id));
+        // manuscript.setFundings(manuscriptFundingDao.findByManuscriptId(id));
+
+        model.addAttribute("manuscript", manuscript);
+        model.addAttribute("username", loginUser.getFullName());
+        return "editor/detailedInformation";
+    }
 
     /**
      * 主工作台页面（类似author/list）
@@ -155,12 +182,19 @@ public class EditorDashboardController {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) {
             result.put("success", false);
+            result.put("message", "未登录");
             return result;
         }
 
-        List<ClientMessage> messages = processService.getCommunicationHistory(id, loginUser.getUserId());
-        result.put("success", true);
-        result.put("messages", messages);
+        try {
+            List<ClientMessage> messages = processService.getCommunicationHistory(id, loginUser.getUserId());
+            result.put("success", true);
+            result.put("messages", messages);
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.put("success", false);
+            result.put("message", "获取失败：" + e.getMessage());
+        }
         return result;
     }
 
@@ -401,7 +435,9 @@ public class EditorDashboardController {
         
         try {
             String projectPath = System.getProperty("user.dir");
-            File file = new File(projectPath + "/src/main/resources/static" + filePath);
+            // 尝试路径1：源码目录
+            File file = new File(projectPath + "/backend/src/main/resources/static" + filePath);
+            // 如果路径1不存在，尝试路径2：target目录
             if (!file.exists()) {
                 String classPath = java.net.URLDecoder.decode(
                     this.getClass().getClassLoader().getResource("").getPath(), "UTF-8");
@@ -410,7 +446,21 @@ public class EditorDashboardController {
                 }
                 file = new File(classPath + "static" + filePath);
             }
+            // 如果路径2也不存在，尝试路径3：直接在src目录（兼容旧结构）
             if (!file.exists()) {
+                file = new File(projectPath + "/src/main/resources/static" + filePath);
+            }
+            if (!file.exists()) {
+                System.err.println("File not found. Tried paths:");
+                System.err.println("1. " + projectPath + "/backend/src/main/resources/static" + filePath);
+                String classPath = java.net.URLDecoder.decode(
+                    this.getClass().getClassLoader().getResource("").getPath(), "UTF-8");
+                if (System.getProperty("os.name").toLowerCase().contains("win") && classPath.startsWith("/")) {
+                    classPath = classPath.substring(1);
+                }
+                System.err.println("2. " + classPath + "static" + filePath);
+                System.err.println("3. " + projectPath + "/src/main/resources/static" + filePath);
+                System.err.println("user.dir: " + projectPath);
                 return ResponseEntity.notFound().build();
             }
 

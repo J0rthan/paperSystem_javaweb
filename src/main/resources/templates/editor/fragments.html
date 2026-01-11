@@ -42,17 +42,16 @@
                 <td>
                     <div class="btn-group">
                         <!-- 详情按钮（所有状态都有） -->
-                        <button type="button" class="btn btn-sm btn-outline-dark" 
-                                th:onclick="'showManuscriptDetail(' + ${p.manuscriptId} + ')'" 
-                                title="查看详情">
+                        <a th:href="@{/editor/manuscript/detail(id=${p.manuscriptId})}"
+                           class="btn btn-sm btn-outline-dark" title="查看详情">
                             <i class="bi bi-file-earmark-text"></i> 详情
-                        </button>
+                        </a>
 
                         <!-- 下载按钮（所有状态都有） -->
                         <div class="btn-group" role="group">
                             <button th:if="${(p.manuscriptPath != null and p.manuscriptPath != '') or (p.coverLetterPath != null and p.coverLetterPath != '')}"
                                     type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                                <i class="bi bi-download"></i> 下载
+                                <i class="bi bi-download"></i>
                             </button>
                             <ul class="dropdown-menu shadow-sm">
                                 <li th:if="${p.manuscriptPath != null and p.manuscriptPath != ''}">

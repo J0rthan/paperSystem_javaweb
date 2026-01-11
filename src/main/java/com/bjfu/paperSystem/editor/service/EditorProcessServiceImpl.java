@@ -11,6 +11,7 @@ import com.bjfu.paperSystem.editor.dao.DecisionHistoryDao;
 import com.bjfu.paperSystem.javabeans.DecisionHistory;
 import com.bjfu.paperSystem.javabeans.ClientMessage;
 import com.bjfu.paperSystem.clientMessageUtils.Service.clientMessageService;
+import com.bjfu.paperSystem.clientMessageUtils.Dao.clientMessageDao;
 import java.util.Date;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -34,6 +35,7 @@ public class EditorProcessServiceImpl implements EditorProcessService {
     @Autowired private MailUtil mailUtil;
     @Autowired private DecisionHistoryDao decisionHistoryRepository;
     @Autowired private clientMessageService clientMsgService;
+    @Autowired private clientMessageDao clientMessageDao;
     @Autowired private EditorRecordAllocationDao recordAllocationDao;
 
     @Override
@@ -259,10 +261,15 @@ public class EditorProcessServiceImpl implements EditorProcessService {
             return; // 稿件不存在或作者ID不匹配，直接返回
         }
 
-        // 2. 验证Editor权限（可选，如果已经在Controller层验证过可以省略）
-        if (manuscript.getEditorId() == null || !manuscript.getEditorId().equals(editorId)) {
-            // 也可以通过 Record_Allocation 表验证，这里简化处理
-            return;
+        // 2. 验证Editor权限（与getCommunicationHistory保持一致）
+        // 方式1：通过 Record_Allocation 表验证
+        List<Record_Allocation> allocations = recordAllocationDao.findByEditorId(editorId);
+        boolean hasPermission = allocations.stream()
+                .anyMatch(a -> a.getManuscriptId() == manuscriptId);
+
+        // 方式2：通过 manuscript.getEditorId() 检查（如果该字段有值）
+        if (!hasPermission && (manuscript.getEditorId() == null || !manuscript.getEditorId().equals(editorId))) {
+            return; // 没有权限，直接返回
         }
 
         // 3. 保存消息到数据库
@@ -286,27 +293,18 @@ public class EditorProcessServiceImpl implements EditorProcessService {
             return List.of();
         }
 
-        // 权限验证：检查是否被分配（通过 editorId 字段或 Record_Allocation 表）
-        // 这里简化处理，如果 manuscript.editorId 匹配就可以，否则需要查询 Record_Allocation
-        if (manuscript.getEditorId() == null || !manuscript.getEditorId().equals(editorId)) {
-            // 可以通过 Record_Allocation 表进一步验证，这里先返回空
-            return List.of();
+        // 权限验证：检查是否被分配（通过Record_Allocation表）
+        List<Record_Allocation> allocations = recordAllocationDao.findByEditorId(editorId);
+        boolean hasPermission = allocations.stream()
+                .anyMatch(a -> a.getManuscriptId() == manuscriptId);
+
+        // 或者也可以通过 manuscript.getEditorId() 检查（如果该字段有值）
+        if (!hasPermission && (manuscript.getEditorId() == null || !manuscript.getEditorId().equals(editorId))) {
+            return List.of(); // 没有权限，返回空列表
         }
 
-        // 查询该稿件的所有消息
-        List<ClientMessage> sent = clientMsgService.findMessageBySender(editorId);
-        List<ClientMessage> received = clientMsgService.findMessageByReceiver(editorId);
-
-        // 过滤出属于该稿件的消息（使用 Objects.equals 进行安全的比较）
-        return java.util.stream.Stream.concat(sent.stream(), received.stream())
-                .filter(msg -> msg.getManuId() != null && java.util.Objects.equals(msg.getManuId(), manuscriptId))
-                .sorted((m1, m2) -> {
-                    if (m1.getSendingTime() == null || m2.getSendingTime() == null) {
-                        return 0;
-                    }
-                    return m1.getSendingTime().compareTo(m2.getSendingTime());
-                })
-                .collect(java.util.stream.Collectors.toList());
+        // 直接使用findByManuIdWithUsers方法，它会自动join fetch sender和receiver，并按时间升序排序
+        return clientMessageDao.findByManuIdWithUsers(manuscriptId);
     }
 
     @Override

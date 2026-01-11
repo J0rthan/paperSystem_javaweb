@@ -101,7 +101,7 @@ public class reviewerServiceImpl implements reviewerService{
             log.setOpTime(time);
             log.setOpType(action);
             logsDao.save(log);
-
+            editorProcessService.checkAndUpdateManuscriptStatus(manuId);
             return "ok";
         }
 

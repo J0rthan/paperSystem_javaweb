@@ -13,19 +13,20 @@
             content: ''; position: absolute; left: 31px; top: 0;
             height: 100%; width: 2px; background: #e9ecef;
         }
-        .timeline-item { position: relative; margin-bottom: 40px; padding-left: 70px; }
+        .timeline-item { position: relative; margin-bottom: 40px; padding-left: 70px; display: none; }
+        .timeline-item.latest .timeline-marker {
+            background: #0d6efd; color: white; box-shadow: 0 0 0 5px rgba(13, 110, 253, 0.2);
+        }
         .timeline-marker {
             position: absolute; left: 15px; top: 0; width: 34px; height: 34px;
             background: #fff; border: 2px solid #0d6efd; border-radius: 50%;
             display: flex; align-items: center; justify-content: center; z-index: 1;
         }
-        .timeline-item.latest .timeline-marker {
-            background: #0d6efd; color: white; box-shadow: 0 0 0 5px rgba(13, 110, 253, 0.2);
-        }
         .timeline-content {
             background: #fff; padding: 20px; border-radius: 12px;
             border: 1px solid #edf2f7; box-shadow: 0 2px 10px rgba(0,0,0,0.02);
             transition: transform 0.2s;
+            word-wrap: break-word;
         }
         .timeline-content:hover { transform: translateY(-3px); }
         .version-badge { font-size: 0.8rem; padding: 0.3rem 0.6rem; }
@@ -34,6 +35,19 @@
             border: 1px dashed #fd7e14;
             color: #d9480f;
             border-radius: 10px;
+            word-break: break-word;
+        }
+        #paginationControls .btn {
+            min-width: 38px;
+            transition: all 0.2s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .log-show {
+            display: block !important;
+            animation: fadeIn 0.4s ease-out;
         }
     </style>
 </head>
@@ -43,10 +57,6 @@
         <a class="navbar-brand fw-bold">
             <i class="bi bi-journal-bookmark-fill me-2"></i>学术论文管理系统-作者端
         </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#authorNavbar">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
         <div class="collapse navbar-collapse" id="authorNavbar">
             <ul class="navbar-nav ms-auto align-items-center">
                 <li class="nav-item me-3">
@@ -54,13 +64,11 @@
                         <i class="bi bi-envelope-fill fs-5"></i>
                     </a>
                 </li>
-
                 <li class="nav-item me-3 border-end pe-3">
                     <a class="nav-link text-light" th:href="@{/author/profile}" title="账号设置">
                         <i class="bi bi-gear-fill fs-5"></i>
                     </a>
                 </li>
-
                 <li class="nav-item dropdown ms-2">
                     <span class="navbar-text text-light me-3">
                         <i class="bi bi-person-circle me-1"></i>
@@ -74,6 +82,7 @@
         </div>
     </div>
 </nav>
+
 <main class="flex-grow-1">
     <div class="container py-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -84,14 +93,15 @@
                 </ol>
             </nav>
             <a th:href="@{/author/manuscript/list}" class="btn btn-outline-secondary btn-sm rounded-pill shadow-sm">
-                <i class="bi bi-arrow-left"></i>返回稿件列表
+                <i class="bi bi-arrow-left"></i> 返回稿件列表
             </a>
         </div>
+
         <div class="main-card mb-4">
-            <div class="row">
+            <div class="row align-items-center">
                 <div class="col-md-8">
-                    <small class="text-muted">欢迎您：<span th:text="${session.loginUser.userName}">作者</span></small>
-                    <h2 class="fw-bold text-dark mt-2" th:text="|稿件标题：${manuscript.title}|">稿件标题</h2>
+                    <small class="text-muted">当前追踪：</small>
+                    <h2 class="fw-bold text-dark mt-1" th:text="${manuscript.title}" style="word-break: break-word;">稿件标题</h2>
                     <div class="mt-3">
                         <span class="badge bg-light text-dark border me-2" th:text="|#MS-${manuscript.manuscriptId}|">#MS-000</span>
                         <span class="badge rounded-pill px-3"
@@ -111,30 +121,31 @@
                         <span th:case="'After Revision'">返修完成</span>
                         <span th:case="'With A Decision'">已决议</span>
                         <span th:case="'Pending Advice'">等待建议</span>
-                            <span th:case="*" th:text="${manuscript.status}"></span>
                         </span>
                     </div>
                     <div th:if="${manuscript.decision != null and manuscript.decision != ''}" class="mt-4 p-3 decision-alert shadow-sm">
-                        <div class="fw-bold mb-1"><i class="bi bi-megaphone-fill me-2"></i>主编意见：</div>
+                        <div class="fw-bold mb-1"><i class="bi bi-megaphone-fill me-2"></i>最终决议/修改建议：</div>
                         <div th:text="${manuscript.decision}" style="white-space: pre-wrap;">意见内容...</div>
                     </div>
                 </div>
                 <div class="col-md-4 text-md-end mt-3 mt-md-0">
                     <div class="p-3 bg-light rounded-3 border">
-                        <div class="small text-muted mb-1 text-uppercase fw-bold" style="font-size: 0.7rem;">平均审稿时效</div>
-                        <div class="fw-bold text-primary">4-6 周</div>
+                        <div class="small text-muted mb-1 text-uppercase fw-bold" style="font-size: 0.7rem;">当前版本</div>
+                        <div class="fw-bold text-primary" th:text="|V${versions != null ? versions.size() : 1}|">V1</div>
                     </div>
                 </div>
             </div>
         </div>
+
         <div class="row g-4">
             <div class="col-lg-7">
                 <div class="main-card mt-0 h-100">
                     <h4 class="fw-bold mb-4"><i class="bi bi-clock-history me-2 text-primary"></i>处理记录</h4>
-                    <div class="timeline">
+                    <div class="timeline" id="logTimeline">
                         <div th:each="log, stat : ${logs}"
                              th:if="${log.opType != 'save'}"
-                             class="timeline-item" th:classappend="${stat.first} ? 'latest' : ''">
+                             class="timeline-item log-entry"
+                             th:classappend="${stat.first} ? 'latest' : ''">
                             <div class="timeline-marker">
                                 <i th:class="${stat.first} ? 'bi bi-play-fill' : 'bi bi-check-lg'"></i>
                             </div>
@@ -145,17 +156,13 @@
                                             <span th:case="'submit'">初始投稿提交</span>
                                             <span th:case="'through review'">通过初步审查</span>
                                             <span th:case="'Desk Accept'">通过初审</span>
-                                            <span th:case="'Desk Reject'">未通过初审</span>
                                             <span th:case="'submit revision'">提交修改稿 (Revision)</span>
-                                            <span th:case="'assign editor'">分配编辑</span>
                                             <span th:case="'enter review'">进入审稿</span>
-                                            <span th:case="'enter advice'">等待建议</span>
-                                            <span th:case="'finish reviewing'">完成审稿</span>
-                                            <span th:case="'editor completed'">编辑完成审稿人分配</span>
                                             <span th:case="'final accepted'">通过终审</span>
                                             <span th:case="'need revision'">需要修改</span>
-                                            <span th:case="'final rejected'">未通过终审</span>
-                                            <span th:case="*" th:text="${log.opType}">系统记录</span>
+                                            <span th:case="'finish reviewing'">完成审稿</span>
+                                            <span th:case="'assign editor'">分配编辑</span>
+                                            <span th:case="*" th:text="${log.opType}">操作记录</span>
                                         </h5>
                                         <div class="text-primary small">
                                             <i class="bi bi-person-circle me-1"></i>
@@ -164,52 +171,41 @@
                                     </div>
                                     <span class="text-muted small">
                                         <i class="bi bi-calendar3 me-1"></i>
-                                        <span th:text="${#temporals.format(log.opTime, 'yyyy-MM-dd HH:mm:ss')}">时间</span>
+                                        <span th:text="${#temporals.format(log.opTime, 'yyyy-MM-dd HH:mm')}">时间</span>
                                     </span>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <div id="paginationControls" class="d-flex justify-content-center mt-3 gap-2"></div>
+
                     <div th:if="${#lists.isEmpty(logs)}" class="text-center py-5">
                         <i class="bi bi-inbox text-muted fs-1 d-block mb-3"></i>
-                        <p class="text-muted">暂无正式处理记录</p>
+                        <p class="text-muted">暂无处理记录</p>
                     </div>
                 </div>
             </div>
+
             <div class="col-lg-5">
                 <div class="main-card mt-0 h-100">
-                    <h4 class="fw-bold mb-4"><i class="bi bi-files me-2 text-primary"></i>版本历史与附件</h4>
+                    <h4 class="fw-bold mb-4"><i class="bi bi-files me-2 text-primary"></i>版本文件历史</h4>
                     <div th:if="${not #lists.isEmpty(versions)}" class="list-group list-group-flush">
                         <div th:each="v : ${versions}" class="list-group-item px-0 py-3 border-bottom">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span class="badge bg-secondary version-badge shadow-sm" th:text="'Version ' + ${v.versionNumber}">V1</span>
                             </div>
                             <div class="d-grid gap-2">
-                                <a th:if="${v.filePathOriginal != null and v.filePathOriginal != ''}"
-                                   th:href="@{/author/manuscript/download(path=${v.filePathOriginal})}"
-                                   class="btn btn-sm btn-outline-primary text-start px-3 py-2">
-                                    <i class="bi bi-file-earmark-word me-2"></i>下载稿件 (Clean)
-                                </a>
-                                <a th:if="${v.coverLetterPath != null and v.coverLetterPath != ''}"
-                                   th:href="@{/author/manuscript/download(path=${v.coverLetterPath})}"
-                                   class="btn btn-sm btn-outline-info text-start px-3 py-2">
-                                    <i class="bi bi-envelope-paper me-2"></i>下载投稿信 (Cover Letter)
-                                </a>
-                                <a th:if="${v.filePathAnon != null and v.filePathAnon != ''}"
-                                   th:href="@{/author/manuscript/download(path=${v.filePathAnon})}"
-                                   class="btn btn-sm btn-outline-warning text-start px-3 py-2">
-                                    <i class="bi bi-file-earmark-diff me-2"></i>下载标记版 (Marked)
-                                </a>
-                                <a th:if="${v.responseLetterPath != null and v.responseLetterPath != ''}"
-                                   th:href="@{/author/manuscript/download(path=${v.responseLetterPath})}"
-                                   class="btn btn-sm btn-outline-success text-start px-3 py-2">
-                                    <i class="bi bi-chat-left-dots me-2"></i>下载回复信 (Reply Letter)
-                                </a>
+                                <a th:if="${v.filePathOriginal}" th:href="@{/author/manuscript/download(path=${v.filePathOriginal})}"
+                                   class="btn btn-sm btn-outline-primary text-start px-3"><i class="bi bi-file-earmark-pdf me-2"></i>稿件正文</a>
+                                <a th:if="${v.coverLetterPath}" th:href="@{/author/manuscript/download(path=${v.coverLetterPath})}"
+                                   class="btn btn-sm btn-outline-info text-start px-3"><i class="bi bi-envelope me-2"></i>附信 (Cover)</a>
+                                <a th:if="${v.responseLetterPath}" th:href="@{/author/manuscript/download(path=${v.responseLetterPath})}"
+                                   class="btn btn-sm btn-outline-success text-start px-3"><i class="bi bi-chat-dots me-2"></i>修改说明</a>
                             </div>
                         </div>
                     </div>
                     <div th:if="${#lists.isEmpty(versions)}" class="text-center py-4">
-                        <p class="text-muted small">尚无版本文件记录</p>
+                        <p class="text-muted small">尚无版本记录</p>
                     </div>
                 </div>
             </div>
@@ -219,6 +215,55 @@
 <footer class="py-4 mt-auto">
     <p class="text-center text-muted small mb-0">© 2025 学术论文管理系统 · 作者</p>
 </footer>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const pageSize = 5; // 每页显示 5 条记录
+        const logItems = document.querySelectorAll('.log-entry');
+        const paginationContainer = document.getElementById('paginationControls');
+        let currentPage = 1;
+        const totalPages = Math.ceil(logItems.length / pageSize);
+
+        function showPage(page) {
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            const start = (page - 1) * pageSize;
+            const end = start + pageSize;
+
+            logItems.forEach((item, index) => {
+                if (index >= start && index < end) {
+                    item.classList.add('log-show');
+                } else {
+                    item.classList.remove('log-show');
+                }
+            });
+            renderPagination();
+            window.scrollTo({ top: document.getElementById('logTimeline').offsetTop - 100, behavior: 'smooth' });
+        }
+        function renderPagination() {
+            paginationContainer.innerHTML = '';
+            if (totalPages <= 1) return;
+
+            const prevBtn = document.createElement('button');
+            prevBtn.className = `btn btn-sm btn-outline-primary rounded-pill ${currentPage === 1 ? 'disabled' : ''}`;
+            prevBtn.innerHTML = '<i class="bi bi-chevron-left"></i>';
+            prevBtn.onclick = () => showPage(currentPage - 1);
+            paginationContainer.appendChild(prevBtn);
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.className = `btn btn-sm rounded-pill ${i === currentPage ? 'btn-primary' : 'btn-outline-primary'}`;
+                btn.innerText = i;
+                btn.onclick = () => showPage(i);
+                paginationContainer.appendChild(btn);
+            }
+            const nextBtn = document.createElement('button');
+            nextBtn.className = `btn btn-sm btn-outline-primary rounded-pill ${currentPage === totalPages ? 'disabled' : ''}`;
+            nextBtn.innerHTML = '<i class="bi bi-chevron-right"></i>';
+            nextBtn.onclick = () => showPage(currentPage + 1);
+            paginationContainer.appendChild(nextBtn);
+        }
+        if (logItems.length > 0) showPage(1);
+    });
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

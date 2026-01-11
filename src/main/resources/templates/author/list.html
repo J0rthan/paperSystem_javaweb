@@ -53,6 +53,12 @@
   </div>
 </nav>
 <main class="flex-grow-1">
+  <div th:if="${error}" class="alert alert-danger alert-dismissible fade show mx-4 mt-3" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    <strong th:text="${error}">错误消息</strong>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+
   <div th:if="${message}" class="alert alert-success alert-dismissible fade show mx-4 mt-3" role="alert">
     <i class="bi bi-check-circle-fill me-2"></i>
     <strong th:text="${message}">提示消息</strong>
@@ -60,7 +66,7 @@
   </div>
 
   <div class="container py-4">
-    <div class="card border-0 shadow-sm mb-3 rounded-4">
+    <div th:if="${permission.viewAllManuscripts}" class="card border-0 shadow-sm mb-3 rounded-4">
       <div class="card-body py-2 px-4">
         <div class="row align-items-center">
           <div class="col-md-auto text-muted small fw-bold"><i class="bi bi-filter"></i> 日期筛选：</div>
@@ -85,60 +91,82 @@
           <small class="text-muted">欢迎您：<span th:text="${session.loginUser.userName}">作者</span></small>
         </div>
         <div class="d-flex gap-2">
-          <a th:href="@{/author/manuscript/submit}" class="btn btn-sm btn-primary rounded-pill px-3">+ 开始投稿</a>
+          <th:block th:if="${permission.submitManuscript}">
+            <a th:href="@{/author/manuscript/submit}" class="btn btn-sm btn-primary rounded-pill px-3">
+              <i class="bi bi-plus-lg"></i> 开始投稿
+            </a>
+          </th:block>
+          <th:block th:unless="${permission.submitManuscript}">
+            <button class="btn btn-sm btn-secondary rounded-pill px-3" onclick="alert('抱歉，您当前没有投稿权限，请联系管理员。')">
+              <i class="bi bi-lock-fill"></i> 投稿功能受限
+            </button>
+          </th:block>
         </div>
       </div>
-      <ul class="nav nav-tabs mb-4" id="mainTabs" role="tablist">
-        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-incomplete">草稿箱</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-processing">处理中</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-revision">需修改</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-decision">已决议</button></li>
-      </ul>
-      <div class="tab-content">
-        <div class="tab-pane fade show active" id="tab-incomplete">
-          <div th:replace="~{author/fragments :: manuscriptTable(${incompletePapers}, 'draft')}"></div>
+
+      <div th:if="${!permission.viewAllManuscripts}" class="text-center py-5">
+        <div class="mb-3">
+          <i class="bi bi-shield-lock text-warning" style="font-size: 4rem;"></i>
         </div>
-        <div class="tab-pane fade" id="tab-processing">
-          <ul class="nav nav-pills sub-nav mb-3 bg-light rounded-pill p-1 d-inline-flex" role="tablist">
-            <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#sub-pending">待审查</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#sub-alloc">待初审</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#sub-allocII">待分配</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#sub-editor">编辑处理</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#sub-review">审稿中</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#sub-editorII">终审中</button></li>
-          </ul>
-          <div class="tab-content pt-2">
-            <div class="tab-pane fade show active" id="sub-pending">
-              <div th:replace="~{author/fragments :: manuscriptTable(${pendingReviewList}, 'track')}"></div>
-            </div>
-            <div class="tab-pane fade" id="sub-alloc">
-              <div th:replace="~{author/fragments :: manuscriptTable(${pendingAllocationList}, 'track')}"></div>
-            </div>
-            <div class="tab-pane fade" id="sub-allocII">
-              <div th:replace="~{author/fragments :: manuscriptTable(${pendingAllocationIIList}, 'track')}"></div>
-            </div>
-            <div class="tab-pane fade" id="sub-editor">
-              <div th:replace="~{author/fragments :: manuscriptTable(${withEditorList}, 'track')}"></div>
-            </div>
-            <div class="tab-pane fade" id="sub-review">
-              <div th:replace="~{author/fragments :: manuscriptTable(${underReviewList}, 'track')}"></div>
-            </div>
-            <div class="tab-pane fade" id="sub-editorII">
-              <div th:replace="~{author/fragments :: manuscriptTable(${withEditorIIList}, 'track')}"></div>
+        <h4 class="text-dark">权限不足</h4>
+        <p class="text-muted">对不起，您当前没有权限查看稿件列表。</p>
+        <hr class="w-25 mx-auto">
+        <p class="small text-secondary">如有疑问，请咨询编辑部或系统管理员。</p>
+      </div>
+
+      <th:block th:if="${permission.viewAllManuscripts}">
+        <ul class="nav nav-tabs mb-4" id="mainTabs" role="tablist">
+          <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-incomplete">草稿箱</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-processing">处理中</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-revision">需修改</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-decision">已决议</button></li>
+        </ul>
+
+        <div class="tab-content">
+          <div class="tab-pane fade show active" id="tab-incomplete">
+            <div th:replace="~{author/fragments :: manuscriptTable(${incompletePapers}, 'draft')}"></div>
+          </div>
+          <div class="tab-pane fade" id="tab-processing">
+            <ul class="nav nav-pills sub-nav mb-3 bg-light rounded-pill p-1 d-inline-flex" role="tablist">
+              <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#sub-pending">待审查</button></li>
+              <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#sub-alloc">待初审</button></li>
+              <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#sub-allocII">待分配</button></li>
+              <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#sub-editor">编辑处理</button></li>
+              <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#sub-review">审稿中</button></li>
+              <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#sub-editorII">终审中</button></li>
+            </ul>
+            <div class="tab-content pt-2">
+              <div class="tab-pane fade show active" id="sub-pending">
+                <div th:replace="~{author/fragments :: manuscriptTable(${pendingReviewList}, 'track')}"></div>
+              </div>
+              <div class="tab-pane fade" id="sub-alloc">
+                <div th:replace="~{author/fragments :: manuscriptTable(${pendingAllocationList}, 'track')}"></div>
+              </div>
+              <div class="tab-pane fade" id="sub-allocII">
+                <div th:replace="~{author/fragments :: manuscriptTable(${pendingAllocationIIList}, 'track')}"></div>
+              </div>
+              <div class="tab-pane fade" id="sub-editor">
+                <div th:replace="~{author/fragments :: manuscriptTable(${withEditorList}, 'track')}"></div>
+              </div>
+              <div class="tab-pane fade" id="sub-review">
+                <div th:replace="~{author/fragments :: manuscriptTable(${underReviewList}, 'track')}"></div>
+              </div>
+              <div class="tab-pane fade" id="sub-editorII">
+                <div th:replace="~{author/fragments :: manuscriptTable(${withEditorIIList}, 'track')}"></div>
+              </div>
             </div>
           </div>
+          <div class="tab-pane fade" id="tab-revision">
+            <div th:replace="~{author/fragments :: manuscriptTable(${revisionPapers}, 'revise')}"></div>
+          </div>
+          <div class="tab-pane fade" id="tab-decision">
+            <div th:replace="~{author/fragments :: manuscriptTable(${decidedPapers}, 'final')}"></div>
+          </div>
         </div>
-        <div class="tab-pane fade" id="tab-revision">
-          <div th:replace="~{author/fragments :: manuscriptTable(${revisionPapers}, 'revise')}"></div>
-        </div>
-        <div class="tab-pane fade" id="tab-decision">
-          <div th:replace="~{author/fragments :: manuscriptTable(${decidedPapers}, 'final')}"></div>
-        </div>
-      </div>
+      </th:block>
     </div>
   </div>
 </main>
-
 <footer class="py-4 mt-auto">
   <p class="text-center text-muted small mb-0">© 2025 学术论文管理系统 · 作者</p>
 </footer>

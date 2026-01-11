@@ -22,11 +22,15 @@ public class manuscriptSystemController {
     @Autowired private ManuscriptDao manuscriptDao;
     @Autowired private ManuscriptAuthorDao manuscriptAuthorDao;
     @Autowired private RecommendedReviewerDao recommendedReviewerDao;
-    @Autowired private ManuscriptFundingDao manuscriptFundingDao; // 新增注入
+    @Autowired private ManuscriptFundingDao manuscriptFundingDao;
+    @Autowired private PermissionDao permissionDao;
     @GetMapping("/list")
     public String list(Model model, HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) return "redirect:/index";
+        Permission perm = permissionDao.findByUser_UserId(loginUser.getUserId())
+                .orElse(new Permission());
+        model.addAttribute("permission", perm);
         Map<String, List<Manuscript>> data = authorService.getCategorizedManuscripts(loginUser.getUserId());
         Map<Integer, LocalDateTime> lastUpdateTimes = new HashMap<>();
         data.values().forEach(list -> {
@@ -43,18 +47,20 @@ public class manuscriptSystemController {
         return "author/list";
     }
     @GetMapping("/submit")
-    public String toSubmit(Model model) {
+    public String toSubmit(Model model, HttpSession session, RedirectAttributes ra) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser == null) return "redirect:/index";
+        Permission p = permissionDao.findByUser_UserId(loginUser.getUserId()).orElse(new Permission());
+        if (!p.isSubmitManuscript()) {
+            ra.addFlashAttribute("error", "您当前没有投稿权限，请联系管理员开通。");
+            return "redirect:/author/manuscript/list";
+        }
         Manuscript manuscript = new Manuscript();
         manuscript.setManuscriptId(0);
-        List<ManuscriptAuthor> authors = new ArrayList<>();
-        authors.add(new ManuscriptAuthor());
-        manuscript.setAuthors(authors);
-        List<RecommendedReviewer> reviewers = new ArrayList<>();
-        reviewers.add(new RecommendedReviewer());
-        manuscript.setReviewers(reviewers);
-        List<ManuscriptFunding> fundings = new ArrayList<>();
-        fundings.add(new ManuscriptFunding());
-        manuscript.setFundings(fundings);
+        manuscript.setAuthors(new ArrayList<>(Collections.singletonList(new ManuscriptAuthor())));
+        manuscript.setReviewers(new ArrayList<>(Collections.singletonList(new RecommendedReviewer())));
+        manuscript.setFundings(new ArrayList<>(Collections.singletonList(new ManuscriptFunding())));
+
         model.addAttribute("manuscript", manuscript);
         return "author/submit";
     }
@@ -68,6 +74,11 @@ public class manuscriptSystemController {
 
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) return "redirect:/index";
+        Permission p = permissionDao.findByUser_UserId(loginUser.getUserId()).orElse(new Permission());
+        if (!p.isSubmitManuscript()) {
+            redirectAttributes.addFlashAttribute("error", "权限不足");
+            return "redirect:/author/manuscript/list";
+        }
         try {
             if (manuscript.getManuscriptId() > 0) {
                 Manuscript oldManuscript = manuscriptDao.findById(manuscript.getManuscriptId()).orElse(null);
@@ -102,29 +113,20 @@ public class manuscriptSystemController {
         }
     }
     @GetMapping("/edit")
-    public String toEdit(@RequestParam("id") int id, Model model, HttpSession session) {
+    public String toEdit(@RequestParam("id") int id, Model model, HttpSession session, RedirectAttributes ra) {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) return "redirect:/index";
+        Permission p = permissionDao.findByUser_UserId(loginUser.getUserId()).orElse(new Permission());
+        if (!p.isSubmitManuscript()) {
+            ra.addFlashAttribute("error", "权限不足，无法编辑。");
+            return "redirect:/author/manuscript/list";
+        }
         Manuscript manuscript = authorService.getManuscriptByIdAndAuthor(id, loginUser.getUserId());
         if (manuscript == null) return "redirect:/author/manuscript/list";
-        List<ManuscriptAuthor> dbAuthors = manuscriptAuthorDao.findByManuscriptId(id);
-        if (dbAuthors == null || dbAuthors.isEmpty()) {
-            dbAuthors = new ArrayList<>();
-            dbAuthors.add(new ManuscriptAuthor());
-        }
-        manuscript.setAuthors(dbAuthors);
-        List<RecommendedReviewer> dbReviewers = recommendedReviewerDao.findByManuscriptId(id);
-        if (dbReviewers == null || dbReviewers.isEmpty()) {
-            dbReviewers = new ArrayList<>();
-            dbReviewers.add(new RecommendedReviewer());
-        }
-        manuscript.setReviewers(dbReviewers);
-        List<ManuscriptFunding> dbFundings = manuscriptFundingDao.findByManuscriptId(id);
-        if (dbFundings == null || dbFundings.isEmpty()) {
-            dbFundings = new ArrayList<>();
-            dbFundings.add(new ManuscriptFunding());
-        }
-        manuscript.setFundings(dbFundings);
+        manuscript.setAuthors(manuscriptAuthorDao.findByManuscriptId(id));
+        manuscript.setReviewers(recommendedReviewerDao.findByManuscriptId(id));
+        manuscript.setFundings(manuscriptFundingDao.findByManuscriptId(id));
+
         model.addAttribute("manuscript", manuscript);
         return "author/submit";
     }

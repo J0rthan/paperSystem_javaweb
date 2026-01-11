@@ -407,52 +407,137 @@
         <div class="tab-pane fade" id="tab-recommendation">
           <div class="alert alert-info">
             <i class="bi bi-info-circle me-2"></i>
-            在"我的稿件" → "待提交建议"状态下的稿件，可以提交建议给主编。
+            在"我的稿件" → "待提交建议"状态下的稿件，可以查看审稿意见并提交建议给主编。
           </div>
-          <div class="card shadow-sm">
-            <div class="card-header bg-success text-white">
-              <h6 class="mb-0"><i class="bi bi-check-circle-fill"></i> 待提交建议的稿件</h6>
-            </div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="table table-hover align-middle no-datatables">
-                  <thead class="table-light">
-                  <tr>
-                    <th>稿件ID</th>
-                    <th>标题</th>
-                    <th>提交时间</th>
-                    <th>状态</th>
-                    <th>操作</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr th:each="m : ${pendingRecommendation}">
-                    <td th:text="'#MS-' + ${m.manuscriptId}">#MS-xxx</td>
-                    <td>
-                      <span th:if="${m.title == null or m.title == ''}" class="text-muted fst-italic">（未填写标题）</span>
-                      <span th:if="${m.title != null and m.title != ''}" th:text="${m.title}" class="text-truncate d-inline-block" style="max-width: 250px;"></span>
-                    </td>
-                    <td>
-                      <span th:if="${m.submitTime != null}"
-                            th:text="${#temporals.format(m.submitTime, 'yyyy-MM-dd HH:mm:ss')}">
-                      </span>
-                      <span th:if="${m.submitTime == null}" class="text-muted">-</span>
-                    </td>
-                    <td><span class="badge bg-warning text-dark">待提交建议</span></td>
-                    <td>
-                      <a th:href="@{/editor/process/{id}(id=${m.manuscriptId})}" class="btn btn-sm btn-success">
-                        <i class="bi bi-check-circle"></i> 提出建议
-                      </a>
-                    </td>
-                  </tr>
-                  <tr th:if="${#lists.isEmpty(pendingRecommendation)}">
-                    <td colspan="5" class="text-center py-5 text-muted">
+          
+          <div class="row">
+            <!-- 左侧：稿件列表 -->
+            <div class="col-md-4">
+              <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                  <h6 class="mb-0"><i class="bi bi-list-check"></i> 待提交建议的稿件</h6>
+                </div>
+                <div class="card-body p-0">
+                  <div class="list-group list-group-flush" id="pendingRecommendationList">
+                    <div th:each="m : ${pendingRecommendation}" 
+                         class="list-group-item list-group-item-action recommendation-item" 
+                         th:data-id="${m.manuscriptId}"
+                         style="cursor: pointer;">
+                      <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1" th:text="'#MS-' + ${m.manuscriptId}">#MS-xxx</h6>
+                        <small class="text-muted">
+                          <span th:if="${m.submitTime != null}"
+                                th:text="${#temporals.format(m.submitTime, 'yyyy-MM-dd')}">
+                          </span>
+                        </small>
+                      </div>
+                      <p class="mb-1 text-truncate" style="max-width: 100%;">
+                        <span th:if="${m.title == null or m.title == ''}" class="text-muted fst-italic">（未填写标题）</span>
+                        <span th:if="${m.title != null and m.title != ''}" th:text="${m.title}"></span>
+                      </p>
+                      <small class="badge bg-warning text-dark">待提交建议</small>
+                    </div>
+                    <div th:if="${#lists.isEmpty(pendingRecommendation)}" class="list-group-item text-center py-5 text-muted">
                       <i class="bi bi-folder2-open fs-2 d-block mb-2"></i>
-                      暂无待提交建议的稿件
-                    </td>
-                  </tr>
-                  </tbody>
-                </table>
+                      <p class="mb-0">暂无待提交建议的稿件</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 右侧：稿件详情和提交建议 -->
+            <div class="col-md-8">
+              <div id="recommendationContentPlaceholder" class="text-center py-5 text-muted">
+                <i class="bi bi-file-earmark-text fs-1 d-block mb-2"></i>
+                <p>请从左侧选择一个稿件查看详情并提交建议</p>
+              </div>
+
+              <!-- 稿件详情和提交建议表单 -->
+              <div id="recommendationContent" style="display: none;">
+                <!-- 稿件基本信息 -->
+                <div class="card shadow-sm mb-3">
+                  <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="bi bi-file-text"></i> 稿件信息</h6>
+                  </div>
+                  <div class="card-body">
+                    <div class="row mb-2">
+                      <div class="col-3 fw-bold">稿件ID：</div>
+                      <div class="col-9" id="recommendationManuscriptId">-</div>
+                    </div>
+                    <div class="row mb-2">
+                      <div class="col-3 fw-bold">标题：</div>
+                      <div class="col-9" id="recommendationTitle">-</div>
+                    </div>
+                    <div class="row mb-2">
+                      <div class="col-3 fw-bold">摘要：</div>
+                      <div class="col-9" id="recommendationAbstract">-</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 审稿意见 -->
+                <div class="card shadow-sm mb-3">
+                  <div class="card-header bg-info text-white">
+                    <h6 class="mb-0"><i class="bi bi-chat-dots"></i> 审稿意见</h6>
+                  </div>
+                  <div class="card-body">
+                    <div id="reviewCommentsArea">
+                      <div class="text-center py-3 text-muted">
+                        <i class="bi bi-hourglass-split"></i> 加载中...
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 提交建议表单 -->
+                <div class="card shadow-sm">
+                  <div class="card-header bg-success text-white">
+                    <h6 class="mb-0"><i class="bi bi-check-circle"></i> 提交建议</h6>
+                  </div>
+                  <div class="card-body">
+                    <form id="submitRecommendationForm">
+                      <input type="hidden" id="recommendationManuscriptIdInput" name="manuscriptId">
+                      
+                      <div class="mb-3">
+                        <label for="recommendationType" class="form-label fw-bold">
+                          建议类型 <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-select form-select-lg" id="recommendationType" name="recommendation" required>
+                          <option value="" selected disabled>请选择建议类型...</option>
+                          <option value="Suggest Acceptance" class="text-success">
+                            ✅ 建议录用 (Suggest Acceptance)
+                          </option>
+                          <option value="Suggest Rejection" class="text-danger">
+                            ❌ 建议拒稿 (Suggest Rejection)
+                          </option>
+                          <option value="Suggest Acceptance after Minor Revision" class="text-warning">
+                            ⚠️ 建议小修后录用 (Suggest Acceptance after Minor Revision)
+                          </option>
+                          <option value="Suggest Acceptance after Major Revision" class="text-warning">
+                            ⚠️ 建议大修后录用 (Suggest Acceptance after Major Revision)
+                          </option>
+                        </select>
+                        <div class="form-text">请根据审稿意见综合判断后选择建议类型</div>
+                      </div>
+
+                      <div class="mb-3">
+                        <label for="recommendationComment" class="form-label fw-bold">
+                          建议理由 <span class="text-danger">*</span>
+                        </label>
+                        <textarea class="form-control" id="recommendationComment" name="comment" rows="5" 
+                                  placeholder="请详细说明您的建议理由，包括对审稿意见的总结和您的判断依据..." required></textarea>
+                        <div class="form-text">此理由将提交给主编作为决策参考</div>
+                      </div>
+
+                      <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                          <i class="bi bi-send-fill"></i> 提交建议给主编
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -730,6 +815,166 @@
         loadNeedRevisionManuscripts();
       }
     }, 300);
+
+    // ========== 提出建议相关函数 ==========
+    
+    // 点击稿件列表项
+    $(document).on('click', '.recommendation-item', function() {
+      const manuscriptId = $(this).data('id');
+      if (!manuscriptId) return;
+      
+      // 高亮选中的项
+      $('.recommendation-item').removeClass('active');
+      $(this).addClass('active');
+      
+      // 加载稿件详情和审稿意见
+      loadRecommendationManuscriptDetail(manuscriptId);
+    });
+    
+    // 加载稿件详情和审稿意见
+    function loadRecommendationManuscriptDetail(manuscriptId) {
+      // 显示内容区域
+      $('#recommendationContentPlaceholder').hide();
+      $('#recommendationContent').show();
+      
+      // 设置表单中的稿件ID
+      $('#recommendationManuscriptIdInput').val(manuscriptId);
+      
+      // 获取稿件详情
+      fetch(`/editor/api/manuscript/${manuscriptId}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success && data.manuscript) {
+            const m = data.manuscript;
+            
+            // 填充稿件信息
+            $('#recommendationManuscriptId').text('#MS-' + manuscriptId);
+            $('#recommendationTitle').text(m.title || '（未填写标题）');
+            $('#recommendationAbstract').text(m.abstractText || '（未填写摘要）');
+            
+            // 加载审稿意见
+            loadReviewComments(manuscriptId);
+          } else {
+            alert('加载失败：' + (data.message || '未知错误'));
+            $('#recommendationContentPlaceholder').show();
+            $('#recommendationContent').hide();
+          }
+        })
+        .catch(error => {
+          console.error('Error loading manuscript:', error);
+          alert('加载失败，请重试');
+          $('#recommendationContentPlaceholder').show();
+          $('#recommendationContent').hide();
+        });
+    }
+    
+    // 加载审稿意见
+    function loadReviewComments(manuscriptId) {
+      $('#reviewCommentsArea').html('<div class="text-center py-3 text-muted"><i class="bi bi-hourglass-split"></i> 加载中...</div>');
+      
+      fetch(`/editor/api/manuscript/${manuscriptId}/review-comments`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success && data.reviewComments) {
+            const comments = data.reviewComments;
+            
+            if (comments.length === 0) {
+              $('#reviewCommentsArea').html('<div class="text-center py-3 text-muted"><i class="bi bi-inbox"></i> 暂无审稿意见</div>');
+              return;
+            }
+            
+            let html = '';
+            comments.forEach((comment, index) => {
+              const sendingTime = comment.sendingTime ? new Date(comment.sendingTime).toLocaleString('zh-CN') : '-';
+              const senderEmail = comment.senderEmail || '未知';
+              
+              html += `
+                <div class="card mb-3 border-start border-4 border-info">
+                  <div class="card-header bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <strong>审稿人 ${index + 1}</strong>
+                      <small class="text-muted">${sendingTime}</small>
+                    </div>
+                    <small class="text-muted">审稿人邮箱：${senderEmail}</small>
+                  </div>
+                  <div class="card-body">
+                    ${comment.scoreNovelty ? `<p><strong>创新性打分：</strong>${comment.scoreNovelty}/5</p>` : ''}
+                    ${comment.scoreMethod ? `<p><strong>方法论打分：</strong>${comment.scoreMethod}/5</p>` : ''}
+                    ${comment.scoreQuality ? `<p><strong>整体质量打分：</strong>${comment.scoreQuality}/5</p>` : ''}
+                    ${comment.keyComments ? `<p><strong>关键评价：</strong><br>${escapeHtml(comment.keyComments)}</p>` : ''}
+                    ${comment.recommendation ? `<p><strong>整体建议：</strong>${escapeHtml(comment.recommendation)}</p>` : ''}
+                    ${comment.rawContent ? `<pre class="bg-light p-3 rounded">${escapeHtml(comment.rawContent)}</pre>` : ''}
+                  </div>
+                </div>
+              `;
+            });
+            
+            $('#reviewCommentsArea').html(html);
+          } else {
+            $('#reviewCommentsArea').html('<div class="alert alert-warning">加载审稿意见失败：' + (data.message || '未知错误') + '</div>');
+          }
+        })
+        .catch(error => {
+          console.error('Error loading review comments:', error);
+          $('#reviewCommentsArea').html('<div class="alert alert-danger">加载审稿意见失败，请重试</div>');
+        });
+    }
+    
+    // 提交建议表单
+    $('#submitRecommendationForm').on('submit', function(e) {
+      e.preventDefault();
+      
+      const manuscriptId = $('#recommendationManuscriptIdInput').val();
+      const recommendation = $('#recommendationType').val();
+      const comment = $('#recommendationComment').val().trim();
+      
+      if (!manuscriptId) {
+        alert('请先选择稿件');
+        return;
+      }
+      
+      if (!recommendation) {
+        alert('请选择建议类型');
+        return;
+      }
+      
+      if (!comment) {
+        alert('请输入建议理由');
+        return;
+      }
+      
+      // 禁用提交按钮
+      const $submitBtn = $(this).find('button[type="submit"]');
+      const originalText = $submitBtn.html();
+      $submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>提交中...');
+      
+      // 提交数据
+      const formData = new FormData();
+      formData.append('manuscriptId', manuscriptId);
+      formData.append('recommendation', recommendation);
+      formData.append('comment', comment);
+      
+      fetch('/editor/submitRecommendation', {
+        method: 'POST',
+        body: formData
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            alert('建议已成功提交，稿件已转交主编！');
+            // 重新加载页面以刷新稿件列表
+            window.location.reload();
+          } else {
+            alert('提交失败：' + (data.message || '未知错误'));
+            $submitBtn.prop('disabled', false).html(originalText);
+          }
+        })
+        .catch(error => {
+          console.error('Error submitting recommendation:', error);
+          alert('提交失败，请重试');
+          $submitBtn.prop('disabled', false).html(originalText);
+        });
+    });
   });
 
   // 检查未读消息数量的函数

@@ -42,24 +42,24 @@ public class AssignEditorServiceImpl implements AssignEditorService {
             return List.of();
         }
         return all.stream()
-                .filter(eb -> eb != null && eb.getUser() != null)
+                .filter(eb -> eb != null && eb.getUser() != null && "editor".equals(eb.getUser().getUserType()))
                 .toList();
     }
 
     @Override
     @Transactional
-    public void assignEditor(int manuscriptId, int editorId, String reason) {
+    public void assignEditor(int manuscriptId, int selectedEditorId, int userId, String reason) {
         // 获取稿件
         Manuscript paper = manuscriptDao.findById(manuscriptId).orElse(null);
 
-        // editorId 是当前登录用户的 User ID（来自 Controller）
-        // 现在总是将稿件分配给当前登录用户
+        // selectedEditorId 是表单中选中的编辑ID
+        // userId 是当前登录用户的ID
 
         if (paper != null) {
             // --- 1. 更新 Manuscript 表 (维护当前状态) ---
             // 必须保留！因为 EditorProcessService 里的 getManuscriptDetail 方法是根据
             // m.getEditorId() == editorId 来判断权限的。
-            paper.setEditorId(editorId);
+            paper.setEditorId(selectedEditorId);
             paper.setStatus("With Editor");
 
             // 注意：不再调用 paper.setAssignReason(...) 和 paper.setAssignTime(...)
@@ -70,7 +70,7 @@ public class AssignEditorServiceImpl implements AssignEditorService {
             // --- 2. 插入 Record_Allocation 表 (记录分配详情) ---
             Record_Allocation record = new Record_Allocation();
             record.setManuscriptId(manuscriptId);
-            record.setEditorId(editorId); // 记录指派给了谁（当前登录用户）
+            record.setEditorId(selectedEditorId); // 记录指派给了谁（选中的编辑）
             record.setAssignReason(reason);
             record.setAssignTime(LocalDateTime.now());
 
@@ -78,7 +78,7 @@ public class AssignEditorServiceImpl implements AssignEditorService {
 
             // --- 3. 记录系统日志 ---
             String logDescription = "assign editor";
-            logService.record(editorId, logDescription, manuscriptId); // 使用当前用户ID记录日志
+            logService.record(userId, logDescription, manuscriptId); // 使用当前登录用户ID记录日志
         }
     }
 }

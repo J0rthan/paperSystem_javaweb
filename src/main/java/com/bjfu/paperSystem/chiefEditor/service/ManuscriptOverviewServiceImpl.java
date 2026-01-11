@@ -66,4 +66,26 @@ public class ManuscriptOverviewServiceImpl implements ManuscriptOverviewService 
 
         return filteredByTab;
     }
+    
+    @Override
+    public List<Manuscript> getManuscriptsByStatus(String status, String keyword) {
+        List<Manuscript> filteredByStatus;
+        
+        // 1. 根据状态直接过滤稿件
+        if (status == null || status.equals("all")) {
+            filteredByStatus = manuscriptDao.findAll();
+        } else {
+            filteredByStatus = manuscriptDao.findByStatus(status);
+        }
+
+        // 2. 应用关键字搜索
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            String k = keyword.toLowerCase();
+            return filteredByStatus.stream()
+                    .filter(m -> (m.getTitle() != null && m.getTitle().toLowerCase().contains(k)))
+                    .collect(Collectors.toList());
+        }
+
+        return filteredByStatus;
+    }
 }

@@ -37,7 +37,7 @@ public class AssignEditorController {
     // 提交指派
     @PostMapping("/assign-editor/do")
     public String doAssign(@RequestParam int manuscriptId,
-                           @RequestParam int editorId, // 保留参数但不使用
+                           @RequestParam int editorId, // 表单中选中的编辑ID
                            @RequestParam String reason,
                            HttpSession session) {
         // 获取当前登录用户
@@ -47,8 +47,8 @@ public class AssignEditorController {
         }
         int userId = loginUser.getUserId();
         
-        // 使用当前登录用户的ID作为editorId
-        assignEditorService.assignEditor(manuscriptId, userId, reason);
+        // 传递selectedEditorId(表单选中的编辑ID)和userId(当前登录用户ID)
+        assignEditorService.assignEditor(manuscriptId, editorId, userId, reason);
         return "redirect:/chiefeditor/assign-editor";
     }
 }

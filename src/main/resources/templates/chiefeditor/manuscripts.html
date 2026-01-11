@@ -264,7 +264,7 @@
     <div class="card mb-3" style="border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
         <div class="card-body">
             <form th:action="@{/chiefeditor/manuscripts}" method="get" class="d-flex align-items-center gap-3 w-75">
-                <input type="hidden" name="tab" th:value="${currentTab}">
+                <input type="hidden" name="status" th:value="${currentStatus}">
 
                 <div class="input-group">
                     <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
@@ -272,7 +272,7 @@
                            placeholder="搜索稿件标题、作者..." th:value="${keyword}">
                     <button class="btn btn-primary" type="submit">搜 索</button>
                 </div>
-                <a th:href="@{/chiefeditor/manuscripts(tab=${currentTab})}" class="text-secondary small text-decoration-none">重置</a>
+                <a th:href="@{/chiefeditor/manuscripts(status=${currentStatus})}" class="text-secondary small text-decoration-none">重置</a>
             </form>
         </div>
     </div>
@@ -287,32 +287,36 @@
     <!-- 标签页导航 -->
     <ul class="nav nav-tabs" style="margin-bottom: 1rem;">
         <li class="nav-item">
-            <a class="nav-link" th:classappend="${currentTab == 'all'} ? 'active' : 'text-dark'"
-               th:href="@{/chiefeditor/manuscripts(tab='all')}">全部稿件</a>
+            <a class="nav-link" th:classappend="${currentStatus == 'all'} ? 'active' : 'text-dark'"
+               th:href="@{/chiefeditor/manuscripts(status='all')}">全部稿件</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" th:classappend="${currentTab == 'pending'} ? 'active' : 'text-dark'"
-               th:href="@{/chiefeditor/manuscripts(tab='pending')}">待审查</a>
+            <a class="nav-link" th:classappend="${currentStatus == 'Pending Review'} ? 'active' : 'text-dark'"
+               th:href="@{/chiefeditor/manuscripts(status='Pending Review')}">待审查</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" th:classappend="${currentTab == 'pending'} ? 'active' : 'text-dark'"
-               th:href="@{/chiefeditor/manuscripts(tab='pending')}">待分配</a>
+            <a class="nav-link" th:classappend="${currentStatus == 'Pending Allocation II'} ? 'active' : 'text-dark'"
+               th:href="@{/chiefeditor/manuscripts(status='Pending Allocation II')}">待分配</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" th:classappend="${currentTab == 'review'} ? 'active' : 'text-dark'"
-               th:href="@{/chiefeditor/manuscripts(tab='review')}">编辑处理中</a>
+            <a class="nav-link" th:classappend="${currentStatus == 'With Editor'} ? 'active' : 'text-dark'"
+               th:href="@{/chiefeditor/manuscripts(status='With Editor')}">编辑处理中</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" th:classappend="${currentTab == 'review'} ? 'active' : 'text-dark'"
-               th:href="@{/chiefeditor/manuscripts(tab='review')}">审稿中</a>
+            <a class="nav-link" th:classappend="${currentStatus == 'Under Review'} ? 'active' : 'text-dark'"
+               th:href="@{/chiefeditor/manuscripts(status='Under Review')}">审稿中</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" th:classappend="${currentTab == 'decision'} ? 'active' : 'text-dark'"
-               th:href="@{/chiefeditor/manuscripts(tab='decision')}">已决议</a>
+            <a class="nav-link" th:classappend="${currentStatus == 'Accepted'} ? 'active' : 'text-dark'"
+               th:href="@{/chiefeditor/manuscripts(status='Accepted')}">已录用</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" th:classappend="${currentTab == 'revision'} ? 'active' : 'text-dark'"
-               th:href="@{/chiefeditor/manuscripts(tab='revision')}">需要返修</a>
+            <a class="nav-link" th:classappend="${currentStatus == 'Rejected'} ? 'active' : 'text-dark'"
+               th:href="@{/chiefeditor/manuscripts(status='Rejected')}">已拒稿</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:classappend="${currentStatus == 'Need Revision'} ? 'active' : 'text-dark'"
+               th:href="@{/chiefeditor/manuscripts(status='Need Revision')}">需要返修</a>
         </li>
     </ul>
 

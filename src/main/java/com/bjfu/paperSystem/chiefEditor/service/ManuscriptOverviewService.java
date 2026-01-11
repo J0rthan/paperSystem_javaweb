@@ -13,4 +13,7 @@ public interface ManuscriptOverviewService {
     
     // 直接根据状态过滤稿件
     List<Manuscript> getManuscriptsByStatus(String status, String keyword);
+    
+    // 根据ID获取稿件详情
+    Manuscript getManuscriptDetail(int manuscriptId);
 }

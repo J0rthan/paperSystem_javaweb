@@ -103,4 +103,15 @@ public class ManuscriptOverviewController {
             default -> status;
         };
     }
+    
+    // 3. 稿件详情页面
+    @GetMapping("/manuscripts/detail")
+    public String manuscriptDetail(@RequestParam int id, Model model) {
+        Manuscript manuscript = service.getManuscriptDetail(id);
+        if (manuscript == null) {
+            return "redirect:/chiefeditor/manuscripts";
+        }
+        model.addAttribute("manuscript", manuscript);
+        return "chiefeditor/manuscript-detail";
+    }
 }

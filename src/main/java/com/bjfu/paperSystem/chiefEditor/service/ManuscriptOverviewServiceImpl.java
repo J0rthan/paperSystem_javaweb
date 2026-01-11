@@ -88,4 +88,10 @@ public class ManuscriptOverviewServiceImpl implements ManuscriptOverviewService 
 
         return filteredByStatus;
     }
+
+    @Override
+    public Manuscript getManuscriptDetail(int manuscriptId) {
+        // 使用JpaRepository的findById方法获取稿件详情
+        return manuscriptDao.findById(manuscriptId).orElse(null);
+    }
 }

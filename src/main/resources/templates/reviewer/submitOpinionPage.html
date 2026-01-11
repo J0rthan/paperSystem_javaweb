@@ -334,16 +334,18 @@
         <legend>给编辑的保密意见（Confidential to Editor）</legend>
         <p class="section-tip">此部分仅编辑可见，用于给出总体判断与关键问题定位。</p>
 
-        <div class="row">
-            <label for="editorId">指定编辑：</label>
-            <select id="editorId" name="editorId" required>
-                <option value="">请选择编辑</option>
-                <option th:each="editor : ${editors}"
-                        th:value="${editor.getUserId()}"
-                        th:text="${editor.getFullName()} + '（' + ${editor.getUserName()} + '）'">
-                </option>
-            </select>
-        </div>
+<!--        <div class="row">-->
+<!--            <label for="editorId">指定编辑：</label>-->
+<!--            <select id="editorId" name="editorId" required>-->
+<!--                <option value="">请选择编辑</option>-->
+<!--                <option th:each="editor : ${editors}"-->
+<!--                        th:value="${editor.getUserId()}"-->
+<!--                        th:text="${editor.getFullName()} + '（' + ${editor.getUserName()} + '）'">-->
+<!--                </option>-->
+<!--            </select>-->
+<!--        </div>-->
+
+        <input type="hidden" name="editorId" th:value="${editorId}">
 
         <div class="row">
             <label>

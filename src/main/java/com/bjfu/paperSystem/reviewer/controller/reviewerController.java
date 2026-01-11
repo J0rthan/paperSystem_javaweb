@@ -121,6 +121,7 @@ public class reviewerController {
 
         Manuscript manu = review.getManuScript();
         String status = manu.getStatus();
+        int editorId = manu.getEditorId();
 
         if ("With Editor".equals(status)) {
             ra.addFlashAttribute("msg", "该稿件处于编辑处理中，请等待");
@@ -128,7 +129,7 @@ public class reviewerController {
         }
 
         model.addAttribute("review", review);
-        model.addAttribute("editors", suService.findUserByType("editor"));
+        model.addAttribute("editorId", editorId);
         return "/reviewer/submitOpinionPage";
     }
 

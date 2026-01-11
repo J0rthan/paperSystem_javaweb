@@ -63,7 +63,7 @@ public class PublicService {
         List<Manuscript> allManuscripts = manuscriptDao.findAll();
         return allManuscripts.stream()
                 .filter(m -> m.getDecision() != null &&
-                        ("Accepted".equalsIgnoreCase(m.getDecision())))
+                        ("Accepted".equalsIgnoreCase(m.getStatus())))
                 .sorted((m1, m2) -> {
                     if (m1.getSubmitTime() != null && m2.getSubmitTime() != null) {
                         return m2.getSubmitTime().compareTo(m1.getSubmitTime());

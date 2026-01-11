@@ -27,6 +27,9 @@ public class superAdminServiceImpl implements superAdminService{
     @Autowired
     private ChiefEditorEditorial_BoardDao chBoardDao;
 
+    @Autowired
+    private permissionManageService permissionService;
+
     @Override
     @Transactional
     public void createAccount(User user) {
@@ -43,6 +46,9 @@ public class superAdminServiceImpl implements superAdminService{
 
         // 执行插入
         suAdminDao.save(user);
+
+        // 插入权限表
+        permissionService.insertPermission(user);
     }
 
     @Override

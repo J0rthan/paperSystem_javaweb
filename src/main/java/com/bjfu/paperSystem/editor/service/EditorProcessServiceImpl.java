@@ -147,11 +147,15 @@ public class EditorProcessServiceImpl implements EditorProcessService {
     public void checkAndUpdateManuscriptStatus(int manuscriptId) {
         // 1. 获取该稿件所有的审稿记录
         List<Review> reviews = reviewDao.findByManuId(manuscriptId);
+
+
+
         // 2. 统计状态为 审稿中 或 已完成 的人数
         long validReviewerCount = reviews.stream()
-                .filter(r -> "accepted".equalsIgnoreCase(r.getStatus())
-                        || "finished".equalsIgnoreCase(r.getStatus()))
+                .filter(r -> "accepted".equalsIgnoreCase(r.getStatus()))
                 .count();
+
+        long finishedCount = reviews.stream().filter(r -> "finished".equalsIgnoreCase(r.getStatus())).count();
 
         // 3. 获取稿件当前信息
         Manuscript manuscript = manuscriptDao.findById(manuscriptId).orElse(null);
@@ -159,6 +163,13 @@ public class EditorProcessServiceImpl implements EditorProcessService {
         if (manuscript != null && validReviewerCount >= 3 && "With Editor".equalsIgnoreCase(manuscript.getStatus())) {
             manuscript.setStatus("Under Review");
             manuscriptDao.save(manuscript);
+            logService.record(0, "进入under_review状态", manuscriptId);
+        }
+
+        if (manuscript != null && finishedCount >= 3 && "Under Review".equalsIgnoreCase(manuscript.getStatus())) {
+            manuscript.setStatus("Pending Advice");
+            manuscriptDao.save(manuscript);
+            logService.record(0, "进入pending_advice状态", manuscriptId);
         }
     }
 

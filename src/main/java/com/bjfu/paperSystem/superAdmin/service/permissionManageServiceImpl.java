@@ -35,7 +35,7 @@ public class permissionManageServiceImpl implements permissionManageService {
         // 如果用户类型是作者
         if ("author".equals(userType)) {
             permission.setSubmitManuscript(true); // 可以提交新稿件
-            permission.setViewAllManuscripts(false); // 不可以查看所有稿件
+            permission.setViewAllManuscripts(true); // 可以查看所有稿件
             permission.setInviteOrAssignPersonnel(false); // 不可以邀请/指派人员
             permission.setViewReviewerIdentity(false); // 不可以查看审稿人身份
             permission.setWriteReviewComment(false); // 不可以填写审稿意见

@@ -10,5 +10,5 @@ public interface WithdrawalService {
     List<Manuscript> listWithdrawalCandidates();
 
     // 执行撤稿
-    void withdrawManuscript(int manuscriptId, String reason);
+    void withdrawManuscript(int manuscriptId, String reason, int userId);
 }

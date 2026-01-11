@@ -109,153 +109,250 @@
         <thead>
         <tr>
             <th>功能模块</th>
-            <th>作者</th>
-            <th>审稿人</th>
-            <th>编辑</th>
-            <th>主编（EIC）</th>
-            <th>管理员</th>
+            <th>
+                <c:choose>
+                    <c:when test="${user.userType == 'author'}">作者权限</c:when>
+                    <c:when test="${user.userType == 'reviewer'}">审稿人权限</c:when>
+                    <c:when test="${user.userType == 'editor'}">编辑权限</c:when>
+                    <c:when test="${user.userType == 'chief_editor'}">主编（EIC）权限</c:when>
+                    <c:otherwise>用户权限</c:otherwise>
+                </c:choose>
+            </th>
         </tr>
         </thead>
 
         <tbody>
-        <!-- 允许值约定：DENY / ALLOW / SUGGEST -->
+        <!-- 允许值约定：false / true（根据 permission 实时选中） -->
+
+        <!-- 1) 提交新稿件 -> permission.submitManuscript -->
         <tr>
             <td class="func">提交新稿件</td>
             <td>
-                <select name="SUBMIT_AUTHOR">
-                    <option value="DENY">❌ 禁止</option>
-                    <option value="ALLOW" selected>✅ 允许</option>
-                    <option value="SUGGEST">⚠️ 建议</option>
-                </select>
+                <c:choose>
+                    <c:when test="${user.userType == 'author'}">
+                        <select name="SUBMIT_AUTHOR">
+                            <option value="false" ${permission.submitManuscript ? "" : "selected"}>❌ 禁止</option>
+                            <option value="true"  ${permission.submitManuscript ? "selected" : ""}>✅ 允许</option>
+                        </select>
+                    </c:when>
+                    <c:when test="${user.userType == 'reviewer'}">
+                        <select name="SUBMIT_REVIEWER">
+                            <option value="false" ${permission.submitManuscript ? "" : "selected"}>❌ 禁止</option>
+                            <option value="true"  ${permission.submitManuscript ? "selected" : ""}>✅ 允许</option>
+                        </select>
+                    </c:when>
+                    <c:when test="${user.userType == 'editor'}">
+                        <select name="SUBMIT_EDITOR">
+                            <option value="false" ${permission.submitManuscript ? "" : "selected"}>❌ 禁止</option>
+                            <option value="true"  ${permission.submitManuscript ? "selected" : ""}>✅ 允许</option>
+                        </select>
+                    </c:when>
+                    <c:when test="${user.userType == 'chief_editor'}">
+                        <select name="SUBMIT_EIC">
+                            <option value="false" ${permission.submitManuscript ? "" : "selected"}>❌ 禁止</option>
+                            <option value="true"  ${permission.submitManuscript ? "selected" : ""}>✅ 允许</option>
+                        </select>
+                    </c:when>
+                </c:choose>
             </td>
-            <td><select name="SUBMIT_REVIEWER">
-                <option value="DENY" selected>❌ 禁止</option><option value="ALLOW">✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
-            <td><select name="SUBMIT_EDITOR">
-                <option value="DENY" selected>❌ 禁止</option><option value="ALLOW">✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
-            <td><select name="SUBMIT_EIC">
-                <option value="DENY" selected>❌ 禁止</option><option value="ALLOW">✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
-            <td><select name="SUBMIT_ADMIN">
-                <option value="DENY" selected>❌ 禁止</option><option value="ALLOW">✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
         </tr>
 
+        <!-- 2) 查看所有稿件 -> permission.viewAllManuscripts -->
         <tr>
             <td class="func">查看所有稿件</td>
-            <td><select name="VIEWALL_AUTHOR">
-                <option value="DENY" selected>❌ 禁止</option><option value="ALLOW">✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
-            <td><select name="VIEWALL_REVIEWER">
-                <option value="DENY" selected>❌ 禁止</option><option value="ALLOW">✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
-            <td><select name="VIEWALL_EDITOR">
-                <option value="DENY" selected>❌ 禁止</option><option value="ALLOW">✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
-            <td><select name="VIEWALL_EIC">
-                <option value="DENY">❌ 禁止</option><option value="ALLOW" selected>✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
-            <td><select name="VIEWALL_ADMIN">
-                <option value="DENY">❌ 禁止</option><option value="ALLOW" selected>✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
+            <td>
+                <c:choose>
+                    <c:when test="${user.userType == 'author'}">
+                        <select name="VIEWALL_AUTHOR">
+                            <option value="false" ${permission.viewAllManuscripts ? "" : "selected"}>❌ 禁止</option>
+                            <option value="true"  ${permission.viewAllManuscripts ? "selected" : ""}>✅ 允许</option>
+                        </select>
+                    </c:when>
+                    <c:when test="${user.userType == 'reviewer'}">
+                        <select name="VIEWALL_REVIEWER">
+                            <option value="false" ${permission.viewAllManuscripts ? "" : "selected"}>❌ 禁止</option>
+                            <option value="true"  ${permission.viewAllManuscripts ? "selected" : ""}>✅ 允许</option>
+                        </select>
+                    </c:when>
+                    <c:when test="${user.userType == 'editor'}">
+                        <select name="VIEWALL_EDITOR">
+                            <option value="false" ${permission.viewAllManuscripts ? "" : "selected"}>❌ 禁止</option>
+                            <option value="true"  ${permission.viewAllManuscripts ? "selected" : ""}>✅ 允许</option>
+                        </select>
+                    </c:when>
+                    <c:when test="${user.userType == 'chief_editor'}">
+                        <select name="VIEWALL_EIC">
+                            <option value="false" ${permission.viewAllManuscripts ? "" : "selected"}>❌ 禁止</option>
+                            <option value="true"  ${permission.viewAllManuscripts ? "selected" : ""}>✅ 允许</option>
+                        </select>
+                    </c:when>
+                </c:choose>
+            </td>
         </tr>
 
+        <!-- 3) 邀请/指派人员 -> permission.inviteOrAssignPersonnel -->
         <tr>
             <td class="func">邀请/指派人员</td>
-            <td><select name="ASSIGN_AUTHOR">
-                <option value="DENY" selected>❌ 禁止</option><option value="ALLOW">✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
-            <td><select name="ASSIGN_REVIEWER">
-                <option value="DENY" selected>❌ 禁止</option><option value="ALLOW">✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
-            <td><select name="ASSIGN_EDITOR">
-                <option value="DENY">❌ 禁止</option><option value="ALLOW" selected>✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
-            <td><select name="ASSIGN_EIC">
-                <option value="DENY">❌ 禁止</option><option value="ALLOW" selected>✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
-            <td><select name="ASSIGN_ADMIN">
-                <option value="DENY">❌ 禁止</option><option value="ALLOW" selected>✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
+            <td>
+                <c:choose>
+                    <c:when test="${user.userType == 'author'}">
+                        <select name="ASSIGN_AUTHOR">
+                            <option value="false" ${permission.inviteOrAssignPersonnel ? "" : "selected"}>❌ 禁止</option>
+                            <option value="true"  ${permission.inviteOrAssignPersonnel ? "selected" : ""}>✅ 允许</option>
+                        </select>
+                    </c:when>
+                    <c:when test="${user.userType == 'reviewer'}">
+                        <select name="ASSIGN_REVIEWER">
+                            <option value="false" ${permission.inviteOrAssignPersonnel ? "" : "selected"}>❌ 禁止</option>
+                            <option value="true"  ${permission.inviteOrAssignPersonnel ? "selected" : ""}>✅ 允许</option>
+                        </select>
+                    </c:when>
+                    <c:when test="${user.userType == 'editor'}">
+                        <select name="ASSIGN_EDITOR">
+                            <option value="false" ${permission.inviteOrAssignPersonnel ? "" : "selected"}>❌ 禁止</option>
+                            <option value="true"  ${permission.inviteOrAssignPersonnel ? "selected" : ""}>✅ 允许</option>
+                        </select>
+                    </c:when>
+                    <c:when test="${user.userType == 'chief_editor'}">
+                        <select name="ASSIGN_EIC">
+                            <option value="false" ${permission.inviteOrAssignPersonnel ? "" : "selected"}>❌ 禁止</option>
+                            <option value="true"  ${permission.inviteOrAssignPersonnel ? "selected" : ""}>✅ 允许</option>
+                        </select>
+                    </c:when>
+                </c:choose>
+            </td>
         </tr>
 
+        <!-- 4) 查看审稿人身份 -> permission.viewReviewerIdentity -->
         <tr>
             <td class="func">查看审稿人身份</td>
-            <td><select name="VIEW_REVIEWER_ID_AUTHOR">
-                <option value="DENY" selected>❌ 禁止</option><option value="ALLOW">✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
-            <td><select name="VIEW_REVIEWER_ID_REVIEWER">
-                <option value="DENY" selected>❌ 禁止</option><option value="ALLOW">✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
-            <td><select name="VIEW_REVIEWER_ID_EDITOR">
-                <option value="DENY">❌ 禁止</option><option value="ALLOW" selected>✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
-            <td><select name="VIEW_REVIEWER_ID_EIC">
-                <option value="DENY">❌ 禁止</option><option value="ALLOW" selected>✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
-            <td><select name="VIEW_REVIEWER_ID_ADMIN">
-                <option value="DENY">❌ 禁止</option><option value="ALLOW" selected>✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
+            <td>
+                <c:choose>
+                    <c:when test="${user.userType == 'author'}">
+                        <select name="VIEW_REVIEWER_ID_AUTHOR">
+                            <option value="false" ${permission.viewReviewerIdentity ? "" : "selected"}>❌ 禁止</option>
+                            <option value="true"  ${permission.viewReviewerIdentity ? "selected" : ""}>✅ 允许</option>
+                        </select>
+                    </c:when>
+                    <c:when test="${user.userType == 'reviewer'}">
+                        <select name="VIEW_REVIEWER_ID_REVIEWER">
+                            <option value="false" ${permission.viewReviewerIdentity ? "" : "selected"}>❌ 禁止</option>
+                            <option value="true"  ${permission.viewReviewerIdentity ? "selected" : ""}>✅ 允许</option>
+                        </select>
+                    </c:when>
+                    <c:when test="${user.userType == 'editor'}">
+                        <select name="VIEW_REVIEWER_ID_EDITOR">
+                            <option value="false" ${permission.viewReviewerIdentity ? "" : "selected"}>❌ 禁止</option>
+                            <option value="true"  ${permission.viewReviewerIdentity ? "selected" : ""}>✅ 允许</option>
+                        </select>
+                    </c:when>
+                    <c:when test="${user.userType == 'chief_editor'}">
+                        <select name="VIEW_REVIEWER_ID_EIC">
+                            <option value="false" ${permission.viewReviewerIdentity ? "" : "selected"}>❌ 禁止</option>
+                            <option value="true"  ${permission.viewReviewerIdentity ? "selected" : ""}>✅ 允许</option>
+                        </select>
+                    </c:when>
+                </c:choose>
+            </td>
         </tr>
 
+        <!-- 5) 填写审稿意见 -> permission.writeReviewComment -->
         <tr>
             <td class="func">填写审稿意见</td>
-            <td><select name="REVIEW_AUTHOR">
-                <option value="DENY" selected>❌ 禁止</option><option value="ALLOW">✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
-            <td><select name="REVIEW_REVIEWER">
-                <option value="DENY">❌ 禁止</option><option value="ALLOW" selected>✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
-            <td><select name="REVIEW_EDITOR">
-                <option value="DENY" selected>❌ 禁止</option><option value="ALLOW">✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
-            <td><select name="REVIEW_EIC">
-                <option value="DENY" selected>❌ 禁止</option><option value="ALLOW">✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
-            <td><select name="REVIEW_ADMIN">
-                <option value="DENY" selected>❌ 禁止</option><option value="ALLOW">✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
+            <td>
+                <c:choose>
+                    <c:when test="${user.userType == 'author'}">
+                        <select name="REVIEW_AUTHOR">
+                            <option value="false" ${permission.writeReviewComment ? "" : "selected"}>❌ 禁止</option>
+                            <option value="true"  ${permission.writeReviewComment ? "selected" : ""}>✅ 允许</option>
+                        </select>
+                    </c:when>
+                    <c:when test="${user.userType == 'reviewer'}">
+                        <select name="REVIEW_REVIEWER">
+                            <option value="false" ${permission.writeReviewComment ? "" : "selected"}>❌ 禁止</option>
+                            <option value="true"  ${permission.writeReviewComment ? "selected" : ""}>✅ 允许</option>
+                        </select>
+                    </c:when>
+                    <c:when test="${user.userType == 'editor'}">
+                        <select name="REVIEW_EDITOR">
+                            <option value="false" ${permission.writeReviewComment ? "" : "selected"}>❌ 禁止</option>
+                            <option value="true"  ${permission.writeReviewComment ? "selected" : ""}>✅ 允许</option>
+                        </select>
+                    </c:when>
+                    <c:when test="${user.userType == 'chief_editor'}">
+                        <select name="REVIEW_EIC">
+                            <option value="false" ${permission.writeReviewComment ? "" : "selected"}>❌ 禁止</option>
+                            <option value="true"  ${permission.writeReviewComment ? "selected" : ""}>✅ 允许</option>
+                        </select>
+                    </c:when>
+                </c:choose>
+            </td>
         </tr>
 
+        <!-- 6) 做出录用/拒稿决定 -> permission.makeAcceptRejectDecision -->
         <tr>
             <td class="func">做出录用/拒稿决定</td>
-            <td><select name="DECIDE_AUTHOR">
-                <option value="DENY" selected>❌ 禁止</option><option value="ALLOW">✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
-            <td><select name="DECIDE_REVIEWER">
-                <option value="DENY" selected>❌ 禁止</option><option value="ALLOW">✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
-            <td><select name="DECIDE_EDITOR">
-                <option value="DENY">❌ 禁止</option>
-                <option value="ALLOW">✅ 允许</option>
-                <option value="SUGGEST" selected>⚠️ 建议（仅建议）</option>
-            </select></td>
-            <td><select name="DECIDE_EIC">
-                <option value="DENY">❌ 禁止</option><option value="ALLOW" selected>✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
-            <td><select name="DECIDE_ADMIN">
-                <option value="DENY" selected>❌ 禁止</option><option value="ALLOW">✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
+            <td>
+                <c:choose>
+                    <c:when test="${user.userType == 'author'}">
+                        <select name="DECIDE_AUTHOR">
+                            <option value="false" ${permission.makeAcceptRejectDecision ? "" : "selected"}>❌ 禁止</option>
+                            <option value="true"  ${permission.makeAcceptRejectDecision ? "selected" : ""}>✅ 允许</option>
+                        </select>
+                    </c:when>
+                    <c:when test="${user.userType == 'reviewer'}">
+                        <select name="DECIDE_REVIEWER">
+                            <option value="false" ${permission.makeAcceptRejectDecision ? "" : "selected"}>❌ 禁止</option>
+                            <option value="true"  ${permission.makeAcceptRejectDecision ? "selected" : ""}>✅ 允许</option>
+                        </select>
+                    </c:when>
+                    <c:when test="${user.userType == 'editor'}">
+                        <select name="DECIDE_EDITOR">
+                            <option value="false" ${permission.makeAcceptRejectDecision ? "" : "selected"}>❌ 禁止</option>
+                            <option value="true"  ${permission.makeAcceptRejectDecision ? "selected" : ""}>✅ 允许</option>
+                        </select>
+                    </c:when>
+                    <c:when test="${user.userType == 'chief_editor'}">
+                        <select name="DECIDE_EIC">
+                            <option value="false" ${permission.makeAcceptRejectDecision ? "" : "selected"}>❌ 禁止</option>
+                            <option value="true"  ${permission.makeAcceptRejectDecision ? "selected" : ""}>✅ 允许</option>
+                        </select>
+                    </c:when>
+                </c:choose>
+            </td>
         </tr>
 
+        <!-- 7) 修改系统配置 -> permission.modifySystemConfig -->
         <tr>
             <td class="func">修改系统配置</td>
-            <td><select name="CONFIG_AUTHOR">
-                <option value="DENY" selected>❌ 禁止</option><option value="ALLOW">✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
-            <td><select name="CONFIG_REVIEWER">
-                <option value="DENY" selected>❌ 禁止</option><option value="ALLOW">✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
-            <td><select name="CONFIG_EDITOR">
-                <option value="DENY" selected>❌ 禁止</option><option value="ALLOW">✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
-            <td><select name="CONFIG_EIC">
-                <option value="DENY" selected>❌ 禁止</option><option value="ALLOW">✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
-            <td><select name="CONFIG_ADMIN">
-                <option value="DENY">❌ 禁止</option><option value="ALLOW" selected>✅ 允许</option><option value="SUGGEST">⚠️ 建议</option>
-            </select></td>
+            <td>
+                <c:choose>
+                    <c:when test="${user.userType == 'author'}">
+                        <select name="CONFIG_AUTHOR">
+                            <option value="false" ${permission.modifySystemConfig ? "" : "selected"}>❌ 禁止</option>
+                            <option value="true"  ${permission.modifySystemConfig ? "selected" : ""}>✅ 允许</option>
+                        </select>
+                    </c:when>
+                    <c:when test="${user.userType == 'reviewer'}">
+                        <select name="CONFIG_REVIEWER">
+                            <option value="false" ${permission.modifySystemConfig ? "" : "selected"}>❌ 禁止</option>
+                            <option value="true"  ${permission.modifySystemConfig ? "selected" : ""}>✅ 允许</option>
+                        </select>
+                    </c:when>
+                    <c:when test="${user.userType == 'editor'}">
+                        <select name="CONFIG_EDITOR">
+                            <option value="false" ${permission.modifySystemConfig ? "" : "selected"}>❌ 禁止</option>
+                            <option value="true"  ${permission.modifySystemConfig ? "selected" : ""}>✅ 允许</option>
+                        </select>
+                    </c:when>
+                    <c:when test="${user.userType == 'chief_editor'}">
+                        <select name="CONFIG_EIC">
+                            <option value="false" ${permission.modifySystemConfig ? "" : "selected"}>❌ 禁止</option>
+                            <option value="true"  ${permission.modifySystemConfig ? "selected" : ""}>✅ 允许</option>
+                        </select>
+                    </c:when>
+                </c:choose>
+            </td>
         </tr>
 
         </tbody>
@@ -264,7 +361,7 @@
     <div class="actions">
         <button type="submit" class="primary">保存修改</button>
         <button type="reset">恢复默认</button>
-        <span class="hint">说明：编辑在“做出录用/拒稿决定”默认是“⚠️ 建议（仅建议）”，主编（EIC）为“✅ 允许”。</span>
+        <span class="hint">说明：页面根据数据库中该用户当前权限状态自动选中“允许/禁止”。</span>
     </div>
 </form>
 

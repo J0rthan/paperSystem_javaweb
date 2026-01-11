@@ -51,7 +51,7 @@ public class PermissionManageServlet extends HttpServlet {
         String ctx = request.getContextPath();
         String uri = request.getRequestURI();
 
-        String base = ctx + "/superadmin/permissionManage";
+        String base = ctx + "/sysadmin/permissionManage";
         String action = uri.length() > base.length() ? uri.substring(base.length()) : "";
 
         switch(action) {
@@ -83,7 +83,7 @@ public class PermissionManageServlet extends HttpServlet {
                 request.setAttribute("permission", permission);
 
                 request.getRequestDispatcher(
-                        "/WEB-INF/jsp/superadmin/permissionDetail.jsp"
+                        "/WEB-INF/jsp/sysadmin/permissionDetail.jsp"
                 ).forward(request, response);
 
                 break;
@@ -113,7 +113,7 @@ public class PermissionManageServlet extends HttpServlet {
         String ctx = request.getContextPath();
         String uri = request.getRequestURI();
 
-        String base = ctx + "/superadmin/permissionManage";
+        String base = ctx + "/sysadmin/permissionManage";
         String action = uri.length() > base.length() ? uri.substring(base.length()) : "";
 
         switch(action) {
@@ -200,7 +200,7 @@ public class PermissionManageServlet extends HttpServlet {
                 permissionDao.save(permission);
 
                 // 6) 重定向回详情页（按你的路由改）
-                response.sendRedirect(request.getContextPath() + "/superadmin/permissionManage/detail?userId=" + userId);
+                response.sendRedirect(request.getContextPath() + "/sysadmin/permissionManage/detail?userId=" + userId);
                 return;
             }
         }

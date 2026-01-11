@@ -406,16 +406,6 @@
                 <p>已发表文章</p>
             </div>
             <div class="stat-card">
-                <i class="bi bi-check-circle"></i>
-                <h3 id="publishedCount">0</h3>
-                <p>已发表</p>
-            </div>
-            <div class="stat-card">
-                <i class="bi bi-hourglass-split"></i>
-                <h3 id="acceptedCount">0</h3>
-                <p>已接受</p>
-            </div>
-            <div class="stat-card">
                 <i class="bi bi-tags"></i>
                 <h3 id="subjectCount">0</h3>
                 <p>研究领域</p>
@@ -434,14 +424,6 @@
                 <label for="subjectFilter"><i class="bi bi-tag"></i> 研究领域</label>
                 <select class="form-select" id="subjectFilter">
                     <option value="">全部领域</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label for="statusFilter"><i class="bi bi-funnel"></i> 状态</label>
-                <select class="form-select" id="statusFilter">
-                    <option value="">全部状态</option>
-                    <option value="published">已发表</option>
-                    <option value="accepted">已接受</option>
                 </select>
             </div>
             <div class="filter-group">
@@ -477,7 +459,6 @@
                         <th style="width: 35%;">标题</th>
                         <th style="width: 15%;">研究领域</th>
                         <th style="width: 10%;">作者</th>
-                        <th style="width: 10%;">状态</th>
                         <th style="width: 15%;">发表日期</th>
                         <th style="width: 10%;">操作</th>
                     </tr>
@@ -494,11 +475,6 @@
                             <span th:unless="${article.subjectArea != null}">-</span>
                         </td>
                         <td th:text="${article.authorId}">作者ID</td>
-                        <td>
-                            <span class="badge bg-success" th:if="${article.decision != null and article.decision.equalsIgnoreCase('published')}">已发表</span>
-                            <span class="badge bg-primary" th:if="${article.decision != null and article.decision.equalsIgnoreCase('accepted')}">已接受</span>
-                            <span class="badge bg-secondary" th:unless="${article.decision != null and (article.decision.equalsIgnoreCase('published') or article.decision.equalsIgnoreCase('accepted'))}">其他</span>
-                        </td>
                         <td th:if="${article.submitTime != null}" th:text="${#temporals.format(article.submitTime, 'yyyy-MM-dd')}">2024-01-01</td>
                         <td th:unless="${article.submitTime != null}">-</td>
                         <td>
@@ -545,17 +521,6 @@
         <div class="empty-state" th:if="${latestIssues == null or latestIssues.isEmpty()}">
             <i class="bi bi-inbox" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
             <p>暂无已发表的文章</p>
-        </div>
-    </section>
-
-    <!-- 专刊 -->
-    <section id="special-issues" class="mb-4">
-        <h2 class="section-title">
-            <i class="bi bi-collection"></i> 专刊 (Special Issues)
-        </h2>
-        <div class="empty-state">
-            <i class="bi bi-hourglass-split" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
-            <p>专刊功能开发中，敬请期待</p>
         </div>
     </section>
 </div>

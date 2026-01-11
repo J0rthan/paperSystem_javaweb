@@ -53,10 +53,10 @@ public class HomeController {
 
         try {
             // 获取论文列表
-            List<Manuscript> latestPublished = publicService.getLatestPublished(0);
+            List<Manuscript> latestPublished = publicService.getLatestPublished(20);
             model.addAttribute("latestPublished", latestPublished != null ? latestPublished : new ArrayList<>());
 
-            List<Manuscript> mostPopular = publicService.getMostPopular(0);
+            List<Manuscript> mostPopular = publicService.getMostPopular(20);
             model.addAttribute("mostPopular", mostPopular != null ? mostPopular : new ArrayList<>());
 
             // Top Cited 和 Most Downloaded 暂时使用相同数据

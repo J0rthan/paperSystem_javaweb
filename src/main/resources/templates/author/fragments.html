@@ -95,8 +95,7 @@
                            class="btn btn-sm btn-outline-info text-dark">
                             <i class="bi bi-eye"></i> 追踪
                         </a>
-
-                        <a th:if="${type == 'revise' and p.status == 'Need Revision'}"
+                        <a th:if="${type == 'revise'}"
                            th:href="@{/author/manuscript/revise(id=${p.manuscriptId})}"
                            class="btn btn-sm btn-success">
                             <i class="bi bi-arrow-repeat"></i> 提交修回

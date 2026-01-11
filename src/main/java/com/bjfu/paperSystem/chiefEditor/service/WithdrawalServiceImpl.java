@@ -27,7 +27,7 @@ public class WithdrawalServiceImpl implements WithdrawalService {
     public void withdrawManuscript(int manuscriptId, String reason) {
         Manuscript m = manuscriptDao.findById(manuscriptId).orElse(null);
         if (m == null) return;
-        m.setStatus("WITHDRAWN");
+        m.setStatus("Incomplete Submission");
         String oldDecision = m.getDecision();
         String note = "[撤稿原因] " + reason;
         if (oldDecision != null && !oldDecision.isEmpty()) {

@@ -159,7 +159,7 @@
 <nav class="navbar navbar-expand-lg navbar-custom">
     <div class="container-fluid">
         <div class="container">
-            <a class="navbar-brand navbar-brand-custom" href="/chiefeditor">
+            <a class="navbar-brand navbar-brand-custom">
                 <i class="bi bi-journal-text"></i> 主编系统
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -244,7 +244,7 @@
                         <span th:text="${m.title}" class="text-truncate d-inline-block" style="max-width: 100%;">示例标题</span>
                     </div>
                 </td>
-                <td th:text="${m.authorList}">作者</td>
+                <td th:text="${m.authorId}">作者</td>
                 <td th:text="${m.status}">状态</td>
                 <td>
                     <form th:action="@{/chiefeditor/withdrawals/do}" method="post" class="d-flex gap-1">

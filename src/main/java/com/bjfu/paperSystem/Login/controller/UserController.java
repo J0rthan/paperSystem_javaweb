@@ -83,7 +83,7 @@ public class UserController {
                 }
                 //如果是主编(chief_editor)
                 else if ("chief_editor".equalsIgnoreCase(userType)) {
-                    return "redirect:/chiefeditor";
+                    return "redirect:/chiefeditor/manuscripts";
                 }
                 //如果是编辑(editor)
                 else if ("editor".equalsIgnoreCase(userType)) {

@@ -318,9 +318,9 @@
                             <select class="form-select" name="editorId" required>
                                 <option value="" disabled selected>Select an Editor...</option>
                                 <option th:each="e : ${editors}"
-                                        th:if="${e.user != null}"
-                                        th:value="${e.user.userId}"
-                                        th:text="${(e.user.fullName != null ? e.user.fullName : e.user.userName) + ' (' + (e.specialty != null ? e.specialty : 'N/A') + ')'}">
+                                        th:if="${e != null}"
+                                        th:value="${e.userId}"
+                                        th:text="${(e.fullName != null ? e.fullName : e.userName) + ' (' + (e.investigationDirection != null ? e.investigationDirection : 'N/A') + ')'}">
                                     Dr. Wang (Computer Vision)
                                 </option>
                             </select>

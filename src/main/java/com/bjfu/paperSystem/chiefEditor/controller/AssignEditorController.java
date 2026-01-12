@@ -1,7 +1,7 @@
 package com.bjfu.paperSystem.chiefEditor.controller;
 
+import com.bjfu.paperSystem.chiefEditor.dao.ChiefEditorUserDao;
 import com.bjfu.paperSystem.chiefEditor.service.AssignEditorService;
-import com.bjfu.paperSystem.javabeans.Editorial_Board;
 import com.bjfu.paperSystem.javabeans.Manuscript;
 import com.bjfu.paperSystem.javabeans.User;
 import jakarta.servlet.http.HttpSession;
@@ -21,13 +21,16 @@ public class AssignEditorController {
 
     @Autowired
     private AssignEditorService assignEditorService;
+    
+    @Autowired
+    private ChiefEditorUserDao chiefEditorUserDao;
 
     // 列表页
     @GetMapping("/assign-editor")
     public String assignEditorPage(Model model) {
-
             List<Manuscript> manuscripts = assignEditorService.getToAssignManuscripts();
-            List<Editorial_Board> editors = assignEditorService.getAvailableBoardEditors();
+            // 直接查询所有user_type为editor的用户
+            List<User> editors = chiefEditorUserDao.findByUserTypeIgnoreCase("editor");
             model.addAttribute("manuscripts", manuscripts != null ? manuscripts : List.of());
             model.addAttribute("editors", editors != null ? editors : List.of());
 
